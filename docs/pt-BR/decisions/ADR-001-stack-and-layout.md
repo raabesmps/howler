@@ -2,7 +2,7 @@
 
 [English](../../decisions/ADR-001-stack-and-layout.md) · [Português](ADR-001-stack-and-layout.md)
 
-Status: proposto (aguardando aprovação no CP0)
+Status: aceito (CP0 aprovado, 2026-11-22)
 Data: 2026-11-22
 
 ## Contexto

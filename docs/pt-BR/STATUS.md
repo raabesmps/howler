@@ -2,9 +2,11 @@
 
 [English](../STATUS.md) · [Português](STATUS.md)
 
-Checkpoint atual: CP0
-Última tag: nenhuma
-Aguardando aprovação: sim (CP0, PR #13)
+Checkpoint atual: CP1
+Última tag: cp0
+Aguardando aprovação: sim (CP1)
 
 ## Histórico
 - 2026-11-22 CP0 iniciado
+- 2026-11-22 CP0 aprovado, mergeado (PR #13), tag `cp0`
+- 2026-11-22 CP1 iniciado

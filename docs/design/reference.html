@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Howler: screen references</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,600..900,0..100,0..1;1,9..144,600..900,0..100,0..1&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body { background: #080706; color: var(--paper-100); font: 400 var(--text-body)/1.5 var(--font-ui); padding: var(--space-5) var(--gutter) var(--space-8); }
+  h1 { font: 700 var(--text-title)/1.2 var(--font-display); }
+  .lead { color: var(--ash-400); max-width: 60ch; margin: var(--space-2) 0 var(--space-6); }
+  .grid { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: flex-start; }
+  figure { width: 100%; max-width: 390px; }
+  figcaption { font: 600 var(--text-label)/1.3 var(--font-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--ash-400); margin-bottom: var(--space-3); }
+  .screen { background: var(--char-950); border: 1px solid var(--char-700); border-radius: var(--radius-m); height: 760px; padding: var(--space-5) var(--gutter); display: flex; flex-direction: column; position: relative; overflow: hidden; }
+  .title { font: 600 var(--text-title)/1.2 var(--font-display); font-variation-settings: "SOFT" 100, "WONK" 1; }
+  .hint { color: var(--ash-400); font-size: 15px; margin-top: var(--space-3); }
+  .spacer { flex: 1; min-height: var(--space-4); }
+  .center { text-align: center; }
+  .btn { display: flex; align-items: center; justify-content: center; min-height: 52px; width: 100%; border-radius: var(--radius-s); border: 2px solid var(--ember-500); font: 600 17px/1 var(--font-ui); background: var(--ember-500); color: var(--ink-900); box-shadow: var(--shadow-hard); cursor: pointer; }
+  .btn.ghost { background: transparent; color: var(--paper-100); border-color: var(--char-700); box-shadow: none; margin-top: var(--space-3); }
+  .btn:focus-visible, button:focus-visible, textarea:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid var(--flare-400); outline-offset: 2px; }
+  .link { color: var(--ash-400); text-align: center; margin-top: var(--space-4); text-decoration: underline; font-size: 15px; display: block; }
+  .foot { color: var(--ash-400); font-size: 12px; line-height: 1.4; text-align: center; margin-top: var(--space-4); }
+  .wordmark { font: 700 20px/1 var(--font-display); font-variation-settings: "SOFT" 100, "WONK" 1; letter-spacing: -.01em; }
+  .tape { position: absolute; width: 90px; height: 26px; background: rgba(200,164,106,.55); top: -12px; left: 50%; margin-left: -45px; transform: rotate(-3deg); z-index: 3; }
+
+  /* dark wax seal with a glowing crack (shared) */
+  .seal { position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 52% 48% 55% 45% / 48% 54% 46% 52%; background: radial-gradient(circle at 38% 32%, #4a2a20, #2a1410 55%, #160a07 100%); box-shadow: 0 0 0 4px rgba(0,0,0,.25), 0 0 26px 6px rgba(255,91,31,.5); z-index: 3; border: 0; padding: 0; cursor: pointer; color: inherit; }
+  .seal::after { content: ""; position: absolute; inset: 8px 29px; background: var(--flare-400); clip-path: polygon(40% 0, 100% 22%, 20% 48%, 90% 70%, 30% 100%, 0 80%, 70% 52%, 0 30%); filter: drop-shadow(0 0 5px var(--ember-500)); }
+  .seal.big { width: 104px; height: 104px; margin: -52px 0 0 -52px; }
+  .seal.big::after { inset: 12px 47px; }
+
+  /* 1. COMPOSE: the screen is the paper */
+  .s-compose { padding: 0; background: radial-gradient(120% 60% at 50% 0, #1d1915, var(--char-950)); }
+  .s-compose .top { display: flex; justify-content: space-between; align-items: baseline; padding: var(--space-5) var(--gutter) var(--space-3); }
+  .s-compose .top small { color: var(--ash-400); font-size: 13px; }
+  .paper { --burn: .12; position: relative; margin: var(--space-3) var(--space-4) 0; flex: 1; background: var(--paper-100); color: var(--ink-900); border-radius: 2px; transform: rotate(-.8deg); box-shadow: 0 18px 0 -8px rgba(0,0,0,.55); padding: var(--space-6) var(--space-5) var(--space-5); display: flex; flex-direction: column; }
+  .paper-clip { position: absolute; inset: 0; overflow: hidden; border-radius: 2px; pointer-events: none; }
+  .paper-clip::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--burn) * 100%); background: linear-gradient(to top, #120d0a 0%, #3a1608 38%, var(--ember-500) 88%, rgba(255,194,71,0) 100%); transition: height var(--dur-base) var(--ease-out); }
+  .to { position: relative; z-index: 1; display: flex; align-items: baseline; gap: 8px; border-bottom: 1.5px solid rgba(27,22,18,.35); padding-bottom: 6px; font: 600 15px/1 var(--font-ui); color: rgba(27,22,18,.65); }
+  .to input { flex: 1; min-width: 0; border: 0; background: transparent; font: italic 600 22px/1.2 var(--font-display); font-variation-settings: "SOFT" 100, "WONK" 1; color: var(--ink-900); padding: 4px 0; }
+  .to input::placeholder { color: rgba(27,22,18,.35); }
+  .paper textarea { flex: 1; margin-top: var(--space-4); border: 0; background: transparent; resize: none; width: 100%; font: 700 30px/1.2 var(--font-display); font-variation-settings: "SOFT" 100, "WONK" 1; color: var(--ink-900); padding: 0; position: relative; z-index: 1; }
+  .paper textarea::placeholder { color: rgba(27,22,18,.32); }
+  .paper .meta { position: relative; z-index: 2; display: flex; justify-content: space-between; font: 600 13px/1 var(--font-ui); color: var(--paper-100); padding-top: var(--space-3); }
+  .s-compose .bottom { padding: var(--space-4); }
+  .s-compose .bottom .foot { margin-top: var(--space-3); }
+
+  /* 2. LINK: sealed envelope with a tag */
+  .big-env { position: relative; width: 300px; height: 205px; margin: var(--space-6) auto 0; background: var(--env-500); border-radius: 2px; transform: rotate(-2deg); box-shadow: 0 26px 0 -12px rgba(0,0,0,.5); }
+  .big-env::before { content: ""; position: absolute; inset: 0; background: var(--env-700); clip-path: polygon(0 0, 50% 58%, 100% 0); }
+  .big-env::after { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,.2); clip-path: polygon(0 100%, 50% 42%, 50% 44%, 2% 100%); }
+  .big-env .addr { position: absolute; left: 22px; bottom: 58px; font: italic 700 20px/1.1 var(--font-display); font-variation-settings: "SOFT" 100, "WONK" 1; color: var(--paper-100); z-index: 2; }
+  .big-env .addr span { display: block; font: 600 11px/1 var(--font-ui); letter-spacing: .1em; text-transform: uppercase; opacity: .75; margin-bottom: 4px; font-style: normal; }
+  .tag { position: relative; width: 78%; margin: -18px auto 0; background: var(--paper-100); color: var(--ink-900); padding: 14px 16px 12px; border-radius: 3px; transform: rotate(1.6deg); z-index: 4; box-shadow: 0 10px 0 -4px rgba(0,0,0,.5); }
+  .tag::before { content: ""; position: absolute; left: 50%; top: -9px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--char-950); box-shadow: inset 0 0 0 3px #8c8378; }
+  .tag small { display: block; font: 600 11px/1 var(--font-ui); letter-spacing: .1em; text-transform: uppercase; opacity: .6; margin-bottom: 6px; }
+  .tag input { width: 100%; border: 0; background: transparent; font: 600 15px/1.3 ui-monospace, "SFMono-Regular", Consolas, monospace; color: var(--ink-900); padding: 0; }
+
+  /* 3. CLOSED: full-bleed envelope, the seal is the button */
+  .s-closed { padding: 0; background: radial-gradient(90% 50% at 50% 55%, #2a1410 0%, var(--char-950) 72%); }
+  .full-env { position: absolute; left: -14%; right: -14%; top: 15%; height: 380px; background: var(--env-500); transform: rotate(-3deg); box-shadow: 0 40px 0 -20px rgba(0,0,0,.5); z-index: 2; }
+  .full-env::before { content: ""; position: absolute; inset: 0; background: var(--env-700); clip-path: polygon(0 0, 50% 60%, 100% 0); }
+  .full-env::after { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,.18); clip-path: polygon(0 100%, 50% 44%, 50% 46%, 1% 100%); }
+  .full-env .seal { top: 60%; z-index: 4; }
+  .glow { position: absolute; left: 50%; top: 56%; width: 340px; height: 340px; margin: -170px 0 0 -170px; background: radial-gradient(circle, rgba(255,91,31,.34), transparent 62%); z-index: 1; }
+  .wisp { position: absolute; bottom: 62%; width: 90px; height: 160px; background: radial-gradient(closest-side, rgba(140,131,120,.28), transparent); filter: blur(6px); z-index: 1; }
+  .s-closed .top-line { position: absolute; top: var(--space-5); left: 0; right: 0; text-align: center; color: var(--ash-400); font: 600 13px/1 var(--font-ui); letter-spacing: .1em; text-transform: uppercase; z-index: 5; }
+  .s-closed .bottom { position: absolute; left: var(--gutter); right: var(--gutter); bottom: var(--space-5); z-index: 5; text-align: center; }
+  .s-closed .big { font: 700 34px/1.05 var(--font-display); font-variation-settings: "SOFT" 100, "WONK" 1; }
+  .s-closed .big em { color: var(--ember-500); }
+
+  /* 4a. SCREAMING: the open envelope talks, the letter rises out of it. No fire. */
+  .s-talk { padding: 0; background: radial-gradient(80% 50% at 50% 72%, #3a1308 0%, #0e0907 75%); }
+  .talker { position: absolute; left: 50%; bottom: 9%; width: 300px; height: 190px; margin-left: -150px; transform-origin: 50% 100%; }
+  .t-back { position: absolute; inset: 0; background: #5a1a0a; border-radius: 2px; }
+  .t-flap { position: absolute; left: 0; right: 0; bottom: 100%; height: 170px; background: #9a3014; clip-path: polygon(0 100%, 50% 0, 100% 100%); transform-origin: 50% 100%; transform: scaleY(.6); }
+  .t-letter { position: absolute; left: 52px; right: 52px; bottom: 120px; height: 380px; background: var(--paper-100); color: var(--ink-900); padding: 30px 20px 0; transform: rotate(-1.4deg); box-shadow: 0 0 0 1px rgba(0,0,0,.15); }
+  .t-letter p { font: 800 31px/1.02 var(--font-display); font-variation-settings: "SOFT" 100, "WONK" 1; letter-spacing: -.02em; text-transform: uppercase; }
+  .t-letter .dim { opacity: .22; }
+  .t-letter .now { background: var(--ember-500); color: var(--ink-900); padding: 0 5px; margin: 0 -5px; }
+  .t-front { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,.28), transparent 46%), var(--env-500); clip-path: polygon(0 0, 50% 46%, 100% 0, 100% 100%, 0 100%); z-index: 2; }
+  .mute { position: absolute; top: var(--space-4); right: var(--space-4); z-index: 6; width: 48px; height: 48px; border-radius: var(--radius-s); border: 1px solid rgba(243,234,216,.25); background: rgba(16,14,12,.6); color: var(--paper-100); font: 600 13px/1 var(--font-ui); }
+
+  /* 4b. BURNING: canvas (see burn-ref.js). Fire starts at the seal, spreads outward, paper falls and becomes a heap of powder */
+  .s-burn { padding: 0; background: #0c0807; }
+  .burn-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+  /* 5. end states (approved, unchanged) */
+  .env { position: relative; width: 220px; height: 150px; margin: var(--space-7) auto var(--space-5); background: var(--env-500); border-radius: 2px; box-shadow: 0 24px 0 -12px rgba(0,0,0,.45); }
+  .env::before { content: ""; position: absolute; inset: 0; background: var(--env-700); clip-path: polygon(0 0, 50% 58%, 100% 0); }
+  .env::after { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, transparent 49.4%, rgba(0,0,0,.18) 50%) left/50% 100% no-repeat, linear-gradient(225deg, transparent 49.4%, rgba(0,0,0,.18) 50%) right/50% 100% no-repeat; clip-path: polygon(0 100%, 50% 38%, 100% 100%); }
+  .env.grey { background: #6c665e; } .env.grey::before { background: #565049; }
+  .env.open { background: #6c665e; } .env.open::before { background: #565049; clip-path: polygon(0 0, 50% -30%, 100% 0); transform: translateY(-4px); }
+  .ash { width: 200px; height: 90px; margin: var(--space-7) auto var(--space-5); position: relative; }
+  .ash i { position: absolute; bottom: 0; background: #2a2622; border-radius: 40% 60% 20% 30%; }
+  .ash i:nth-child(1) { left: 10px; width: 120px; height: 36px; } .ash i:nth-child(2) { left: 80px; width: 100px; height: 52px; background: #332d28; } .ash i:nth-child(3) { left: 150px; width: 40px; height: 22px; }
+  .ash b { position: absolute; width: 5px; height: 5px; background: var(--ember-500); border-radius: 50%; box-shadow: 0 0 8px var(--ember-500); } .ash b:nth-of-type(1) { left: 90px; bottom: 54px; } .ash b:nth-of-type(2) { left: 130px; bottom: 40px; background: var(--flare-400); }
+  .state-ember { color: var(--ember-500); } .state-ash { color: var(--ash-400); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .full-env { animation: tremble .14s linear infinite; }
+    .full-env .seal { animation: pulse 1.6s ease-in-out infinite; }
+
+    /* 4a: speech rhythm. Bursts of motion with pauses, flap works like a jaw, letter rises once per loop */
+    .talker { animation: talk 2.6s ease-in-out infinite; }
+    .t-flap { animation: flap 2.6s ease-in-out infinite; }
+    .t-letter { animation: rise 7.8s cubic-bezier(.2,.8,.2,1) infinite; }
+    @keyframes talk {
+      0%, 22%, 30%, 50%, 78%, 100% { transform: translate(0,0) rotate(0) scale(1,1); }
+      6%  { transform: translate(-3px,-6px) rotate(-1.8deg) scale(1.04,.96); }
+      11% { transform: translate(4px,2px) rotate(2deg) scale(.97,1.04); }
+      16% { transform: translate(-2px,-3px) rotate(-1deg) scale(1.01,.99); }
+      34% { transform: translate(5px,-7px) rotate(2.4deg) scale(1.05,.95); }
+      38% { transform: translate(-5px,3px) rotate(-2.6deg) scale(.96,1.05); }
+      43% { transform: translate(3px,-2px) rotate(1deg) scale(1,1); }
+      58% { transform: translate(-2px,-9px) rotate(-2deg) scale(1.06,.94); }
+      62% { transform: translate(6px,2px) rotate(2.8deg) scale(.95,1.06); }
+      66% { transform: translate(-4px,-4px) rotate(-1.6deg) scale(1.02,.98); }
+      72% { transform: translate(3px,1px) rotate(1deg) scale(1,1); }
+    }
+    @keyframes flap {
+      0%, 22%, 30%, 50%, 72%, 100% { transform: scaleY(.6); }
+      6% { transform: scaleY(1); } 11% { transform: scaleY(.45); } 16% { transform: scaleY(.95); }
+      34% { transform: scaleY(1.06); } 38% { transform: scaleY(.4); } 43% { transform: scaleY(.9); }
+      58% { transform: scaleY(1.1); } 62% { transform: scaleY(.38); } 66% { transform: scaleY(.98); }
+    }
+    @keyframes rise {
+      0% { transform: translateY(200px) rotate(-1.4deg); }
+      16% { transform: translateY(0) rotate(-1.4deg); }
+      92% { transform: translateY(0) rotate(-1.4deg); }
+      100% { transform: translateY(200px) rotate(-1.4deg); }
+    }
+
+    @keyframes tremble { 0% { transform: rotate(-3deg) translate(0,0); } 25% { transform: rotate(-3.3deg) translate(2px,-1px); } 50% { transform: rotate(-2.8deg) translate(-2px,1px); } 75% { transform: rotate(-3.2deg) translate(1px,2px); } 100% { transform: rotate(-3deg) translate(0,0); } }
+    @keyframes pulse { 50% { transform: scale(1.1); box-shadow: 0 0 0 4px rgba(0,0,0,.25), 0 0 44px 14px rgba(255,91,31,.7); } }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .t-flap { transform: scaleY(.8); }
+  }
+</style>
+</head>
+<body>
+  <h1>Howler: screen references (v3)</h1>
+  <p class="lead">Static references for the 5 screens. v3: the envelope is a closed brick red, screen 4 is split in 4a (the envelope talks while the letter rises out of it) and 4b (the fire starts at the seal in the centre, spreads outward, and the burnt bits fall into ash). Screen 5 variants are approved and unchanged. Motion here only hints at what CP3 will do properly. Type in screen 1 to see the paper scorch.</p>
+
+  <div class="grid">
+
+    <figure>
+      <figcaption>1. Compose</figcaption>
+      <div class="screen s-compose">
+        <div class="top"><span class="wordmark">howler</span><small>Link works once. Expires in 7 days.</small></div>
+        <div class="paper" id="paper">
+          <div class="tape"></div>
+          <div class="paper-clip"></div>
+          <label class="to"><span>To</span><input id="to" placeholder="anyone (optional)" maxlength="40" aria-label="Recipient name, optional"></label>
+          <textarea id="msg" maxlength="140" placeholder="Say it loud." aria-label="Your message, up to 140 characters"></textarea>
+          <div class="meta"><span>Written to be screamed</span><span id="count">0 / 140</span></div>
+        </div>
+        <div class="bottom">
+          <button class="btn" type="button">Seal it</button>
+          <p class="foot">Fan project. No affiliation with Warner Bros. or J.K. Rowling.</p>
+        </div>
+      </div>
+    </figure>
+
+    <figure>
+      <figcaption>2. Link generated</figcaption>
+      <div class="screen">
+        <div class="wordmark">howler</div>
+        <div class="big-env" aria-hidden="true"><span class="seal"></span><div class="addr"><span>For</span>Ana</div></div>
+        <div class="tag"><small>Your one-time link</small><input readonly value="howler.example/h/9f3kQ7xT" aria-label="Link"></div>
+        <h2 class="title center" style="margin-top:var(--space-6)">Sealed. It works once.</h2>
+        <p class="hint center">Opening it yourself will burn it.</p>
+        <div class="spacer"></div>
+        <button class="btn" type="button">Share</button>
+        <button class="btn ghost" type="button">Copy link</button>
+        <a class="link" href="#">Write another</a>
+      </div>
+    </figure>
+
+    <figure>
+      <figcaption>3. Closed envelope (recipient)</figcaption>
+      <div class="screen s-closed">
+        <div class="top-line">Someone sent you something</div>
+        <div class="wisp" style="left:30%"></div><div class="wisp" style="left:56%;height:200px"></div>
+        <div class="glow"></div>
+        <div class="full-env"><button class="seal big" type="button" aria-label="Tap to open"></button></div>
+        <div class="bottom">
+          <div class="big">For Ana.<br><em>Tap the seal.</em></div>
+          <p class="foot">Loud sound. Turn the volume down first.<br>It can only be opened once.</p>
+          <a class="link" href="#" style="margin-top:var(--space-2)">Report this</a>
+        </div>
+      </div>
+    </figure>
+
+    <figure>
+      <figcaption>4a. Screaming (the envelope talks)</figcaption>
+      <div class="screen s-talk">
+        <button class="mute" type="button" aria-label="Mute">Mute</button>
+        <div class="talker" role="img" aria-label="The message: You never answer my calls">
+          <div class="t-back"></div>
+          <div class="t-flap"></div>
+          <div class="t-letter"><p><span class="dim">You never</span> <span class="now">answer</span> <span class="dim">my calls</span></p></div>
+          <div class="t-front"></div>
+        </div>
+      </div>
+    </figure>
+
+    <figure>
+      <figcaption>4b. Burning (loops)</figcaption>
+      <div class="screen s-burn">
+        <canvas id="burn" class="burn-canvas" aria-hidden="true"></canvas>
+      </div>
+    </figure>
+
+    <figure>
+      <figcaption>5a. Burned</figcaption>
+      <div class="screen">
+        <div class="ash" aria-hidden="true"><i></i><i></i><i></i><b></b><b></b></div>
+        <h2 class="title center state-ember">This howler has already been delivered.</h2>
+        <p class="center hint">Nobody can read it again. That's the point.</p>
+        <div class="spacer"></div>
+        <button class="btn" type="button">Send your own</button>
+        <p class="foot">Fan project. No affiliation with Warner Bros. or J.K. Rowling.</p>
+        <a class="link" href="#">Report this</a>
+      </div>
+    </figure>
+
+    <figure>
+      <figcaption>5b. Expired</figcaption>
+      <div class="screen">
+        <div class="env grey" aria-hidden="true"></div>
+        <h2 class="title center state-ash">This howler expired before anyone opened it.</h2>
+        <p class="center hint">Nobody can read it. That's the point.</p>
+        <div class="spacer"></div>
+        <button class="btn" type="button">Send your own</button>
+        <p class="foot">Fan project. No affiliation with Warner Bros. or J.K. Rowling.</p>
+      </div>
+    </figure>
+
+    <figure>
+      <figcaption>5c. Not found</figcaption>
+      <div class="screen">
+        <div class="env open" aria-hidden="true"></div>
+        <h2 class="title center state-ash">Nothing here. Maybe it never existed.</h2>
+        <div class="spacer"></div>
+        <button class="btn" type="button">Send your own</button>
+        <p class="foot">Fan project. No affiliation with Warner Bros. or J.K. Rowling.</p>
+      </div>
+    </figure>
+
+  </div>
+  <script>
+    var msg = document.getElementById('msg'), paper = document.getElementById('paper'), count = document.getElementById('count');
+    msg.addEventListener('input', function () {
+      var n = msg.value.length;
+      count.textContent = n + ' / 140';
+      paper.style.setProperty('--burn', (0.12 + (n / 140) * 0.42).toFixed(3));
+    });
+  </script>
+  <script src="burn-ref.js"></script>
+</body>
+</html>

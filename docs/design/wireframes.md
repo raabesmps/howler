@@ -144,22 +144,23 @@ Screen 5 has three variants that share one layout: **burned**, **expired**, **no
 ```
 ┌──────────────────────┐
 │                      │
-│   ┌──────────────┐   │   t0: the seal cracks, a spark
-│   │   ╭─────╮    │   │       ignites at the CENTRE
-│   │  ( fire  )   │   │   t1: a ragged ring of fire opens
-│   │   ╰─────╯    │   │       outward, the paper chars
-│   └──────────────┘   │   t2: the ring reaches the corners,
-│        ▫  ▪  ▫       │       burnt bits fall
-│     ▃▃▃▅▅▅▃▃         │   t3: only an ash heap is left
+│   ┌──────────────┐   │   t0: the seal cracks, a flame
+│   │  ~ (fire) ~  │   │       catches at the CENTRE
+│   │              │   │   t1: a ragged hole of burning paper
+│   └──────────────┘   │       opens outward, flames lick up
+│        ▫  ▪  ▫       │   t2: charred bits break off and fall
+│          ▲           │   t3: they crumble to fine powder
+│       ▂▃▅▇▅▃▂        │       and settle into a small heap
 └──────────────────────┘   then: screen 5a (burned)
 ```
 
-- **Direction: from the centre outward.** The fire starts at the seal, grows as an irregular ring (elliptical, matching the envelope's proportions) and reaches the four corners last. Behind the ring the paper is gone; just ahead of it the paper is charred dark.
-- Burnt bits (some still glowing) break off and **fall** under gravity into an ash heap at the bottom, drifting sideways a little. A few sparks rise. The heap grows as the pieces land.
+- **Direction: from the centre outward.** The fire starts at the seal and the burning edge spreads outward, irregular and organic, reaching the four corners last.
+- **The burning edge reads as real burning paper:** a thin bright yellow-orange glowing rim, then a band of black char, then the untouched red paper. Real flames (particles, additive light) rise from the rim and lick over the paper; a few sparks float up. No smoke clouds.
+- **Paper falls and becomes powder:** irregular charred bits (still glowing at the edges for a moment) break off the rim and fall, drifting a little toward the centre. They crumble as they fall, shedding fine 1px grains, and what reaches the ground is **powder, not blobs**. The grains pile up like fine sand into a **small mound** (it keeps an angle of repose, so it grows as a heap, not a flat layer).
 - Hand-off to 5a (this howler has already been delivered).
-- Duration target: about 5 to 6 seconds, then 5a. The 9s loop in `reference.html` is only for reviewing.
-- Implementation note for CP3: the reference uses CSS (a registered custom property for the ring radius, an SVG displacement filter for the ragged edge). For production performance on low-end phones, prefer a Canvas 2D implementation (noise mask plus particles) with a particle budget (CP9).
-- Under reduced motion: a slow fade of the envelope to the ash heap, no flames.
+- Duration target: about 6 to 7 seconds of burn, then 5a. The 11.5s loop in `reference.html` is only for reviewing.
+- **Implementation:** Canvas 2D (see `burn-ref.js`, about 300 lines, no dependencies). A noise map drives the burn front, flame and spark particles use pre-rendered sprites with additive blending, and the powder heap is a height map. The same approach is meant for production in CP3, with a particle budget on low-end phones (CP9). Open `reference.html?burnT=5.5` to freeze the animation at a given second while reviewing.
+- Under reduced motion: no flames; a slow fade of the envelope to the powder mound.
 
 ## 5. Burned / expired / not found (recipient or anyone)
 

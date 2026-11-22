@@ -40,12 +40,13 @@ Remetente: 1. Escrever → 2. Link gerado → (envia o link por fora do app) →
 
 ## 4b. Queimando (destinatário)
 
-- **Direção: do centro para fora.** O fogo nasce no selo (a rachadura acende uma faísca), cresce como um anel irregular (elíptico, na proporção do envelope) e chega aos quatro cantos por último. Atrás do anel o papel já sumiu; logo à frente dele o papel está carbonizado.
-- Pedaços queimados (alguns ainda brilhando) se soltam e **caem** com gravidade num monte de cinzas embaixo, desviando um pouco para os lados. Algumas faíscas sobem. O monte cresce conforme os pedaços pousam.
+- **Direção: do centro para fora.** O fogo nasce no selo e a borda queimando se espalha para fora, irregular e orgânica, chegando aos quatro cantos por último.
+- **A borda queimando parece papel de verdade pegando fogo:** um aro fino brilhante amarelo-alaranjado, depois uma faixa de carvão preto, depois o papel vermelho intacto. Chamas de verdade (partículas, luz aditiva) sobem da borda e lambem o papel; algumas faíscas flutuam. Sem nuvens de fumaça.
+- **O papel cai e vira pó:** pedaços carbonizados e irregulares (ainda brilhando nas pontas por um instante) se soltam da borda e caem, desviando um pouco para o centro. Eles esfarelam durante a queda, soltando grãos finos de 1px, e o que chega ao chão é **pó, não bolhas**. Os grãos se acumulam como areia fina num **montinho** (com ângulo de repouso, então cresce como monte e não como camada plana).
 - Passa para a 5a (este howler já foi entregue).
-- Duração alvo: de 5 a 6 segundos, depois a 5a. O loop de 9s do `reference.html` é só para revisão.
-- Nota para o CP3: a referência usa CSS (uma propriedade customizada registrada para o raio do anel e um filtro SVG de deslocamento para a borda rasgada). Para performance em celulares fracos na versão final, preferir Canvas 2D (máscara de ruído mais partículas), com orçamento de partículas (CP9).
-- Com movimento reduzido: o envelope vira o monte de cinzas num fade lento, sem chamas.
+- Duração alvo: de 6 a 7 segundos de queima, depois a 5a. O loop de 11,5s do `reference.html` é só para revisão.
+- **Implementação:** Canvas 2D (veja `burn-ref.js`, cerca de 300 linhas, sem dependências). Um mapa de ruído dirige a frente de queima, as partículas de chama e faísca usam sprites pré-renderizados com mistura aditiva, e o monte de pó é um mapa de alturas. A mesma abordagem serve para produção no CP3, com orçamento de partículas em celulares fracos (CP9). Abra `reference.html?burnT=5.5` para congelar a animação num segundo específico durante a revisão.
+- Com movimento reduzido: sem chamas; o envelope vira o montinho de pó num fade lento.
 
 ## 5. Queimado / expirado / não encontrado
 

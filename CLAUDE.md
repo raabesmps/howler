@@ -20,6 +20,7 @@ Howler: write a message (max 140 chars), share a single-use link; the recipient 
 10. **Language:** docs in English with a Portuguese tab (`docs/pt-BR/`, `README.pt-BR.md`); code, commits and names in English.
 11. **Commit trailer:** end commits with `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>` (explicitly allowed for this project only).
 12. **Git identity:** use the GitHub noreply email (already set in this repo's local config), since GitHub rejects pushes that expose the private email.
+13. **Product language:** the interface is in English. The message a person writes can be in any language, so the voice pipeline (CP2 onward) must handle non-English text (at least English and Brazilian Portuguese).
 
 ## Commands
 

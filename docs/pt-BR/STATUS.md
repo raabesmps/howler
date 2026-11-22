@@ -4,7 +4,7 @@
 
 Checkpoint atual: CP1
 Última tag: cp0
-Aguardando aprovação: não
+Aguardando aprovação: sim (CP1)
 
 ## Histórico
 - 2026-11-22 CP0 iniciado

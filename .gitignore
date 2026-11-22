@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+vendor/
+
+# env and secrets
+.env
+.env.*
+!.env.example
+
+# build output
+dist/
+build/
+coverage/
+.phpunit.result.cache
+playwright-report/
+test-results/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# logs
+*.log

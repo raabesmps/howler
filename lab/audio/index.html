@@ -33,7 +33,7 @@
     <pre id="deviceInfo">detecting...</pre>
   </details>
 
-  <!-- FX_PANEL -->
+  <section class="panel" id="fxPanel" aria-label="Effects"></section>
 
   <main>
     <section class="card" id="cardA" aria-labelledby="hA">
@@ -59,7 +59,22 @@
       <div id="rateA"></div>
     </section>
     <!-- CARD_A_END -->
-    <!-- CARD_B -->
+    <section class="card" id="cardB" aria-labelledby="hB">
+      <h2 id="hB"><span>B.</span> Sender's recorded voice + effects</h2>
+      <p>Record a voice (up to 8 s), then it passes through the effects chain above. Needs the microphone, which needs https.</p>
+      <p id="bWarn" class="note" hidden></p>
+      <div class="row">
+        <button id="bRec" class="btn" type="button">Record</button>
+        <button id="bPlay" class="btn" type="button" disabled>Play with effects</button>
+        <button id="bRaw" class="btn ghost" type="button" disabled>Play raw</button>
+        <button id="bStop" class="btn ghost" type="button">Stop</button>
+      </div>
+      <p id="bState" class="hint" role="status"></p>
+      <div class="meter" aria-hidden="true"><i id="bMeter"></i></div>
+      <p class="note">Privacy: in the real product this means storing a person's voice on the server until the howler is opened. The recording stays in this browser during the lab.</p>
+      <div id="rateB"></div>
+    </section>
+    <!-- CARD_B_END -->
     <!-- CARD_C -->
   </main>
 
@@ -72,6 +87,8 @@
 
   <script src="app.js"></script>
   <script src="approach-a.js"></script>
+  <script src="fx.js"></script>
+  <script src="approach-b.js"></script>
   <!-- SCRIPTS -->
 </body>
 </html>

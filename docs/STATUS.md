@@ -4,7 +4,7 @@
 
 Current checkpoint: CP2
 Last tag: cp1
-Awaiting approval: no
+Awaiting approval: yes (CP2, PR open; ADR-002 needs the phone scores)
 
 ## History
 - 2026-11-22 CP0 started

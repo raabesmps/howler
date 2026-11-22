@@ -4,7 +4,7 @@
 
 Checkpoint atual: CP2
 Última tag: cp1
-Aguardando aprovação: não
+Aguardando aprovação: sim (CP2, PR aberto; o ADR-002 precisa das notas do celular)
 
 ## Histórico
 - 2026-11-22 CP0 iniciado

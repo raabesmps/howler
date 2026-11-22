@@ -1,0 +1,41 @@
+/* Howler design tokens. Source of truth: docs/design/tokens.md */
+:root {
+  --char-950: #100e0c;
+  --char-900: #1a1714;
+  --char-700: #2e2924;
+  --ash-400: #8c8378;
+  --paper-100: #f3ead8;
+  --kraft-500: #c8a46a;
+  --kraft-700: #9c7b47;
+  --ember-500: #ff5b1f;
+  --flare-400: #ffc247;
+  --ink-900: #1b1612;
+
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-ui: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --text-display: 40px;
+  --text-message: 28px;
+  --text-title: 22px;
+  --text-body: 17px;
+  --text-label: 13px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --gutter: 20px;
+
+  --radius-s: 4px;
+  --radius-m: 8px;
+  --shadow-hard: 4px 4px 0 var(--char-700);
+
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur-fast: 120ms;
+  --dur-base: 240ms;
+  --dur-scene: 900ms;
+}

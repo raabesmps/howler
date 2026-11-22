@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Howler: screen references</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body { background: #080706; color: var(--paper-100); font: 400 var(--text-body)/1.5 var(--font-ui); padding: var(--space-5) var(--gutter) var(--space-8); }
+  h1 { font: 700 var(--text-title)/1.2 var(--font-display); }
+  .lead { color: var(--ash-400); max-width: 60ch; margin: var(--space-2) 0 var(--space-6); }
+  .grid { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: flex-start; }
+  figure { width: 100%; max-width: 390px; }
+  figcaption { font: 600 var(--text-label)/1.3 var(--font-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--ash-400); margin-bottom: var(--space-3); }
+  .screen { background: var(--char-950); border: 1px solid var(--char-700); border-radius: var(--radius-m); min-height: 720px; padding: var(--space-5) var(--gutter); display: flex; flex-direction: column; position: relative; overflow: hidden; }
+  .brand { font: 600 var(--text-label)/1 var(--font-ui); letter-spacing: .18em; color: var(--ash-400); }
+  .display { font: 700 var(--text-display)/1.05 var(--font-display); margin: var(--space-5) 0; }
+  .title { font: 600 var(--text-title)/1.2 var(--font-display); }
+  .label { display: block; font: 600 var(--text-label)/1.3 var(--font-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--ash-400); margin: var(--space-4) 0 var(--space-2); }
+  .field { background: var(--char-900); border: 1px solid var(--char-700); border-radius: var(--radius-s); color: var(--paper-100); font: 400 16px/1.5 var(--font-ui); padding: var(--space-3) var(--space-4); width: 100%; min-height: 48px; }
+  textarea.field { min-height: 132px; resize: none; }
+  .field::placeholder { color: var(--ash-400); }
+  .count { align-self: flex-end; font-size: 14px; color: var(--ash-400); margin-top: var(--space-2); }
+  .hint { color: var(--ash-400); font-size: 15px; margin-top: var(--space-3); }
+  .spacer { flex: 1; min-height: var(--space-5); }
+  .btn { display: flex; align-items: center; justify-content: center; min-height: 52px; width: 100%; border-radius: var(--radius-s); border: 2px solid var(--ember-500); font: 600 17px/1 var(--font-ui); background: var(--ember-500); color: var(--ink-900); box-shadow: var(--shadow-hard); cursor: pointer; }
+  .btn.ghost { background: transparent; color: var(--paper-100); border-color: var(--char-700); box-shadow: none; margin-top: var(--space-3); }
+  .btn:focus-visible, .field:focus-visible, a:focus-visible { outline: 3px solid var(--flare-400); outline-offset: 2px; }
+  .link { color: var(--ash-400); text-align: center; margin-top: var(--space-4); text-decoration: underline; font-size: 15px; display: block; }
+  .foot { color: var(--ash-400); font-size: 12px; line-height: 1.4; text-align: center; margin-top: var(--space-4); }
+  .center { text-align: center; }
+
+  /* envelope: pure CSS, kraft paper with glowing seal crack */
+  .env { position: relative; width: 220px; height: 150px; margin: var(--space-7) auto var(--space-5); background: var(--kraft-500); border-radius: 2px; box-shadow: 0 24px 0 -12px rgba(0,0,0,.45); }
+  .env::before { content: ""; position: absolute; inset: 0; background: var(--kraft-700); clip-path: polygon(0 0, 50% 58%, 100% 0); }
+  .env::after { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, transparent 49.4%, rgba(0,0,0,.18) 50%) left/50% 100% no-repeat, linear-gradient(225deg, transparent 49.4%, rgba(0,0,0,.18) 50%) right/50% 100% no-repeat; clip-path: polygon(0 100%, 50% 38%, 100% 100%); }
+  .seal { position: absolute; left: 50%; top: 52%; width: 26px; height: 26px; margin: -13px 0 0 -13px; background: var(--ember-500); clip-path: polygon(50% 0, 62% 38%, 100% 30%, 70% 58%, 88% 100%, 50% 72%, 12% 100%, 30% 58%, 0 30%, 38% 38%); z-index: 2; filter: drop-shadow(0 0 8px var(--ember-500)); }
+  .env.small { width: 120px; height: 82px; margin: var(--space-6) auto var(--space-5); }
+  .env.small .seal { width: 16px; height: 16px; margin: -8px 0 0 -8px; }
+  .env.grey { background: #6c665e; } .env.grey::before { background: #565049; } .env.grey .seal { display: none; }
+  .env.open { background: #6c665e; } .env.open::before { background: #565049; clip-path: polygon(0 0, 50% -30%, 100% 0); transform: translateY(-4px); } .env.open .seal { display: none; }
+
+  /* screaming */
+  .smoke { position: absolute; inset: 0; background: radial-gradient(60% 40% at 30% 85%, rgba(140,131,120,.28), transparent 70%), radial-gradient(50% 35% at 75% 90%, rgba(140,131,120,.22), transparent 70%); }
+  .fire { position: absolute; left: 0; right: 0; bottom: 0; height: 160px; background: radial-gradient(70% 100% at 50% 100%, var(--flare-400) 0, var(--ember-500) 35%, transparent 72%); opacity: .85; }
+  .note { position: relative; z-index: 1; background: var(--paper-100); color: var(--ink-900); border-radius: 2px; padding: var(--space-5); margin: var(--space-7) var(--space-2) 0; transform: rotate(-1.2deg); box-shadow: 0 14px 0 -6px rgba(0,0,0,.5); font: 600 var(--text-message)/1.25 var(--font-display); }
+  .note .now { background: var(--ember-500); padding: 0 4px; margin: 0 -4px; }
+  .note .dim { opacity: .25; }
+  .mute { position: absolute; top: var(--space-4); right: var(--space-4); z-index: 2; width: 48px; height: 48px; border-radius: var(--radius-s); border: 1px solid var(--char-700); background: var(--char-900); color: var(--paper-100); font: 600 13px/1 var(--font-ui); }
+
+  /* ash / state */
+  .ash { width: 200px; height: 90px; margin: var(--space-7) auto var(--space-5); position: relative; }
+  .ash i { position: absolute; bottom: 0; background: #2a2622; border-radius: 40% 60% 20% 30%; }
+  .ash i:nth-child(1) { left: 10px; width: 120px; height: 36px; } .ash i:nth-child(2) { left: 80px; width: 100px; height: 52px; background: #332d28; } .ash i:nth-child(3) { left: 150px; width: 40px; height: 22px; }
+  .ash b { position: absolute; width: 5px; height: 5px; background: var(--ember-500); border-radius: 50%; box-shadow: 0 0 8px var(--ember-500); } .ash b:nth-of-type(1) { left: 90px; bottom: 54px; } .ash b:nth-of-type(2) { left: 130px; bottom: 40px; background: var(--flare-400); }
+  .state-ember { color: var(--ember-500); }
+  .state-ash { color: var(--ash-400); }
+  .tag { display: inline-block; margin-top: var(--space-3); font: 600 var(--text-label)/1 var(--font-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--ash-400); border: 1px solid var(--char-700); border-radius: var(--radius-s); padding: 6px 8px; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .env:not(.small):not(.grey):not(.open) { animation: breathe 3.2s ease-in-out infinite; }
+    @keyframes breathe { 50% { transform: translateY(-4px); } }
+  }
+</style>
+</head>
+<body>
+  <h1>Howler: screen references</h1>
+  <p class="lead">Static references for the 5 screens (plus the 3 end-state variants). Not the app: no logic, no sound, only the idle envelope breathes. Tokens come from <code>tokens.css</code>. Open this page on a phone.</p>
+
+  <div class="grid">
+
+    <figure>
+      <figcaption>1. Compose</figcaption>
+      <div class="screen">
+        <div class="brand">HOWLER</div>
+        <h2 class="display">Say it loud.</h2>
+        <label class="label" for="to">To (optional)</label>
+        <input id="to" class="field" placeholder="Name" maxlength="40">
+        <label class="label" for="msg">Message</label>
+        <textarea id="msg" class="field" maxlength="140" placeholder="What do you need to get off your chest?"></textarea>
+        <span class="count">0 / 140</span>
+        <p class="hint">The link works once. It expires in 7 days.</p>
+        <div class="spacer"></div>
+        <button class="btn" type="button">Seal it</button>
+        <p class="foot">Fan project. No affiliation with Warner Bros. or J.K. Rowling.</p>
+      </div>
+    </figure>
+
+    <figure>
+      <figcaption>2. Link generated</figcaption>
+      <div class="screen">
+        <div class="brand">HOWLER</div>
+        <div class="env small" aria-hidden="true"><span class="seal"></span></div>
+        <h2 class="title center">It's sealed. Send this link. It works once.</h2>
+        <label class="label" for="lnk">Your link</label>
+        <input id="lnk" class="field" readonly value="https://howler.example/h/9f3kQ7xT2mWp">
+        <p class="hint">Expires in 7 days. Opening it yourself will burn it.</p>
+        <div class="spacer"></div>
+        <button class="btn" type="button">Share</button>
+        <button class="btn ghost" type="button">Copy link</button>
+        <a class="link" href="#">Write another</a>
+      </div>
+    </figure>
+
+    <figure>
+      <figcaption>3. Closed envelope (recipient)</figcaption>
+      <div class="screen">
+        <div class="env" aria-hidden="true"><span class="seal"></span></div>
+        <h2 class="title center">Someone sent you something.</h2>
+        <p class="center hint">For: Ana</p>
+        <div class="spacer"></div>
+        <button class="btn" type="button">Tap to open</button>
+        <p class="foot">Loud sound. Turn the volume down first.<br>It can only be opened once.</p>
+        <a class="link" href="#">Report this</a>
+      </div>
+    </figure>
+
+    <figure>
+      <figcaption>4. Screaming</figcaption>
+      <div class="screen">
+        <div class="smoke"></div>
+        <button class="mute" type="button" aria-label="Mute">Mute</button>
+        <div class="note" role="img" aria-label="The message: You never answer my calls">
+          <span class="dim">YOU NEVER</span> <span class="now">ANSWER</span> <span class="dim">MY CALLS</span>
+        </div>
+        <div class="fire"></div>
+      </div>
+    </figure>
+
+    <figure>
+      <figcaption>5a. Burned</figcaption>
+      <div class="screen">
+        <div class="ash" aria-hidden="true"><i></i><i></i><i></i><b></b><b></b></div>
+        <h2 class="title center state-ember">This howler has already been delivered.</h2>
+        <p class="center hint">Nobody can read it again. That's the point.</p>
+        <div class="spacer"></div>
+        <button class="btn" type="button">Send your own</button>
+        <p class="foot">Fan project. No affiliation with Warner Bros. or J.K. Rowling.</p>
+        <a class="link" href="#">Report this</a>
+      </div>
+    </figure>
+
+    <figure>
+      <figcaption>5b. Expired</figcaption>
+      <div class="screen">
+        <div class="env grey" aria-hidden="true"></div>
+        <h2 class="title center state-ash">This howler expired before anyone opened it.</h2>
+        <p class="center hint">Nobody can read it. That's the point.</p>
+        <div class="spacer"></div>
+        <button class="btn" type="button">Send your own</button>
+        <p class="foot">Fan project. No affiliation with Warner Bros. or J.K. Rowling.</p>
+      </div>
+    </figure>
+
+    <figure>
+      <figcaption>5c. Not found</figcaption>
+      <div class="screen">
+        <div class="env open" aria-hidden="true"></div>
+        <h2 class="title center state-ash">Nothing here. Maybe it never existed.</h2>
+        <div class="spacer"></div>
+        <button class="btn" type="button">Send your own</button>
+        <p class="foot">Fan project. No affiliation with Warner Bros. or J.K. Rowling.</p>
+      </div>
+    </figure>
+
+  </div>
+</body>
+</html>

@@ -4,7 +4,7 @@
 
 Current checkpoint: CP0
 Last tag: none
-Awaiting approval: no
+Awaiting approval: yes (CP0, PR #13)
 
 ## History
 - 2026-11-22 CP0 started

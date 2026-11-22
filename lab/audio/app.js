@@ -1,40 +1,51 @@
-/* Howler audio lab: shared plumbing (audio unlock, device info, scoring, export). */
+/* Howler audio lab: shared plumbing (tabs, play bar, audio unlock, scoring, export). */
 (function () {
   'use strict';
-  var LAB = window.LAB = { ctx: null, approaches: {}, getSettings: function () { return {}; } };
+  var LAB = window.LAB = { ctx: null, approaches: {}, tab: 'a', getSettings: function () { return {}; } };
   var $ = function (id) { return document.getElementById(id); };
 
-  /* ---------- audio unlock (needs a user gesture on iOS and Android) ---------- */
+  /* ---------- audio context (created on the first tap: needed on iOS and Android) ---------- */
   LAB.audio = function () {
     if (!LAB.ctx) {
       var AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return null;
       LAB.ctx = new AC();
+      // classic iOS unlock: play one silent sample inside the gesture
+      var b = LAB.ctx.createBuffer(1, 1, 22050), s = LAB.ctx.createBufferSource();
+      s.buffer = b; s.connect(LAB.ctx.destination); s.start(0);
     }
     if (LAB.ctx.state !== 'running' && LAB.ctx.resume) LAB.ctx.resume().catch(function () { /* offline contexts (tests) cannot resume */ });
     return LAB.ctx;
   };
 
-  function unlock() {
-    var ctx = LAB.audio();
-    if (!ctx) { $('unlockState').textContent = 'Web Audio not supported'; return; }
-    // a silent one-sample buffer is the classic iOS unlock
-    var b = ctx.createBuffer(1, 1, 22050), s = ctx.createBufferSource();
-    s.buffer = b; s.connect(ctx.destination); s.start(0);
-    ctx.resume().then(refreshState);
-    // speechSynthesis also needs a gesture on iOS: speak an empty utterance
-    if ('speechSynthesis' in window) {
-      var u = new SpeechSynthesisUtterance(' '); u.volume = 0; window.speechSynthesis.speak(u);
-    }
-    refreshState();
-    refreshDevice();
+  LAB.status = function (t) { $('status').textContent = t; };
+  LAB.meter = $('meter');
+  LAB.message = function () { return $('msg').value.trim() || 'You never answer my calls.'; };
+  LAB.lang = function () { return $('lang').value; };
+
+  /* ---------- tabs ---------- */
+  function showTab(t) {
+    Object.keys(LAB.approaches).forEach(function (k) { if (LAB.approaches[k].stop) LAB.approaches[k].stop(); });
+    LAB.tab = t;
+    ['a', 'b', 'c'].forEach(function (k) {
+      $('pane' + k.toUpperCase()).hidden = k !== t;
+      $('tab' + k.toUpperCase()).setAttribute('aria-selected', String(k === t));
+    });
+    $('sound').hidden = t === 'a';
+    $('raw').hidden = t === 'a';
+    LAB.meter.style.width = '0';
+    LAB.status('Ready.');
+    if (LAB.approaches[t] && LAB.approaches[t].onShow) LAB.approaches[t].onShow();
   }
-  function refreshState() {
-    var el = $('unlockState'), on = LAB.ctx && LAB.ctx.state === 'running';
-    el.textContent = on ? 'unlocked (' + LAB.ctx.sampleRate + ' Hz)' : 'locked';
-    el.className = 'badge' + (on ? ' ok' : '');
-  }
-  $('unlock').addEventListener('click', unlock);
+  document.querySelector('.tabs').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-tab]'); if (b) showTab(b.dataset.tab);
+  });
+
+  /* ---------- play bar ---------- */
+  function current() { return LAB.approaches[LAB.tab]; }
+  $('play').addEventListener('click', function () { LAB.audio(); var a = current(); if (a) a.play(false); });
+  $('raw').addEventListener('click', function () { LAB.audio(); var a = current(); if (a) a.play(true); });
+  $('stop').addEventListener('click', function () { var a = current(); if (a && a.stop) a.stop(); LAB.meter.style.width = '0'; LAB.status('Stopped.'); });
 
   /* ---------- device info ---------- */
   function mimeSupport() {
@@ -55,34 +66,26 @@
   }
   function refreshDevice() { $('deviceInfo').textContent = deviceText(); }
   refreshDevice();
+  document.querySelector('details.more').addEventListener('toggle', refreshDevice);
   if ('speechSynthesis' in window) window.speechSynthesis.addEventListener('voiceschanged', refreshDevice);
 
-  /* ---------- message ---------- */
-  LAB.message = function () { return $('msg').value.trim() || 'You never answer my calls.'; };
-  LAB.lang = function () { return $('lang').value; };
-
-  /* ---------- scoring (saved in localStorage only; wrapped because it can throw) ---------- */
+  /* ---------- scoring (localStorage only; wrapped because it can throw in private mode) ---------- */
   var KEY = 'howler-lab-v1';
   function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
-  function save(d) { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) { /* private mode: scores live only until reload */ } }
+  function save(d) { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) { /* scores live only until reload */ } }
   var memory = load();
-
-  var CRITERIA = [
-    ['scary', 'Is it scary?'],
-    ['speaker', 'Sounds good on the phone speaker?'],
-    ['phones', 'Sounds good with headphones?']
-  ];
+  var CRITERIA = [['scary', 'Is it scary?'], ['speaker', 'Good on the phone speaker?'], ['phones', 'Good with headphones?']];
 
   LAB.rating = function (root, key) {
     memory[key] = memory[key] || {};
-    var html = '<h3>Your score (1 to 5)</h3>';
+    var html = '';
     CRITERIA.forEach(function (c) {
       html += '<p>' + c[1] + '</p><div class="stars" role="group" aria-label="' + c[1] + '" data-c="' + c[0] + '">';
       for (var i = 1; i <= 5; i++) html += '<button type="button" data-v="' + i + '" aria-pressed="' + (memory[key][c[0]] === i) + '">' + i + '</button>';
       html += '</div>';
     });
-    html += '<label>Notes<textarea rows="2" data-notes></textarea></label>';
-    root.classList.add('rate'); root.innerHTML = html;
+    html += '<textarea rows="2" data-notes aria-label="Notes" placeholder="Notes (optional)"></textarea>';
+    root.innerHTML = html;
     root.querySelector('[data-notes]').value = memory[key].notes || '';
     root.addEventListener('click', function (e) {
       var b = e.target.closest('button[data-v]'); if (!b) return;
@@ -104,7 +107,7 @@
       CRITERIA.forEach(function (c) { lines.push('- ' + c[1] + ' ' + (m[c[0]] || 'not scored') + '/5'); });
       lines.push('- Notes: ' + (m.notes || '(none)'), '');
     });
-    lines.push('Effects settings used: ' + JSON.stringify(LAB.getSettings()));
+    lines.push('Sound controls last used: ' + JSON.stringify(LAB.getSettings()));
     var text = lines.join('\n'), out = $('exportOut');
     out.textContent = text; out.hidden = false;
     var done = function () { $('exportState').textContent = 'Copied. Paste it in the chat.'; };

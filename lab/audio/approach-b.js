@@ -11,7 +11,7 @@
   var canRecord = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
   if (!window.isSecureContext) {
     $('bWarn').hidden = false;
-    $('bWarn').textContent = 'The microphone only works on https:// or localhost. This page was opened over plain http, so recording is blocked by the browser. Open the lab through an https link to test this approach.';
+    $('bWarn').textContent = 'The microphone only works on https:// or localhost, and this page was opened over plain http, so recording is blocked by the browser. Tabs A and C work normally.';
   } else if (!canRecord) {
     $('bWarn').hidden = false;
     $('bWarn').textContent = 'This browser has no MediaRecorder or microphone access.';
@@ -23,12 +23,7 @@
     for (var i = 0; i < list.length; i++) if (MediaRecorder.isTypeSupported(list[i])) return list[i];
     return '';
   }
-  function setState(t) { $('bState').textContent = t; }
-
-  function stopRecording() {
-    clearInterval(timer);
-    if (recorder && recorder.state !== 'inactive') recorder.stop();
-  }
+  function stopRecording() { clearInterval(timer); if (recorder && recorder.state !== 'inactive') recorder.stop(); }
 
   $('bRec').addEventListener('click', function () {
     if (recorder && recorder.state === 'recording') { stopRecording(); return; }
@@ -42,29 +37,30 @@
         stream.getTracks().forEach(function (t) { t.stop(); }); // release the mic right away
         $('bRec').textContent = 'Record again'; $('bRec').classList.remove('rec');
         var blob = new Blob(chunks, { type: recorder.mimeType || mime });
-        setState('decoding ' + Math.round(blob.size / 1024) + ' KB (' + (blob.type || 'unknown type') + ')...');
+        LAB.status('Decoding (' + (blob.type || 'unknown type') + ')...');
         blob.arrayBuffer().then(LAB.decode).then(function (b) {
-          buffer = b; $('bPlay').disabled = $('bRaw').disabled = false;
-          setState('ready: ' + b.duration.toFixed(1) + ' s, ' + b.sampleRate + ' Hz');
-        }).catch(function (err) { setState('could not decode this recording: ' + err); });
+          buffer = b;
+          LAB.status('Recorded ' + b.duration.toFixed(1) + ' s. Press Play.');
+        }).catch(function (err) { LAB.status('Could not decode this recording: ' + err); });
       };
       recorder.start();
       startedAt = Date.now();
-      $('bRec').textContent = 'Stop'; $('bRec').classList.add('rec');
+      $('bRec').textContent = 'Stop recording'; $('bRec').classList.add('rec');
       timer = setInterval(function () {
         var s = (Date.now() - startedAt) / 1000;
-        setState('recording ' + s.toFixed(1) + ' s (max ' + MAX_SECONDS + ')');
+        LAB.status('Recording ' + s.toFixed(1) + ' s (max ' + MAX_SECONDS + ')');
         if (s >= MAX_SECONDS) stopRecording();
       }, 100);
-    }).catch(function (err) { setState('microphone blocked or unavailable: ' + (err && err.name)); });
+    }).catch(function (err) { LAB.status('Microphone blocked or unavailable: ' + (err && err.name)); });
   });
 
-  function play(raw) {
-    if (handle) handle.stop();
-    handle = LAB.play(buffer, { raw: raw, meter: $('bMeter'), onEnd: function () { setState('done'); } });
-    setState(raw ? 'playing raw' : 'playing with effects');
-  }
-  $('bPlay').addEventListener('click', function () { play(false); });
-  $('bRaw').addEventListener('click', function () { play(true); });
-  $('bStop').addEventListener('click', function () { if (handle) handle.stop(); setState('stopped'); });
+  LAB.approaches.b = {
+    play: function (raw) {
+      if (!buffer) { LAB.status('Record something first.'); return; }
+      if (handle) handle.stop();
+      handle = LAB.play(buffer, { raw: raw, meter: LAB.meter, onEnd: function () { LAB.status('Done.'); } });
+      LAB.status(raw ? 'Playing the raw recording' : 'Playing with the sound controls');
+    },
+    stop: function () { if (handle) handle.stop(); }
+  };
 })();

@@ -5,17 +5,18 @@
   var LAB = window.LAB, $ = function (id) { return document.getElementById(id); };
   var synth = window.speechSynthesis;
 
-  var root = $('cardA');
+  LAB.rating($('rateA'), 'a');
+
   if (!synth) {
-    root.querySelector('[data-body]').innerHTML = '<p class="note">speechSynthesis is not available in this browser.</p>';
-    LAB.rating($('rateA'), 'a');
+    $('paneA').insertAdjacentHTML('afterbegin', '<p class="note">speechSynthesis is not available in this browser.</p>');
+    LAB.approaches.a = { play: function () { LAB.status('Not available here.'); }, stop: function () {} };
     return;
   }
 
   function voices() {
     var lang = LAB.lang().slice(0, 2), sel = $('aVoice'), cur = sel.value;
     var list = synth.getVoices().filter(function (v) { return v.lang.toLowerCase().indexOf(lang) === 0; });
-    sel.innerHTML = list.length ? list.map(function (v, i) { return '<option value="' + v.name + '">' + v.name + ' (' + v.lang + ')</option>'; }).join('') : '<option value="">default voice</option>';
+    sel.innerHTML = list.length ? list.map(function (v) { return '<option value="' + v.name + '">' + v.name + ' (' + v.lang + ')</option>'; }).join('') : '<option value="">default voice</option>';
     if (cur) sel.value = cur;
   }
   synth.addEventListener('voiceschanged', voices);
@@ -29,25 +30,19 @@
   }
   bind('aPitch', 'aPitchV', function (v) { return v.toFixed(2); });
   bind('aRate', 'aRateV', function (v) { return v.toFixed(2); });
-  bind('aVol', 'aVolV', function (v) { return Math.round(v * 100) + '%'; });
 
-  $('aPlay').addEventListener('click', function () {
-    LAB.audio();
-    synth.cancel();
-    var u = new SpeechSynthesisUtterance(LAB.message());
-    u.lang = LAB.lang();
-    u.pitch = +$('aPitch').value; u.rate = +$('aRate').value; u.volume = +$('aVol').value;
-    var name = $('aVoice').value;
-    if (name) { var v = synth.getVoices().filter(function (x) { return x.name === name; })[0]; if (v) u.voice = v; }
-    $('aState').textContent = 'speaking...';
-    u.onend = u.onerror = function () { $('aState').textContent = 'done'; };
-    synth.speak(u);
-  });
-  $('aStop').addEventListener('click', function () { synth.cancel(); $('aState').textContent = 'stopped'; });
-  $('aPreset').addEventListener('click', function () {
-    $('aPitch').value = 0.1; $('aRate').value = 0.8; $('aVol').value = 1;
-    ['aPitch', 'aRate', 'aVol'].forEach(function (id) { $(id).dispatchEvent(new Event('input')); });
-  });
-
-  LAB.rating($('rateA'), 'a');
+  LAB.approaches.a = {
+    play: function () {
+      synth.cancel();
+      var u = new SpeechSynthesisUtterance(LAB.message());
+      u.lang = LAB.lang();
+      u.pitch = +$('aPitch').value; u.rate = +$('aRate').value; u.volume = 1;
+      var name = $('aVoice').value;
+      if (name) { var v = synth.getVoices().filter(function (x) { return x.name === name; })[0]; if (v) u.voice = v; }
+      LAB.status('Speaking...');
+      u.onend = u.onerror = function () { LAB.status('Done.'); };
+      synth.speak(u);
+    },
+    stop: function () { synth.cancel(); }
+  };
 })();

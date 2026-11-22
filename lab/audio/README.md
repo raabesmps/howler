@@ -15,6 +15,21 @@ python -m http.server 8080
 - Phone on the same Wi-Fi: `http://<your-computer-ip>:8080` (approaches A and C work).
 - Approach B (recording) needs the microphone, and browsers only allow it on `https://` or `localhost`. On a phone over plain http it is disabled with an explanation. Use an https link to test it.
 
+## The controls (B and C)
+
+Pick a starting point (Clean, Howler, Demon, Radio), then adjust six knobs, each described in plain words:
+
+| Knob | Low | High |
+|------|-----|------|
+| Depth | high voice | deep monster |
+| Rage | clean | aggressive, distorted |
+| Boom | thin | heavy bass |
+| Echo | dry | big room |
+| Build-up | instant | starts as a whisper, then explodes |
+| Volume | quiet | loud (a limiter protects your ears) |
+
+"Advanced" holds the eleven raw controls behind these knobs (pitch in cents, distortion, bass dB, compression, reverb mix and size, ramp, tremolo). The Play bar is fixed at the bottom.
+
 ## Files
 
 | File | What it does |

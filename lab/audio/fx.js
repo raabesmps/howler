@@ -1,60 +1,100 @@
-/* The effects chain shared by approaches B and C.
+/* The sound controls and the effects chain shared by approaches B and C.
    source -> pitch (playbackRate) -> distortion (WaveShaper) -> bass shelf -> compressor
-          -> dry/wet reverb (Convolver) -> tremolo (LFO on gain) -> volume ramp -> master -> limiter -> analyser -> speakers */
+          -> dry/wet reverb (Convolver) -> tremolo (LFO on gain) -> volume ramp -> master -> limiter -> analyser -> speakers
+
+   People see six plain-language knobs (K). They are turned into the raw parameters (P) the chain uses.
+   The "Advanced" panel edits P directly. */
 (function () {
   'use strict';
   var LAB = window.LAB, $ = function (id) { return document.getElementById(id); };
 
-  var SPEC = [
-    { k: 'pitch',      label: 'Pitch (cents, also changes speed)', min: -1200, max: 400, step: 25,   fmt: function (v) { return (v > 0 ? '+' : '') + v + ' c'; } },
-    { k: 'drive',      label: 'Distortion',                        min: 0,     max: 100, step: 1,    fmt: function (v) { return v + ''; } },
-    { k: 'bass',       label: 'Bass boost (dB)',                   min: 0,     max: 18,  step: 1,    fmt: function (v) { return '+' + v + ' dB'; } },
-    { k: 'comp',       label: 'Compression (squash dynamics)',     min: 0,     max: 100, step: 1,    fmt: function (v) { return v + '%'; } },
-    { k: 'reverbMix',  label: 'Reverb mix',                        min: 0,     max: 100, step: 1,    fmt: function (v) { return v + '%'; } },
-    { k: 'reverbSize', label: 'Room size (seconds)',               min: 0.3,   max: 5,   step: 0.1,  fmt: function (v) { return v.toFixed(1) + ' s'; } },
-    { k: 'rampStart',  label: 'Volume ramp: start level',          min: 0,     max: 100, step: 1,    fmt: function (v) { return v + '%'; } },
-    { k: 'rampTime',   label: 'Volume ramp: time to full (s)',     min: 0,     max: 3,   step: 0.1,  fmt: function (v) { return v.toFixed(1) + ' s'; } },
-    { k: 'tremRate',   label: 'Tremolo speed (Hz)',                min: 1,     max: 20,  step: 0.5,  fmt: function (v) { return v + ' Hz'; } },
-    { k: 'tremDepth',  label: 'Tremolo depth',                     min: 0,     max: 100, step: 1,    fmt: function (v) { return v + '%'; } },
-    { k: 'master',     label: 'Master volume',                     min: 0,     max: 100, step: 1,    fmt: function (v) { return v + '%'; } }
+  /* ---------- the six simple knobs ---------- */
+  var KNOBS = [
+    { k: 'depth',  label: 'Depth',    hint: 'high ↔ deep monster' },
+    { k: 'rage',   label: 'Rage',     hint: 'clean ↔ aggressive' },
+    { k: 'boom',   label: 'Boom',     hint: 'thin ↔ heavy bass' },
+    { k: 'echo',   label: 'Echo',     hint: 'dry ↔ big room' },
+    { k: 'build',  label: 'Build-up', hint: 'instant ↔ whisper, then explodes' },
+    { k: 'volume', label: 'Volume',   hint: 'quiet ↔ loud' }
   ];
-
   var PRESETS = {
-    clean:  { pitch: 0,     drive: 0,  bass: 0,  comp: 0,  reverbMix: 0,  reverbSize: 1,   rampStart: 100, rampTime: 0,   tremRate: 6,  tremDepth: 0,  master: 70 },
-    howler: { pitch: -450,  drive: 35, bass: 9,  comp: 60, reverbMix: 35, reverbSize: 2.2, rampStart: 20,  rampTime: 0.7, tremRate: 9,  tremDepth: 22, master: 75 },
-    demon:  { pitch: -900,  drive: 65, bass: 14, comp: 80, reverbMix: 50, reverbSize: 3.4, rampStart: 10,  rampTime: 1.0, tremRate: 13, tremDepth: 35, master: 70 },
-    radio:  { pitch: -150,  drive: 55, bass: 0,  comp: 70, reverbMix: 10, reverbSize: 0.6, rampStart: 60,  rampTime: 0.2, tremRate: 4,  tremDepth: 10, master: 70 }
+    clean:  { depth: 0,  rage: 0,  boom: 0,  echo: 0,  build: 0,  volume: 70, shake: 0 },
+    howler: { depth: 38, rage: 35, boom: 50, echo: 35, build: 80, volume: 75, shake: 22 },
+    demon:  { depth: 75, rage: 65, boom: 78, echo: 60, build: 90, volume: 70, shake: 35 },
+    radio:  { depth: 12, rage: 55, boom: 0,  echo: 10, build: 40, volume: 70, shake: 10 }
   };
 
-  var P = {};
-  Object.keys(PRESETS.howler).forEach(function (k) { P[k] = PRESETS.howler[k]; });
-  LAB.getSettings = function () { return JSON.parse(JSON.stringify(P)); };
+  var K = {}, P = {};
+  function derive() {
+    P.pitch = -Math.round((K.depth * 12) / 25) * 25;
+    P.drive = K.rage;
+    P.comp = Math.min(100, K.rage * 0.6 + K.boom * 0.3);
+    P.bass = Math.round(K.boom * 0.18);
+    P.reverbMix = K.echo;
+    P.reverbSize = +(0.6 + K.echo * 0.03).toFixed(1);
+    P.rampStart = Math.round(100 - K.build * 0.9);
+    P.rampTime = +(K.build * 0.015).toFixed(1);
+    P.master = K.volume;
+    P.tremDepth = K.shake;
+    P.tremRate = +(6 + K.shake * 0.1).toFixed(1);
+  }
+  LAB.getSettings = function () { return { knobs: JSON.parse(JSON.stringify(K)), raw: JSON.parse(JSON.stringify(P)) }; };
+
+  /* ---------- advanced: the raw parameters ---------- */
+  var RAW = [
+    { k: 'pitch',      label: 'Pitch (cents; also changes speed)', min: -1200, max: 400, step: 25,  fmt: function (v) { return (v > 0 ? '+' : '') + v + ' c'; } },
+    { k: 'drive',      label: 'Distortion',                        min: 0, max: 100, step: 1,   fmt: function (v) { return v + ''; } },
+    { k: 'bass',       label: 'Bass boost (dB)',                   min: 0, max: 18,  step: 1,   fmt: function (v) { return '+' + v + ' dB'; } },
+    { k: 'comp',       label: 'Compression',                       min: 0, max: 100, step: 1,   fmt: function (v) { return v + '%'; } },
+    { k: 'reverbMix',  label: 'Reverb mix',                        min: 0, max: 100, step: 1,   fmt: function (v) { return v + '%'; } },
+    { k: 'reverbSize', label: 'Room size (s)',                     min: 0.3, max: 5, step: 0.1, fmt: function (v) { return v.toFixed(1) + ' s'; } },
+    { k: 'rampStart',  label: 'Volume ramp: start level',          min: 0, max: 100, step: 1,   fmt: function (v) { return v + '%'; } },
+    { k: 'rampTime',   label: 'Volume ramp: time to full (s)',     min: 0, max: 3,   step: 0.1, fmt: function (v) { return v.toFixed(1) + ' s'; } },
+    { k: 'tremRate',   label: 'Tremolo speed (Hz)',                min: 1, max: 20,  step: 0.5, fmt: function (v) { return v + ' Hz'; } },
+    { k: 'tremDepth',  label: 'Tremolo depth',                     min: 0, max: 100, step: 1,   fmt: function (v) { return v + '%'; } },
+    { k: 'master',     label: 'Master volume',                     min: 0, max: 100, step: 1,   fmt: function (v) { return v + '%'; } }
+  ];
 
   /* ---------- UI ---------- */
-  function buildPanel() {
-    var host = $('fxPanel'); if (!host) return;
-    var html = '<h3>Effects (used by B and C)</h3><div class="row" id="fxPresets">';
-    Object.keys(PRESETS).forEach(function (n) { html += '<button type="button" class="btn ghost" data-preset="' + n + '">' + n + '</button>'; });
-    html += '</div>';
-    SPEC.forEach(function (s) {
-      html += '<label for="fx_' + s.k + '">' + s.label + ' <b id="fxv_' + s.k + '"></b></label>' +
-        '<input id="fx_' + s.k + '" type="range" min="' + s.min + '" max="' + s.max + '" step="' + s.step + '">';
+  function buildUI() {
+    var html = '';
+    KNOBS.forEach(function (n) {
+      html += '<div class="knob"><label for="kn_' + n.k + '">' + n.label + ' <b id="knv_' + n.k + '"></b></label>' +
+        '<input id="kn_' + n.k + '" type="range" min="0" max="100" step="1"><small>' + n.hint + '</small></div>';
     });
-    html += '<p class="note">Changes apply the next time you press play. Master volume is capped by a limiter, but start low on headphones.</p>';
-    host.innerHTML = html;
-    SPEC.forEach(function (s) {
-      var el = $('fx_' + s.k);
-      el.addEventListener('input', function () { P[s.k] = +el.value; $('fxv_' + s.k).textContent = s.fmt(P[s.k]); });
+    $('knobs').innerHTML = html;
+    KNOBS.forEach(function (n) {
+      $('kn_' + n.k).addEventListener('input', function () {
+        K[n.k] = +this.value; derive(); syncView(); markPreset(null);
+      });
     });
-    host.querySelector('#fxPresets').addEventListener('click', function (e) {
+
+    var adv = '<p class="note">These change the same sound as the knobs above, but one by one. Moving a knob above resets them.</p>';
+    RAW.forEach(function (s) {
+      adv += '<div class="knob"><label for="rw_' + s.k + '">' + s.label + ' <b id="rwv_' + s.k + '"></b></label>' +
+        '<input id="rw_' + s.k + '" type="range" min="' + s.min + '" max="' + s.max + '" step="' + s.step + '"></div>';
+    });
+    $('advanced').innerHTML = adv;
+    RAW.forEach(function (s) {
+      $('rw_' + s.k).addEventListener('input', function () { P[s.k] = +this.value; $('rwv_' + s.k).textContent = s.fmt(P[s.k]); markPreset(null); });
+    });
+
+    $('chips').addEventListener('click', function (e) {
       var b = e.target.closest('[data-preset]'); if (!b) return;
-      Object.keys(PRESETS[b.dataset.preset]).forEach(function (k) { P[k] = PRESETS[b.dataset.preset][k]; });
-      sync();
+      applyPreset(b.dataset.preset);
     });
-    sync();
+    applyPreset('howler');
   }
-  function sync() {
-    SPEC.forEach(function (s) { var el = $('fx_' + s.k); el.value = P[s.k]; $('fxv_' + s.k).textContent = s.fmt(P[s.k]); });
+  function syncView() {
+    KNOBS.forEach(function (n) { $('kn_' + n.k).value = K[n.k]; $('knv_' + n.k).textContent = K[n.k]; });
+    RAW.forEach(function (s) { $('rw_' + s.k).value = P[s.k]; $('rwv_' + s.k).textContent = s.fmt(P[s.k]); });
+  }
+  function markPreset(name) {
+    Array.prototype.forEach.call($('chips').children, function (c) { c.setAttribute('aria-pressed', String(c.dataset.preset === name)); });
+  }
+  function applyPreset(name) {
+    Object.keys(PRESETS[name]).forEach(function (k) { K[k] = PRESETS[name][k]; });
+    derive(); syncView(); markPreset(name);
   }
 
   /* ---------- DSP helpers ---------- */
@@ -139,10 +179,13 @@
     return { stop: function () { try { src.stop(); } catch (e) { /* already stopped */ } finish(); }, seconds: end };
   };
 
+  // Decode on an offline context: it does not depend on the output context having been resumed by a tap,
+  // which can leave decodeAudioData pending while the main context is still "suspended".
   LAB.decode = function (arrayBuffer) {
-    var ctx = LAB.audio();
+    var OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    var ctx = OAC ? new OAC(1, 1, 44100) : LAB.audio();
     return new Promise(function (res, rej) { ctx.decodeAudioData(arrayBuffer, res, rej); });
   };
 
-  buildPanel();
+  buildUI();
 })();

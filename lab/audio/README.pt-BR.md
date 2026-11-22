@@ -15,6 +15,21 @@ python -m http.server 8080
 - No celular, no mesmo Wi-Fi: `http://<ip-do-computador>:8080` (as abordagens A e C funcionam).
 - A abordagem B (gravação) precisa do microfone, e os navegadores só liberam isso em `https://` ou `localhost`. No celular por http simples ela fica desativada com uma explicação. Use um link https para testá-la.
 
+## Os controles (B e C)
+
+Escolha um ponto de partida (Clean, Howler, Demon, Radio) e ajuste seis botões, cada um descrito em palavras simples:
+
+| Botão | Baixo | Alto |
+|-------|-------|------|
+| Depth | voz aguda | monstro grave |
+| Rage | limpo | agressivo, distorcido |
+| Boom | fino | graves pesados |
+| Echo | seco | sala enorme |
+| Build-up | instantâneo | começa sussurro e explode |
+| Volume | baixo | alto (um limitador protege seus ouvidos) |
+
+"Advanced" guarda os onze controles brutos por trás desses botões (pitch em cents, distorção, graves em dB, compressão, reverb, rampa, tremolo). A barra de Play fica fixa embaixo.
+
 ## Arquivos
 
 | Arquivo | O que faz |

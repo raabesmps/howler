@@ -7,108 +7,88 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
+  <header class="top">
     <h1>Audio lab</h1>
-    <p>Three ways to make the howler scream, side by side. Listen to each one on your phone, with and without headphones, and score it. Nothing is uploaded: everything stays in this browser.</p>
-    <p class="warn">Loud sound. Start with the phone volume low.</p>
-    <div class="row">
-      <button id="unlock" class="btn" type="button">Tap to unlock audio</button>
-      <span id="unlockState" class="badge" role="status">locked</span>
+    <div class="msgrow">
+      <label class="sr" for="msg">Message to scream</label>
+      <input id="msg" type="text" maxlength="140" value="You never answer my calls.">
+      <label class="sr" for="lang">Language</label>
+      <select id="lang"><option value="en-US">EN</option><option value="pt-BR">PT</option></select>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Voice approach">
+      <button type="button" role="tab" id="tabA" data-tab="a" aria-selected="true"><b>A</b>Browser</button>
+      <button type="button" role="tab" id="tabB" data-tab="b" aria-selected="false"><b>B</b>Recorded</button>
+      <button type="button" role="tab" id="tabC" data-tab="c" aria-selected="false"><b>C</b>Server TTS</button>
     </div>
   </header>
 
-  <section class="panel" aria-labelledby="msgHead">
-    <h3 id="msgHead">Message (shared by all approaches)</h3>
-    <label for="msg">What should be screamed (any language)</label>
-    <textarea id="msg" rows="2" maxlength="140">You never answer my calls.</textarea>
-    <label for="lang">Language of the message</label>
-    <select id="lang">
-      <option value="en-US">English (en-US)</option>
-      <option value="pt-BR">Portuguese (pt-BR)</option>
-    </select>
-  </section>
-
-  <details class="panel">
-    <summary>This device</summary>
-    <pre id="deviceInfo">detecting...</pre>
-  </details>
-
-  <section class="panel" id="fxPanel" aria-label="Effects"></section>
-
   <main>
-    <section class="card" id="cardA" aria-labelledby="hA">
-      <h2 id="hA"><span>A.</span> Browser voice (speechSynthesis)</h2>
-      <p>The baseline: what the first prototype used. Zero cost, zero upload, works offline.</p>
-      <div data-body>
-        <label for="aVoice">Voice</label>
-        <select id="aVoice"></select>
-        <label for="aPitch">Pitch <b id="aPitchV"></b></label>
-        <input id="aPitch" type="range" min="0" max="2" step="0.05" value="0.3">
-        <label for="aRate">Speed <b id="aRateV"></b></label>
-        <input id="aRate" type="range" min="0.1" max="2" step="0.05" value="0.8">
-        <label for="aVol">Volume <b id="aVolV"></b></label>
-        <input id="aVol" type="range" min="0" max="1" step="0.05" value="1">
-        <div class="row">
-          <button id="aPlay" class="btn" type="button">Play</button>
-          <button id="aStop" class="btn ghost" type="button">Stop</button>
-          <button id="aPreset" class="btn ghost" type="button">Lowest pitch</button>
-          <span id="aState" class="hint" role="status"></span>
-        </div>
-        <p class="note">Limit: this audio never enters Web Audio, so there is no distortion, reverb, bass boost or louder-than-100% volume. Only pitch, speed and the voices installed on the device.</p>
-      </div>
-      <div id="rateA"></div>
+    <!-- A -->
+    <section id="paneA" role="tabpanel" aria-labelledby="tabA">
+      <p class="what">The voice built into the phone. No effects possible, only pitch and speed.</p>
+      <div class="knob"><label for="aPitch">Pitch <b id="aPitchV"></b></label><input id="aPitch" type="range" min="0" max="2" step="0.05" value="0.3"><small>low voice &harr; high voice</small></div>
+      <div class="knob"><label for="aRate">Speed <b id="aRateV"></b></label><input id="aRate" type="range" min="0.1" max="2" step="0.05" value="0.8"><small>slow &harr; fast</small></div>
+      <details><summary>Choose a voice</summary><select id="aVoice"></select></details>
+      <details class="score"><summary>Score this one</summary><div id="rateA"></div></details>
     </section>
-    <!-- CARD_A_END -->
-    <section class="card" id="cardB" aria-labelledby="hB">
-      <h2 id="hB"><span>B.</span> Sender's recorded voice + effects</h2>
-      <p>Record a voice (up to 8 s), then it passes through the effects chain above. Needs the microphone, which needs https.</p>
+
+    <!-- B -->
+    <section id="paneB" role="tabpanel" aria-labelledby="tabB" hidden>
+      <p class="what">Your recorded voice, turned into a scream.</p>
       <p id="bWarn" class="note" hidden></p>
-      <div class="row">
-        <button id="bRec" class="btn" type="button">Record</button>
-        <button id="bPlay" class="btn" type="button" disabled>Play with effects</button>
-        <button id="bRaw" class="btn ghost" type="button" disabled>Play raw</button>
-        <button id="bStop" class="btn ghost" type="button">Stop</button>
-      </div>
-      <p id="bState" class="hint" role="status"></p>
-      <div class="meter" aria-hidden="true"><i id="bMeter"></i></div>
-      <p class="note">Privacy: in the real product this means storing a person's voice on the server until the howler is opened. The recording stays in this browser during the lab.</p>
-      <div id="rateB"></div>
+      <div class="row"><button id="bRec" class="btn" type="button">Record (up to 8 s)</button></div>
+      <details class="score"><summary>Score this one</summary><div id="rateB"></div></details>
     </section>
-    <!-- CARD_B_END -->
-    <section class="card" id="cardC" aria-labelledby="hC">
-      <h2 id="hC"><span>C.</span> Server-generated voice file + effects</h2>
-      <p>The real product would ask a neural TTS service for an audio file, then play it through the same effects. Here the "server" is simulated with sample files. The samples are made with old offline Windows voices, so they sound flat; judge the effects, not the voice quality. For a fair test of a neural voice, upload a file from any TTS service you like.</p>
-      <label for="cSample">Sample</label>
+
+    <!-- C -->
+    <section id="paneC" role="tabpanel" aria-labelledby="tabC" hidden>
+      <p class="what">A server-made voice file (a flat sample), turned into a scream.</p>
+      <label class="sr" for="cSample">Sample</label>
       <select id="cSample">
-        <option value="en-short.wav">English, short (You never answer my calls.)</option>
+        <option value="en-short.wav">English, short</option>
         <option value="en-long.wav">English, long</option>
         <option value="pt-short.wav">Portuguese, short</option>
       </select>
-      <div class="row"><button id="cLoad" class="btn ghost" type="button">Load sample</button></div>
-      <label for="cFile">Or try your own audio file</label>
-      <input id="cFile" type="file" accept="audio/*">
-      <div class="row">
-        <button id="cPlay" class="btn" type="button" disabled>Play with effects</button>
-        <button id="cRaw" class="btn ghost" type="button" disabled>Play raw</button>
-        <button id="cStop" class="btn ghost" type="button">Stop</button>
-      </div>
-      <p id="cState" class="hint" role="status"></p>
-      <div class="meter" aria-hidden="true"><i id="cMeter"></i></div>
-      <p class="note">Cost: neural TTS is billed per character, so every howler has a small cost. Privacy is better than B: only the text goes to the TTS provider, and no one's real voice is stored.</p>
-      <div id="rateC"></div>
+      <details><summary>Use my own audio file</summary><input id="cFile" type="file" accept="audio/*"></details>
+      <details class="score"><summary>Score this one</summary><div id="rateC"></div></details>
     </section>
+
+    <!-- Sound controls: only for B and C -->
+    <section id="sound" class="panel" hidden>
+      <h2>Make it scarier</h2>
+      <div class="chips" id="chips" role="group" aria-label="Starting points">
+        <button type="button" class="chip" data-preset="clean">Clean<small>no effect</small></button>
+        <button type="button" class="chip" data-preset="howler">Howler<small>the default</small></button>
+        <button type="button" class="chip" data-preset="demon">Demon<small>deeper, huge</small></button>
+        <button type="button" class="chip" data-preset="radio">Radio<small>tinny, tight</small></button>
+      </div>
+      <div id="knobs"></div>
+      <details class="adv"><summary>Advanced (all the raw controls)</summary><div id="advanced"></div></details>
+    </section>
+
+    <details class="panel more">
+      <summary>Share my results and device info</summary>
+      <p>Paste this in the chat after testing.</p>
+      <div class="row"><button id="exportBtn" class="btn ghost" type="button">Copy my results</button><span id="exportState" class="hint" role="status"></span></div>
+      <pre id="exportOut" hidden></pre>
+      <h3>This device</h3>
+      <pre id="deviceInfo">detecting...</pre>
+    </details>
   </main>
 
-  <section class="panel" aria-labelledby="resHead">
-    <h3 id="resHead">Your results</h3>
-    <p>Press the button, then paste the text into the chat so the decision (ADR-002) can use your scores.</p>
-    <div class="row"><button id="exportBtn" class="btn ghost" type="button">Copy my results</button><span id="exportState" class="hint" role="status"></span></div>
-    <pre id="exportOut" hidden></pre>
-  </section>
+  <footer class="bar">
+    <div class="meter" aria-hidden="true"><i id="meter"></i></div>
+    <div class="barrow">
+      <button id="play" class="btn big" type="button">Play</button>
+      <button id="raw" class="btn ghost" type="button" hidden>Raw</button>
+      <button id="stop" class="btn ghost" type="button">Stop</button>
+      <span id="status" class="hint" role="status">Loud sound. Start with the volume low.</span>
+    </div>
+  </footer>
 
   <script src="app.js"></script>
-  <script src="approach-a.js"></script>
   <script src="fx.js"></script>
+  <script src="approach-a.js"></script>
   <script src="approach-b.js"></script>
   <script src="approach-c.js"></script>
 </body>

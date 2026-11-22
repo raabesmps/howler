@@ -87,21 +87,32 @@
   .t-front { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,.28), transparent 46%), var(--env-500); clip-path: polygon(0 0, 50% 46%, 100% 0, 100% 100%, 0 100%); z-index: 2; }
   .mute { position: absolute; top: var(--space-4); right: var(--space-4); z-index: 6; width: 48px; height: 48px; border-radius: var(--radius-s); border: 1px solid rgba(243,234,216,.25); background: rgba(16,14,12,.6); color: var(--paper-100); font: 600 13px/1 var(--font-ui); }
 
-  /* 4b. BURNING: the envelope catches fire and turns to ash (loops) */
+  /* 4b. BURNING: fire starts at the centre (the seal), opens outward as a ring, burnt bits fall into an ash heap */
+  @property --p { syntax: "<percentage>"; inherits: true; initial-value: 0%; }
   .s-burn { padding: 0; background: #0c0807; }
-  .b-glow { position: absolute; left: 50%; top: 40%; width: 460px; height: 460px; margin: -230px 0 0 -230px; background: radial-gradient(circle, rgba(255,91,31,.55), transparent 62%); opacity: 0; }
-  .bstage { position: absolute; left: 50%; top: 30%; width: 300px; height: 210px; margin-left: -150px; opacity: 0; }
-  .benv { position: absolute; inset: 0; background: var(--env-500); clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+  .b-glow { position: absolute; left: 50%; top: 36%; width: 520px; height: 520px; margin: -260px 0 0 -260px; background: radial-gradient(circle, rgba(255,91,31,.6), transparent 62%); opacity: 0; }
+  .bstage { position: absolute; left: 50%; top: 26%; width: 300px; height: 210px; margin-left: -150px; opacity: 0; --p: 0%; }
+  .bwrap { position: absolute; inset: 0; filter: url(#rough); }
+  .benv { position: absolute; inset: 0; background: var(--env-500);
+    -webkit-mask-image: radial-gradient(ellipse farthest-corner at 50% 50%, transparent var(--p), #000 calc(var(--p) + .8%));
+            mask-image: radial-gradient(ellipse farthest-corner at 50% 50%, transparent var(--p), #000 calc(var(--p) + .8%)); }
   .benv::before { content: ""; position: absolute; inset: 0; background: var(--env-700); clip-path: polygon(0 0, 50% 58%, 100% 0); }
   .benv::after { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,.2); clip-path: polygon(0 100%, 50% 42%, 50% 44%, 2% 100%); }
-  .bflame { position: absolute; left: -14px; right: -14px; top: 210px; height: 130px; margin-top: -126px; opacity: 0; pointer-events: none; z-index: 5; }
-  .bflame .bf { position: absolute; inset: 0; transform-origin: 50% 100%; background: radial-gradient(14% 100% at 8% 100%, var(--flare-400), var(--ember-500) 40%, transparent 72%), radial-gradient(12% 70% at 24% 100%, var(--flare-400), var(--ember-500) 42%, transparent 74%), radial-gradient(15% 100% at 40% 100%, var(--flare-400), var(--ember-500) 40%, transparent 72%), radial-gradient(12% 80% at 57% 100%, var(--flare-400), var(--ember-500) 42%, transparent 74%), radial-gradient(14% 95% at 73% 100%, var(--flare-400), var(--ember-500) 40%, transparent 72%), radial-gradient(12% 65% at 90% 100%, var(--ember-500), transparent 74%), linear-gradient(to top, rgba(255,91,31,.55), transparent 45%); filter: blur(.6px); }
-  .bflame::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: -2px; height: 5px; background: var(--flare-400); box-shadow: 0 0 10px 3px var(--ember-500); }
-  .bash { position: absolute; left: 24px; right: 24px; bottom: -8px; height: 60px; transform-origin: 50% 100%; transform: scaleY(0); }
-  .bash i { position: absolute; bottom: 0; background: #2a2622; border-radius: 40% 60% 20% 30%; }
-  .bash i:nth-child(1) { left: 0; width: 150px; height: 34px; } .bash i:nth-child(2) { left: 86px; width: 130px; height: 56px; background: #332d28; } .bash i:nth-child(3) { left: 190px; width: 62px; height: 26px; }
-  .bash b { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: var(--ember-500); box-shadow: 0 0 8px var(--ember-500); } .bash b:nth-of-type(1) { left: 110px; bottom: 44px; } .bash b:nth-of-type(2) { left: 170px; bottom: 30px; background: var(--flare-400); }
-  .flake { position: absolute; bottom: 30px; width: 7px; height: 4px; background: #3b342e; border-radius: 1px; opacity: 0; }
+  .bring { position: absolute; inset: 0; opacity: 0;
+    background:
+      radial-gradient(ellipse farthest-corner at 50% 50%, transparent calc(var(--p) - 4%), var(--flare-400) calc(var(--p) - .4%), var(--ember-500) calc(var(--p) + 5%), rgba(255,91,31,0) calc(var(--p) + 14%)),
+      radial-gradient(ellipse farthest-corner at 50% 50%, transparent var(--p), rgba(18,8,4,.92) calc(var(--p) + 2%), rgba(18,8,4,.55) calc(var(--p) + 11%), transparent calc(var(--p) + 23%));
+    -webkit-mask-image: repeating-conic-gradient(#000 0 5deg, rgba(0,0,0,.3) 5deg 8deg, #000 8deg 13deg, rgba(0,0,0,.6) 13deg 15deg);
+            mask-image: repeating-conic-gradient(#000 0 5deg, rgba(0,0,0,.3) 5deg 8deg, #000 8deg 13deg, rgba(0,0,0,.6) 13deg 15deg); }
+  .bfall { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; }
+  .bit { position: absolute; background: #6f655b; border-radius: 1px 3px 2px 3px; opacity: 0; }
+  .bit.hot { box-shadow: 0 0 6px 1px var(--ember-500); background: #6b3a1e; }
+  .bit.s1 { width: 12px; height: 7px; } .bit.s2 { width: 8px; height: 5px; background: #564e46; } .bit.s3 { width: 16px; height: 9px; background: #7d7267; }
+  .bspark { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: var(--flare-400); box-shadow: 0 0 8px 2px var(--ember-500); opacity: 0; }
+  .bpile { position: absolute; left: 34px; right: 34px; top: 290px; height: 62px; transform-origin: 50% 100%; transform: scaleY(0); }
+  .bpile i { position: absolute; bottom: 0; background: #3d3630; border-radius: 40% 60% 20% 30%; }
+  .bpile i:nth-child(1) { left: 0; width: 150px; height: 34px; } .bpile i:nth-child(2) { left: 80px; width: 120px; height: 56px; background: #4a423b; } .bpile i:nth-child(3) { left: 170px; width: 62px; height: 28px; }
+  .bpile b { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: var(--ember-500); box-shadow: 0 0 8px var(--ember-500); } .bpile b:nth-of-type(1) { left: 100px; bottom: 46px; } .bpile b:nth-of-type(2) { left: 160px; bottom: 28px; background: var(--flare-400); }
 
   /* 5. end states (approved, unchanged) */
   .env { position: relative; width: 220px; height: 150px; margin: var(--space-7) auto var(--space-5); background: var(--env-500); border-radius: 2px; box-shadow: 0 24px 0 -12px rgba(0,0,0,.45); }
@@ -149,53 +160,43 @@
       100% { transform: translateY(200px) rotate(-1.4deg); }
     }
 
-    /* 4b: 9s loop. Fire starts, eats the envelope along a slanted front, ash pile and flakes remain */
-    .bstage { animation: stage 9s linear infinite; }
-    .benv { animation: eat 9s linear infinite; }
-    .bflame { animation: front 9s linear infinite; }
-    .bflame .bf { animation: flick .42s ease-in-out infinite alternate; }
-    .bash { animation: pile 9s ease-out infinite; }
+    /* 4b: 9s loop. Spark at the seal, ring of fire grows outward, bits fall and pile up as ash */
+    .bstage { animation: stage 9s linear infinite, hole 9s linear infinite; }
+    .benv { animation: char 9s linear infinite; }
+    .bring { animation: ringfade 9s linear infinite, wobble .38s ease-in-out infinite alternate; }
+    .bpile { animation: pile 9s ease-out infinite; }
     .b-glow { animation: glow 9s linear infinite; }
-    .flake { animation: flake 9s ease-out infinite; }
-    .flake:nth-of-type(1) { left: 60px; --dx: -50px; animation-delay: 0s; }
-    .flake:nth-of-type(2) { left: 120px; --dx: 40px; animation-delay: .5s; }
-    .flake:nth-of-type(3) { left: 170px; --dx: -30px; animation-delay: 1s; }
-    .flake:nth-of-type(4) { left: 220px; --dx: 60px; animation-delay: .3s; }
-    .flake:nth-of-type(5) { left: 90px; --dx: 20px; animation-delay: 1.4s; }
-    .flake:nth-of-type(6) { left: 190px; --dx: -55px; animation-delay: .8s; }
+    .bit { animation-duration: 9s; animation-iteration-count: infinite; animation-timing-function: cubic-bezier(.45,.05,.9,.55); }
+    .bit.a { animation-name: fallA; } .bit.b { animation-name: fallB; } .bit.c { animation-name: fallC; }
+    .bspark { animation: sparkup 9s ease-out infinite; }
     @keyframes stage { 0% { opacity: 0; } 4% { opacity: 1; } 93% { opacity: 1; } 100% { opacity: 0; } }
-    @keyframes eat {
-      0%, 10% { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); filter: brightness(1); }
-      40% { clip-path: polygon(0 0, 100% 0, 100% 62%, 0 48%); filter: brightness(.7); }
-      70% { clip-path: polygon(0 0, 100% 0, 100% 14%, 0 4%); filter: brightness(.45); }
-      76%, 100% { clip-path: polygon(0 0, 100% 0, 100% 0, 0 0); filter: brightness(.4); }
+    @keyframes hole {
+      0%, 8% { --p: 0%; animation-timing-function: ease-out; }
+      12% { --p: 6%; animation-timing-function: cubic-bezier(.4,0,.7,1); }
+      70%, 100% { --p: 122%; }
     }
-    @keyframes front {
-      0% { top: 210px; transform: rotate(0); opacity: 0; }
-      8% { top: 210px; transform: rotate(0); opacity: 1; }
-      10% { top: 210px; transform: rotate(0); opacity: 1; }
-      40% { top: 115px; transform: rotate(5deg); opacity: 1; }
-      70% { top: 19px; transform: rotate(3.4deg); opacity: 1; }
-      76% { top: 0; transform: rotate(0); opacity: .8; }
-      84%, 100% { top: 0; transform: rotate(0); opacity: 0; }
-    }
-    @keyframes flick { from { transform: scaleY(.88) skewX(-2deg); } to { transform: scaleY(1.14) skewX(2deg); } }
-    @keyframes pile { 0%, 30% { transform: scaleY(0); } 78%, 100% { transform: scaleY(1); } }
-    @keyframes glow { 0%, 8% { opacity: 0; } 40% { opacity: .5; } 70% { opacity: .65; } 82% { opacity: .15; } 100% { opacity: 0; } }
-    @keyframes flake { 0%, 34% { opacity: 0; transform: translate(0,0) rotate(0); } 42% { opacity: .9; } 88% { opacity: 0; transform: translate(var(--dx), -170px) rotate(220deg); } 100% { opacity: 0; } }
+    @keyframes char { 0%, 8% { filter: brightness(1); } 72%, 100% { filter: brightness(.55); } }
+    @keyframes ringfade { 0%, 7% { opacity: 0; } 9% { opacity: 1; } 72% { opacity: 1; } 79%, 100% { opacity: 0; } }
+    @keyframes wobble { from { transform: rotate(-5deg) scale(.99); } to { transform: rotate(5deg) scale(1.01); } }
+    @keyframes pile { 0%, 24% { transform: scaleY(0); } 78%, 100% { transform: scaleY(1); } }
+    @keyframes glow { 0%, 8% { opacity: 0; } 14% { opacity: .35; } 45% { opacity: .75; } 72% { opacity: .5; } 86%, 100% { opacity: 0; } }
+    @keyframes fallA { 0%, 15% { opacity: 0; transform: translate(0,0) rotate(0); } 17% { opacity: 1; } 44% { opacity: 1; transform: translate(var(--dx), var(--fall)) rotate(var(--rot)); } 47%, 100% { opacity: 0; transform: translate(var(--dx), var(--fall)) rotate(var(--rot)); } }
+    @keyframes fallB { 0%, 29% { opacity: 0; transform: translate(0,0) rotate(0); } 31% { opacity: 1; } 58% { opacity: 1; transform: translate(var(--dx), var(--fall)) rotate(var(--rot)); } 61%, 100% { opacity: 0; transform: translate(var(--dx), var(--fall)) rotate(var(--rot)); } }
+    @keyframes fallC { 0%, 44% { opacity: 0; transform: translate(0,0) rotate(0); } 46% { opacity: 1; } 73% { opacity: 1; transform: translate(var(--dx), var(--fall)) rotate(var(--rot)); } 76%, 100% { opacity: 0; transform: translate(var(--dx), var(--fall)) rotate(var(--rot)); } }
+    @keyframes sparkup { 0%, 14% { opacity: 0; transform: translate(0,0); } 20% { opacity: 1; } 60% { opacity: 0; transform: translate(var(--sx), -150px); } 100% { opacity: 0; } }
 
     @keyframes tremble { 0% { transform: rotate(-3deg) translate(0,0); } 25% { transform: rotate(-3.3deg) translate(2px,-1px); } 50% { transform: rotate(-2.8deg) translate(-2px,1px); } 75% { transform: rotate(-3.2deg) translate(1px,2px); } 100% { transform: rotate(-3deg) translate(0,0); } }
     @keyframes pulse { 50% { transform: scale(1.1); box-shadow: 0 0 0 4px rgba(0,0,0,.25), 0 0 44px 14px rgba(255,91,31,.7); } }
   }
   @media (prefers-reduced-motion: reduce) {
-    .bstage { opacity: 1; } .benv { display: none; } .bash { transform: none; }
+    .bstage { opacity: 1; } .bwrap { display: none; } .bpile { transform: none; }
     .t-flap { transform: scaleY(.8); }
   }
 </style>
 </head>
 <body>
   <h1>Howler: screen references (v3)</h1>
-  <p class="lead">Static references for the 5 screens. v3: the envelope is a closed brick red, screen 4 is split in 4a (the envelope talks while the letter rises out of it) and 4b (the envelope burns to ash). Screen 5 variants are approved and unchanged. Motion here only hints at what CP3 will do properly. Type in screen 1 to see the paper scorch.</p>
+  <p class="lead">Static references for the 5 screens. v3: the envelope is a closed brick red, screen 4 is split in 4a (the envelope talks while the letter rises out of it) and 4b (the fire starts at the seal in the centre, spreads outward, and the burnt bits fall into ash). Screen 5 variants are approved and unchanged. Motion here only hints at what CP3 will do properly. Type in screen 1 to see the paper scorch.</p>
 
   <div class="grid">
 
@@ -265,11 +266,31 @@
       <div class="screen s-burn">
         <div class="b-glow"></div>
         <div class="bstage" aria-hidden="true">
-          <div class="benv"><span class="seal"></span></div>
-          <div class="bflame"><div class="bf"></div></div>
-          <div class="bash"><i></i><i></i><i></i><b></b><b></b></div>
-          <i class="flake"></i><i class="flake"></i><i class="flake"></i><i class="flake"></i><i class="flake"></i><i class="flake"></i>
+          <div class="bwrap">
+            <div class="benv"><span class="seal"></span></div>
+            <div class="bring"></div>
+          </div>
+          <div class="bfall">
+            <i class="bit a hot s1" style="left:140px;top:96px;--dx:-52px;--fall:242px;--rot:200deg"></i>
+            <i class="bit a hot s2" style="left:158px;top:110px;--dx:60px;--fall:228px;--rot:-160deg"></i>
+            <i class="bit a s3" style="left:130px;top:118px;--dx:-16px;--fall:220px;--rot:120deg"></i>
+            <i class="bit a hot s2" style="left:168px;top:90px;--dx:54px;--fall:248px;--rot:260deg"></i>
+            <i class="bit b hot s1" style="left:96px;top:70px;--dx:-18px;--fall:268px;--rot:-210deg"></i>
+            <i class="bit b s3" style="left:204px;top:76px;--dx:18px;--fall:262px;--rot:170deg"></i>
+            <i class="bit b s2" style="left:84px;top:132px;--dx:-6px;--fall:206px;--rot:90deg"></i>
+            <i class="bit b hot s1" style="left:214px;top:128px;--dx:8px;--fall:210px;--rot:-120deg"></i>
+            <i class="bit c s3" style="left:36px;top:40px;--dx:42px;--fall:298px;--rot:-190deg"></i>
+            <i class="bit c s1" style="left:252px;top:44px;--dx:-30px;--fall:294px;--rot:220deg"></i>
+            <i class="bit c s2" style="left:40px;top:168px;--dx:38px;--fall:170px;--rot:140deg"></i>
+            <i class="bit c s3" style="left:246px;top:170px;--dx:-24px;--fall:168px;--rot:-100deg"></i>
+          </div>
+          <i class="bspark" style="left:146px;top:100px;--sx:-40px"></i>
+          <i class="bspark" style="left:160px;top:96px;--sx:36px"></i>
+          <i class="bspark" style="left:120px;top:110px;--sx:-20px"></i>
+          <i class="bspark" style="left:180px;top:116px;--sx:55px"></i>
+          <div class="bpile"><i></i><i></i><i></i><b></b><b></b></div>
         </div>
+        <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="rough" x="-12%" y="-12%" width="124%" height="124%"><feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="24" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
       </div>
     </figure>
 

@@ -40,8 +40,11 @@ Remetente: 1. Escrever → 2. Link gerado → (envia o link por fora do app) →
 
 ## 4b. Queimando (destinatário)
 
-- Sequência: a voz termina, o envelope fecha, uma faísca acende na borda de baixo, as chamas sobem por uma frente de queima inclinada (escurecendo o envelope), o envelope é consumido, um monte de cinzas cresce e alguns flocos sobem e somem. Passa para a 5a (este howler já foi entregue).
-- Duração alvo: de 5 a 6 segundos, depois a 5a. O loop do `reference.html` é só para revisão.
+- **Direção: do centro para fora.** O fogo nasce no selo (a rachadura acende uma faísca), cresce como um anel irregular (elíptico, na proporção do envelope) e chega aos quatro cantos por último. Atrás do anel o papel já sumiu; logo à frente dele o papel está carbonizado.
+- Pedaços queimados (alguns ainda brilhando) se soltam e **caem** com gravidade num monte de cinzas embaixo, desviando um pouco para os lados. Algumas faíscas sobem. O monte cresce conforme os pedaços pousam.
+- Passa para a 5a (este howler já foi entregue).
+- Duração alvo: de 5 a 6 segundos, depois a 5a. O loop de 9s do `reference.html` é só para revisão.
+- Nota para o CP3: a referência usa CSS (uma propriedade customizada registrada para o raio do anel e um filtro SVG de deslocamento para a borda rasgada). Para performance em celulares fracos na versão final, preferir Canvas 2D (máscara de ruído mais partículas), com orçamento de partículas (CP9).
 - Com movimento reduzido: o envelope vira o monte de cinzas num fade lento, sem chamas.
 
 ## 5. Queimado / expirado / não encontrado

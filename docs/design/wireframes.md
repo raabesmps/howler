@@ -144,17 +144,21 @@ Screen 5 has three variants that share one layout: **burned**, **expired**, **no
 ```
 ┌──────────────────────┐
 │                      │
-│     ┌──────────┐     │   t0: sealed envelope appears,
-│     │  (seal)  │     │       a spark at the bottom edge
-│     └──▲▲▲▲▲▲▲─┘     │   t1: flames climb along a slanted
-│       ▲▲▲▲▲▲▲▲       │       front, the envelope chars
-│                      │   t2: nothing left but a heap of
-│     ▃▃▃▅▅▅▃▃         │       ash, flakes drift up
+│   ┌──────────────┐   │   t0: the seal cracks, a spark
+│   │   ╭─────╮    │   │       ignites at the CENTRE
+│   │  ( fire  )   │   │   t1: a ragged ring of fire opens
+│   │   ╰─────╯    │   │       outward, the paper chars
+│   └──────────────┘   │   t2: the ring reaches the corners,
+│        ▫  ▪  ▫       │       burnt bits fall
+│     ▃▃▃▅▅▅▃▃         │   t3: only an ash heap is left
 └──────────────────────┘   then: screen 5a (burned)
 ```
 
-- Sequence: the voice ends, the envelope closes, a spark ignites at the lower edge, flames follow a slanted burn front up the envelope (darkening as it goes), the envelope is eaten, an ash heap grows and a few flakes drift away. Hand-off to 5a (this howler has already been delivered).
-- Duration target: about 5 to 6 seconds, then 5a. The loop in `reference.html` is only for reviewing.
+- **Direction: from the centre outward.** The fire starts at the seal, grows as an irregular ring (elliptical, matching the envelope's proportions) and reaches the four corners last. Behind the ring the paper is gone; just ahead of it the paper is charred dark.
+- Burnt bits (some still glowing) break off and **fall** under gravity into an ash heap at the bottom, drifting sideways a little. A few sparks rise. The heap grows as the pieces land.
+- Hand-off to 5a (this howler has already been delivered).
+- Duration target: about 5 to 6 seconds, then 5a. The 9s loop in `reference.html` is only for reviewing.
+- Implementation note for CP3: the reference uses CSS (a registered custom property for the ring radius, an SVG displacement filter for the ragged edge). For production performance on low-end phones, prefer a Canvas 2D implementation (noise mask plus particles) with a particle budget (CP9).
 - Under reduced motion: a slow fade of the envelope to the ash heap, no flames.
 
 ## 5. Burned / expired / not found (recipient or anyone)

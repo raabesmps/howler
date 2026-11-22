@@ -29,9 +29,9 @@
   .wordmark { font: 700 20px/1 var(--font-display); font-variation-settings: "SOFT" 100, "WONK" 1; letter-spacing: -.01em; }
   .tape { position: absolute; width: 90px; height: 26px; background: rgba(200,164,106,.55); top: -12px; left: 50%; margin-left: -45px; transform: rotate(-3deg); z-index: 3; }
 
-  /* wax seal with glowing crack (shared) */
-  .seal { position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 52% 48% 55% 45% / 48% 54% 46% 52%; background: radial-gradient(circle at 38% 32%, #ff8a4a, var(--ember-500) 45%, #b83a0c 100%); box-shadow: 0 0 0 4px rgba(0,0,0,.18), 0 0 28px 6px rgba(255,91,31,.55); z-index: 3; border: 0; padding: 0; cursor: pointer; color: inherit; }
-  .seal::after { content: ""; position: absolute; inset: 8px 29px; background: var(--flare-400); clip-path: polygon(40% 0, 100% 22%, 20% 48%, 90% 70%, 30% 100%, 0 80%, 70% 52%, 0 30%); filter: drop-shadow(0 0 5px var(--flare-400)); }
+  /* dark wax seal with a glowing crack (shared) */
+  .seal { position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 52% 48% 55% 45% / 48% 54% 46% 52%; background: radial-gradient(circle at 38% 32%, #4a2a20, #2a1410 55%, #160a07 100%); box-shadow: 0 0 0 4px rgba(0,0,0,.25), 0 0 26px 6px rgba(255,91,31,.5); z-index: 3; border: 0; padding: 0; cursor: pointer; color: inherit; }
+  .seal::after { content: ""; position: absolute; inset: 8px 29px; background: var(--flare-400); clip-path: polygon(40% 0, 100% 22%, 20% 48%, 90% 70%, 30% 100%, 0 80%, 70% 52%, 0 30%); filter: drop-shadow(0 0 5px var(--ember-500)); }
   .seal.big { width: 104px; height: 104px; margin: -52px 0 0 -52px; }
   .seal.big::after { inset: 12px 47px; }
 
@@ -52,43 +52,60 @@
   .s-compose .bottom .foot { margin-top: var(--space-3); }
 
   /* 2. LINK: sealed envelope with a tag */
-  .big-env { position: relative; width: 300px; height: 205px; margin: var(--space-6) auto 0; background: var(--kraft-500); border-radius: 2px; transform: rotate(-2deg); box-shadow: 0 26px 0 -12px rgba(0,0,0,.5); }
-  .big-env::before { content: ""; position: absolute; inset: 0; background: var(--kraft-700); clip-path: polygon(0 0, 50% 58%, 100% 0); }
-  .big-env::after { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,.16); clip-path: polygon(0 100%, 50% 42%, 50% 44%, 2% 100%); }
-  .big-env .addr { position: absolute; left: 22px; bottom: 58px; font: italic 700 20px/1.1 var(--font-display); font-variation-settings: "SOFT" 100, "WONK" 1; color: var(--ink-900); z-index: 2; }
-  .big-env .addr span { display: block; font: 600 11px/1 var(--font-ui); letter-spacing: .1em; text-transform: uppercase; opacity: .6; margin-bottom: 4px; font-style: normal; }
+  .big-env { position: relative; width: 300px; height: 205px; margin: var(--space-6) auto 0; background: var(--env-500); border-radius: 2px; transform: rotate(-2deg); box-shadow: 0 26px 0 -12px rgba(0,0,0,.5); }
+  .big-env::before { content: ""; position: absolute; inset: 0; background: var(--env-700); clip-path: polygon(0 0, 50% 58%, 100% 0); }
+  .big-env::after { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,.2); clip-path: polygon(0 100%, 50% 42%, 50% 44%, 2% 100%); }
+  .big-env .addr { position: absolute; left: 22px; bottom: 58px; font: italic 700 20px/1.1 var(--font-display); font-variation-settings: "SOFT" 100, "WONK" 1; color: var(--paper-100); z-index: 2; }
+  .big-env .addr span { display: block; font: 600 11px/1 var(--font-ui); letter-spacing: .1em; text-transform: uppercase; opacity: .75; margin-bottom: 4px; font-style: normal; }
   .tag { position: relative; width: 78%; margin: -18px auto 0; background: var(--paper-100); color: var(--ink-900); padding: 14px 16px 12px; border-radius: 3px; transform: rotate(1.6deg); z-index: 4; box-shadow: 0 10px 0 -4px rgba(0,0,0,.5); }
   .tag::before { content: ""; position: absolute; left: 50%; top: -9px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--char-950); box-shadow: inset 0 0 0 3px #8c8378; }
   .tag small { display: block; font: 600 11px/1 var(--font-ui); letter-spacing: .1em; text-transform: uppercase; opacity: .6; margin-bottom: 6px; }
   .tag input { width: 100%; border: 0; background: transparent; font: 600 15px/1.3 ui-monospace, "SFMono-Regular", Consolas, monospace; color: var(--ink-900); padding: 0; }
 
   /* 3. CLOSED: full-bleed envelope, the seal is the button */
-  .s-closed { padding: 0; background: radial-gradient(90% 50% at 50% 55%, #2a1a12 0%, var(--char-950) 72%); }
-  .full-env { position: absolute; left: -14%; right: -14%; top: 15%; height: 380px; background: var(--kraft-500); transform: rotate(-3deg); box-shadow: 0 40px 0 -20px rgba(0,0,0,.5); z-index: 2; }
-  .full-env::before { content: ""; position: absolute; inset: 0; background: var(--kraft-700); clip-path: polygon(0 0, 50% 60%, 100% 0); }
-  .full-env::after { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,.14); clip-path: polygon(0 100%, 50% 44%, 50% 46%, 1% 100%); }
+  .s-closed { padding: 0; background: radial-gradient(90% 50% at 50% 55%, #2a1410 0%, var(--char-950) 72%); }
+  .full-env { position: absolute; left: -14%; right: -14%; top: 15%; height: 380px; background: var(--env-500); transform: rotate(-3deg); box-shadow: 0 40px 0 -20px rgba(0,0,0,.5); z-index: 2; }
+  .full-env::before { content: ""; position: absolute; inset: 0; background: var(--env-700); clip-path: polygon(0 0, 50% 60%, 100% 0); }
+  .full-env::after { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,.18); clip-path: polygon(0 100%, 50% 44%, 50% 46%, 1% 100%); }
   .full-env .seal { top: 60%; z-index: 4; }
-  .glow { position: absolute; left: 50%; top: 56%; width: 340px; height: 340px; margin: -170px 0 0 -170px; background: radial-gradient(circle, rgba(255,91,31,.38), transparent 62%); z-index: 1; }
+  .glow { position: absolute; left: 50%; top: 56%; width: 340px; height: 340px; margin: -170px 0 0 -170px; background: radial-gradient(circle, rgba(255,91,31,.34), transparent 62%); z-index: 1; }
   .wisp { position: absolute; bottom: 62%; width: 90px; height: 160px; background: radial-gradient(closest-side, rgba(140,131,120,.28), transparent); filter: blur(6px); z-index: 1; }
   .s-closed .top-line { position: absolute; top: var(--space-5); left: 0; right: 0; text-align: center; color: var(--ash-400); font: 600 13px/1 var(--font-ui); letter-spacing: .1em; text-transform: uppercase; z-index: 5; }
   .s-closed .bottom { position: absolute; left: var(--gutter); right: var(--gutter); bottom: var(--space-5); z-index: 5; text-align: center; }
   .s-closed .big { font: 700 34px/1.05 var(--font-display); font-variation-settings: "SOFT" 100, "WONK" 1; }
   .s-closed .big em { color: var(--ember-500); }
 
-  /* 4. SCREAMING: burning paper, huge words */
-  .s-scream { padding: 0; background: radial-gradient(80% 60% at 50% 40%, #3a1608, #0a0706 80%); }
-  .burnpaper { position: absolute; left: 6%; right: 6%; top: 8%; bottom: 20%; background: var(--paper-100); color: var(--ink-900); padding: var(--space-6) var(--space-5); display: flex; align-items: center; clip-path: polygon(0 3%, 6% 0, 14% 2%, 24% 0, 38% 3%, 52% 0, 66% 2%, 80% 0, 92% 3%, 100% 1%, 100% 94%, 94% 97%, 85% 93%, 74% 98%, 60% 94%, 48% 99%, 34% 95%, 22% 98%, 10% 94%, 0 97%); transform: rotate(1.2deg); }
-  .burnpaper::before { content: ""; position: absolute; inset: 0; background: radial-gradient(closest-side at 50% 50%, transparent 68%, rgba(150,70,20,.3) 88%, rgba(70,25,8,.7) 100%); }
-  .burnpaper p { position: relative; font: 800 46px/1.02 var(--font-display); font-variation-settings: "SOFT" 100, "WONK" 1; letter-spacing: -.02em; text-transform: uppercase; }
-  .burnpaper .dim { opacity: .22; }
-  .burnpaper .now { background: var(--ember-500); color: var(--ink-900); padding: 0 6px; margin: 0 -6px; }
-  .flames { position: absolute; left: -10%; right: -10%; bottom: -8%; height: 46%; background: radial-gradient(60% 100% at 20% 100%, var(--flare-400), var(--ember-500) 40%, transparent 70%), radial-gradient(50% 90% at 70% 100%, var(--flare-400), var(--ember-500) 42%, transparent 72%), radial-gradient(40% 70% at 95% 100%, var(--ember-500), transparent 70%); filter: blur(2px); z-index: 3; }
-  .ember { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: var(--flare-400); box-shadow: 0 0 8px 2px var(--ember-500); z-index: 4; }
+  /* 4a. SCREAMING: the open envelope talks, the letter rises out of it. No fire. */
+  .s-talk { padding: 0; background: radial-gradient(80% 50% at 50% 72%, #3a1308 0%, #0e0907 75%); }
+  .talker { position: absolute; left: 50%; bottom: 9%; width: 300px; height: 190px; margin-left: -150px; transform-origin: 50% 100%; }
+  .t-back { position: absolute; inset: 0; background: #5a1a0a; border-radius: 2px; }
+  .t-flap { position: absolute; left: 0; right: 0; bottom: 100%; height: 170px; background: #9a3014; clip-path: polygon(0 100%, 50% 0, 100% 100%); transform-origin: 50% 100%; transform: scaleY(.6); }
+  .t-letter { position: absolute; left: 52px; right: 52px; bottom: 120px; height: 380px; background: var(--paper-100); color: var(--ink-900); padding: 30px 20px 0; transform: rotate(-1.4deg); box-shadow: 0 0 0 1px rgba(0,0,0,.15); }
+  .t-letter p { font: 800 31px/1.02 var(--font-display); font-variation-settings: "SOFT" 100, "WONK" 1; letter-spacing: -.02em; text-transform: uppercase; }
+  .t-letter .dim { opacity: .22; }
+  .t-letter .now { background: var(--ember-500); color: var(--ink-900); padding: 0 5px; margin: 0 -5px; }
+  .t-front { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,.28), transparent 46%), var(--env-500); clip-path: polygon(0 0, 50% 46%, 100% 0, 100% 100%, 0 100%); z-index: 2; }
   .mute { position: absolute; top: var(--space-4); right: var(--space-4); z-index: 6; width: 48px; height: 48px; border-radius: var(--radius-s); border: 1px solid rgba(243,234,216,.25); background: rgba(16,14,12,.6); color: var(--paper-100); font: 600 13px/1 var(--font-ui); }
 
+  /* 4b. BURNING: the envelope catches fire and turns to ash (loops) */
+  .s-burn { padding: 0; background: #0c0807; }
+  .b-glow { position: absolute; left: 50%; top: 40%; width: 460px; height: 460px; margin: -230px 0 0 -230px; background: radial-gradient(circle, rgba(255,91,31,.55), transparent 62%); opacity: 0; }
+  .bstage { position: absolute; left: 50%; top: 30%; width: 300px; height: 210px; margin-left: -150px; opacity: 0; }
+  .benv { position: absolute; inset: 0; background: var(--env-500); clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+  .benv::before { content: ""; position: absolute; inset: 0; background: var(--env-700); clip-path: polygon(0 0, 50% 58%, 100% 0); }
+  .benv::after { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,.2); clip-path: polygon(0 100%, 50% 42%, 50% 44%, 2% 100%); }
+  .bflame { position: absolute; left: -14px; right: -14px; top: 210px; height: 130px; margin-top: -126px; opacity: 0; pointer-events: none; z-index: 5; }
+  .bflame .bf { position: absolute; inset: 0; transform-origin: 50% 100%; background: radial-gradient(14% 100% at 8% 100%, var(--flare-400), var(--ember-500) 40%, transparent 72%), radial-gradient(12% 70% at 24% 100%, var(--flare-400), var(--ember-500) 42%, transparent 74%), radial-gradient(15% 100% at 40% 100%, var(--flare-400), var(--ember-500) 40%, transparent 72%), radial-gradient(12% 80% at 57% 100%, var(--flare-400), var(--ember-500) 42%, transparent 74%), radial-gradient(14% 95% at 73% 100%, var(--flare-400), var(--ember-500) 40%, transparent 72%), radial-gradient(12% 65% at 90% 100%, var(--ember-500), transparent 74%), linear-gradient(to top, rgba(255,91,31,.55), transparent 45%); filter: blur(.6px); }
+  .bflame::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: -2px; height: 5px; background: var(--flare-400); box-shadow: 0 0 10px 3px var(--ember-500); }
+  .bash { position: absolute; left: 24px; right: 24px; bottom: -8px; height: 60px; transform-origin: 50% 100%; transform: scaleY(0); }
+  .bash i { position: absolute; bottom: 0; background: #2a2622; border-radius: 40% 60% 20% 30%; }
+  .bash i:nth-child(1) { left: 0; width: 150px; height: 34px; } .bash i:nth-child(2) { left: 86px; width: 130px; height: 56px; background: #332d28; } .bash i:nth-child(3) { left: 190px; width: 62px; height: 26px; }
+  .bash b { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: var(--ember-500); box-shadow: 0 0 8px var(--ember-500); } .bash b:nth-of-type(1) { left: 110px; bottom: 44px; } .bash b:nth-of-type(2) { left: 170px; bottom: 30px; background: var(--flare-400); }
+  .flake { position: absolute; bottom: 30px; width: 7px; height: 4px; background: #3b342e; border-radius: 1px; opacity: 0; }
+
   /* 5. end states (approved, unchanged) */
-  .env { position: relative; width: 220px; height: 150px; margin: var(--space-7) auto var(--space-5); background: var(--kraft-500); border-radius: 2px; box-shadow: 0 24px 0 -12px rgba(0,0,0,.45); }
-  .env::before { content: ""; position: absolute; inset: 0; background: var(--kraft-700); clip-path: polygon(0 0, 50% 58%, 100% 0); }
+  .env { position: relative; width: 220px; height: 150px; margin: var(--space-7) auto var(--space-5); background: var(--env-500); border-radius: 2px; box-shadow: 0 24px 0 -12px rgba(0,0,0,.45); }
+  .env::before { content: ""; position: absolute; inset: 0; background: var(--env-700); clip-path: polygon(0 0, 50% 58%, 100% 0); }
   .env::after { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, transparent 49.4%, rgba(0,0,0,.18) 50%) left/50% 100% no-repeat, linear-gradient(225deg, transparent 49.4%, rgba(0,0,0,.18) 50%) right/50% 100% no-repeat; clip-path: polygon(0 100%, 50% 38%, 100% 100%); }
   .env.grey { background: #6c665e; } .env.grey::before { background: #565049; }
   .env.open { background: #6c665e; } .env.open::before { background: #565049; clip-path: polygon(0 0, 50% -30%, 100% 0); transform: translateY(-4px); }
@@ -101,18 +118,84 @@
   @media (prefers-reduced-motion: no-preference) {
     .full-env { animation: tremble .14s linear infinite; }
     .full-env .seal { animation: pulse 1.6s ease-in-out infinite; }
-    .flames { animation: flick .5s ease-in-out infinite alternate; }
-    .burnpaper { animation: shake .09s linear infinite; }
+
+    /* 4a: speech rhythm. Bursts of motion with pauses, flap works like a jaw, letter rises once per loop */
+    .talker { animation: talk 2.6s ease-in-out infinite; }
+    .t-flap { animation: flap 2.6s ease-in-out infinite; }
+    .t-letter { animation: rise 7.8s cubic-bezier(.2,.8,.2,1) infinite; }
+    @keyframes talk {
+      0%, 22%, 30%, 50%, 78%, 100% { transform: translate(0,0) rotate(0) scale(1,1); }
+      6%  { transform: translate(-3px,-6px) rotate(-1.8deg) scale(1.04,.96); }
+      11% { transform: translate(4px,2px) rotate(2deg) scale(.97,1.04); }
+      16% { transform: translate(-2px,-3px) rotate(-1deg) scale(1.01,.99); }
+      34% { transform: translate(5px,-7px) rotate(2.4deg) scale(1.05,.95); }
+      38% { transform: translate(-5px,3px) rotate(-2.6deg) scale(.96,1.05); }
+      43% { transform: translate(3px,-2px) rotate(1deg) scale(1,1); }
+      58% { transform: translate(-2px,-9px) rotate(-2deg) scale(1.06,.94); }
+      62% { transform: translate(6px,2px) rotate(2.8deg) scale(.95,1.06); }
+      66% { transform: translate(-4px,-4px) rotate(-1.6deg) scale(1.02,.98); }
+      72% { transform: translate(3px,1px) rotate(1deg) scale(1,1); }
+    }
+    @keyframes flap {
+      0%, 22%, 30%, 50%, 72%, 100% { transform: scaleY(.6); }
+      6% { transform: scaleY(1); } 11% { transform: scaleY(.45); } 16% { transform: scaleY(.95); }
+      34% { transform: scaleY(1.06); } 38% { transform: scaleY(.4); } 43% { transform: scaleY(.9); }
+      58% { transform: scaleY(1.1); } 62% { transform: scaleY(.38); } 66% { transform: scaleY(.98); }
+    }
+    @keyframes rise {
+      0% { transform: translateY(200px) rotate(-1.4deg); }
+      16% { transform: translateY(0) rotate(-1.4deg); }
+      92% { transform: translateY(0) rotate(-1.4deg); }
+      100% { transform: translateY(200px) rotate(-1.4deg); }
+    }
+
+    /* 4b: 9s loop. Fire starts, eats the envelope along a slanted front, ash pile and flakes remain */
+    .bstage { animation: stage 9s linear infinite; }
+    .benv { animation: eat 9s linear infinite; }
+    .bflame { animation: front 9s linear infinite; }
+    .bflame .bf { animation: flick .42s ease-in-out infinite alternate; }
+    .bash { animation: pile 9s ease-out infinite; }
+    .b-glow { animation: glow 9s linear infinite; }
+    .flake { animation: flake 9s ease-out infinite; }
+    .flake:nth-of-type(1) { left: 60px; --dx: -50px; animation-delay: 0s; }
+    .flake:nth-of-type(2) { left: 120px; --dx: 40px; animation-delay: .5s; }
+    .flake:nth-of-type(3) { left: 170px; --dx: -30px; animation-delay: 1s; }
+    .flake:nth-of-type(4) { left: 220px; --dx: 60px; animation-delay: .3s; }
+    .flake:nth-of-type(5) { left: 90px; --dx: 20px; animation-delay: 1.4s; }
+    .flake:nth-of-type(6) { left: 190px; --dx: -55px; animation-delay: .8s; }
+    @keyframes stage { 0% { opacity: 0; } 4% { opacity: 1; } 93% { opacity: 1; } 100% { opacity: 0; } }
+    @keyframes eat {
+      0%, 10% { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); filter: brightness(1); }
+      40% { clip-path: polygon(0 0, 100% 0, 100% 62%, 0 48%); filter: brightness(.7); }
+      70% { clip-path: polygon(0 0, 100% 0, 100% 14%, 0 4%); filter: brightness(.45); }
+      76%, 100% { clip-path: polygon(0 0, 100% 0, 100% 0, 0 0); filter: brightness(.4); }
+    }
+    @keyframes front {
+      0% { top: 210px; transform: rotate(0); opacity: 0; }
+      8% { top: 210px; transform: rotate(0); opacity: 1; }
+      10% { top: 210px; transform: rotate(0); opacity: 1; }
+      40% { top: 115px; transform: rotate(5deg); opacity: 1; }
+      70% { top: 19px; transform: rotate(3.4deg); opacity: 1; }
+      76% { top: 0; transform: rotate(0); opacity: .8; }
+      84%, 100% { top: 0; transform: rotate(0); opacity: 0; }
+    }
+    @keyframes flick { from { transform: scaleY(.88) skewX(-2deg); } to { transform: scaleY(1.14) skewX(2deg); } }
+    @keyframes pile { 0%, 30% { transform: scaleY(0); } 78%, 100% { transform: scaleY(1); } }
+    @keyframes glow { 0%, 8% { opacity: 0; } 40% { opacity: .5; } 70% { opacity: .65; } 82% { opacity: .15; } 100% { opacity: 0; } }
+    @keyframes flake { 0%, 34% { opacity: 0; transform: translate(0,0) rotate(0); } 42% { opacity: .9; } 88% { opacity: 0; transform: translate(var(--dx), -170px) rotate(220deg); } 100% { opacity: 0; } }
+
     @keyframes tremble { 0% { transform: rotate(-3deg) translate(0,0); } 25% { transform: rotate(-3.3deg) translate(2px,-1px); } 50% { transform: rotate(-2.8deg) translate(-2px,1px); } 75% { transform: rotate(-3.2deg) translate(1px,2px); } 100% { transform: rotate(-3deg) translate(0,0); } }
-    @keyframes pulse { 50% { transform: scale(1.1); box-shadow: 0 0 0 4px rgba(0,0,0,.18), 0 0 44px 14px rgba(255,91,31,.7); } }
-    @keyframes flick { to { transform: scaleY(1.12) translateY(-2%); } }
-    @keyframes shake { 0% { transform: rotate(1.2deg) translate(0,0); } 50% { transform: rotate(1.5deg) translate(3px,-2px); } 100% { transform: rotate(.9deg) translate(-3px,2px); } }
+    @keyframes pulse { 50% { transform: scale(1.1); box-shadow: 0 0 0 4px rgba(0,0,0,.25), 0 0 44px 14px rgba(255,91,31,.7); } }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bstage { opacity: 1; } .benv { display: none; } .bash { transform: none; }
+    .t-flap { transform: scaleY(.8); }
   }
 </style>
 </head>
 <body>
-  <h1>Howler: screen references (v2)</h1>
-  <p class="lead">Static references for the 5 screens. v2 reworks screens 1 to 4 so the interface itself is the paper, the envelope and the fire. Screen 5 variants are approved and unchanged. Motion here only hints at what CP3 will do properly. Type in screen 1 to see the paper scorch.</p>
+  <h1>Howler: screen references (v3)</h1>
+  <p class="lead">Static references for the 5 screens. v3: the envelope is a closed brick red, screen 4 is split in 4a (the envelope talks while the letter rises out of it) and 4b (the envelope burns to ash). Screen 5 variants are approved and unchanged. Motion here only hints at what CP3 will do properly. Type in screen 1 to see the paper scorch.</p>
 
   <div class="grid">
 
@@ -165,14 +248,28 @@
     </figure>
 
     <figure>
-      <figcaption>4. Screaming</figcaption>
-      <div class="screen s-scream">
+      <figcaption>4a. Screaming (the envelope talks)</figcaption>
+      <div class="screen s-talk">
         <button class="mute" type="button" aria-label="Mute">Mute</button>
-        <div class="burnpaper" role="img" aria-label="The message: You never answer my calls">
-          <p><span class="dim">You never</span> <span class="now">answer</span> <span class="dim">my calls</span></p>
+        <div class="talker" role="img" aria-label="The message: You never answer my calls">
+          <div class="t-back"></div>
+          <div class="t-flap"></div>
+          <div class="t-letter"><p><span class="dim">You never</span> <span class="now">answer</span> <span class="dim">my calls</span></p></div>
+          <div class="t-front"></div>
         </div>
-        <div class="flames"></div>
-        <i class="ember" style="left:18%;bottom:30%"></i><i class="ember" style="left:72%;bottom:38%;width:4px;height:4px"></i><i class="ember" style="left:46%;bottom:50%;width:3px;height:3px"></i><i class="ember" style="left:86%;bottom:24%"></i>
+      </div>
+    </figure>
+
+    <figure>
+      <figcaption>4b. Burning (loops)</figcaption>
+      <div class="screen s-burn">
+        <div class="b-glow"></div>
+        <div class="bstage" aria-hidden="true">
+          <div class="benv"><span class="seal"></span></div>
+          <div class="bflame"><div class="bf"></div></div>
+          <div class="bash"><i></i><i></i><i></i><b></b><b></b></div>
+          <i class="flake"></i><i class="flake"></i><i class="flake"></i><i class="flake"></i><i class="flake"></i><i class="flake"></i>
+        </div>
       </div>
     </figure>
 

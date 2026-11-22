@@ -7,7 +7,7 @@
 **Ideia: papel chamuscado.** Uma carta prestes a queimar. O produto inteiro é um objeto (um envelope) e um momento (ele queima), então a interface fica quieta e escura até esse momento, e o fogo é a única cor alta.
 
 - **Tom:** seco, um pouco teatral, nunca fofo. Frases curtas. O produto fala como rubrica de teatro ("Toque para abrir."), não como app ("Vamos começar!").
-- **Sem cara de filme:** nada de vermelho e dourado, brasão, letra gótica ou pergaminho clichê. O envelope é de **papel kraft** simples com uma **rachadura de selo brilhando**, a interface é **carvão**, o destaque é **laranja brasa**.
+- **Sem cara de filme:** nada de acabamento dourado, brasão, letra gótica ou pergaminho clichê. O envelope é de um **vermelho tijolo fechado, puxando pro laranja** (de propósito não é vermelho sangue nem o vermelho vivo do filme), com **selo de cera escura e rachadura brilhando**, a interface é **carvão**, o destaque é **laranja brasa**.
 - **Sem cara de IA genérica:** sem gradiente roxo, sem glassmorphism, sem emoji na interface, sem tudo arredondado. Superfícies chapadas, sombras duras, uma serifa com personalidade, bastante espaço vazio.
 - **Mobile primeiro:** uma coluna, ações ao alcance do polegar embaixo, área de toque mínima de 48px.
 
@@ -20,13 +20,13 @@
 | `--char-700` | `#2E2924` | bordas, divisores |
 | `--ash-400` | `#8C8378` | texto secundário |
 | `--paper-100` | `#F3EAD8` | texto principal, papel do recado |
-| `--kraft-500` | `#C8A46A` | corpo do envelope |
-| `--kraft-700` | `#9C7B47` | aba e lado de sombra do envelope |
+| `--env-500` | `#B5391A` | corpo do envelope |
+| `--env-700` | `#8A2A12` | aba e lado de sombra do envelope |
 | `--ember-500` | `#FF5B1F` | ação principal, fogo, brilho do selo |
 | `--flare-400` | `#FFC247` | brilho do fogo, anel de foco |
 | `--ink-900` | `#1B1612` | texto sobre papel e sobre botão brasa |
 
-Contraste medido (WCAG AA exige 4,5:1 para texto): `--paper-100` sobre `--char-950` 16,1:1; `--ash-400` sobre `--char-950` 5,2:1 (4,8:1 sobre `--char-900`); `--ink-900` sobre `--ember-500` 5,8:1; `--ember-500` sobre `--char-950` 6,2:1; `--ink-900` sobre `--paper-100` 15,0:1. Todos passam AA. Reverificar com ferramenta no CP9.
+Contraste medido (WCAG AA exige 4,5:1 para texto): `--paper-100` sobre `--char-950` 16,1:1; `--ash-400` sobre `--char-950` 5,2:1 (4,8:1 sobre `--char-900`); `--ink-900` sobre `--ember-500` 5,8:1; `--ember-500` sobre `--char-950` 6,2:1; `--ink-900` sobre `--paper-100` 15,0:1; `--paper-100` sobre `--env-500` 4,9:1 (texto no envelope); `--env-500` sobre `--char-950` 3,3:1 (gráfico, exige 3:1). Todos passam AA. Reverificar com ferramenta no CP9.
 
 Cores de erro e estado reaproveitam a paleta de propósito: **expirado** usa `--ash-400`, **queimado** usa texto `--ember-500` sobre carvão. Não há vermelho nem verde separados.
 

@@ -11,7 +11,7 @@ Sender                                   Recipient
   1. Compose ──► 2. Share link ─ (sends link outside the app) ─► 3. Closed envelope
                                                                       │ tap
                                                                       ▼
-                                                               4. Screaming
+                                                               4a. Screaming ──► 4b. Burning
                                                                       │ ends
                                                                       ▼
                                                                 5. Burned
@@ -61,7 +61,7 @@ Screen 5 has three variants that share one layout: **burned**, **expired**, **no
 ┌──────────────────────┐
 │ HOWLER               │
 │                      │
-│   [sealed envelope]  │  static, small, kraft
+│   [sealed envelope]  │  static, small, brick red
 │                      │
 │ It's sealed.         │
 │ Send this link.      │
@@ -93,7 +93,7 @@ Screen 5 has three variants that share one layout: **burned**, **expired**, **no
 │                      │
 │                      │
 │     ┌──────────┐     │
-│     │ ╲      ╱ │     │  kraft envelope,
+│     │ ╲      ╱ │     │  brick-red envelope,
 │     │  ╲ ◉  ╱  │     │  seal crack glows ember,
 │     │   ╲  ╱   │     │  slow idle breathing
 │     └──────────┘     │
@@ -114,28 +114,48 @@ Screen 5 has three variants that share one layout: **burned**, **expired**, **no
 - Opening is irreversible; the page states it ("This can only be opened once.").
 - The page does not call the open endpoint until the tap (link previews and bots must not burn it).
 
-## 4. Screaming (recipient)
+## 4a. Screaming (recipient)
 
 ```
 ┌──────────────────────┐
-│ ░ smoke ░░ embers ░  │  canvas layer, full screen
+│                [mute]│  top corner, 48px target
 │                      │
-│   ┌──────────────┐   │
-│   │              │   │  note unfolds out of the
-│   │  YOU  NEVER  │   │  envelope; words appear
-│   │  ANSWER  MY  │   │  in sync with the voice,
-│   │  CALLS       │   │  current word highlighted
-│   │              │   │
-│   └──────────────┘   │
-│ ▓▓▓ fire at edges ▓▓ │
-│                      │
-│ [mute]               │  small, top corner, 48px target
+│     ┌──────────┐     │
+│     │ YOU      │     │  the letter rises out of the
+│     │ NEVER    │     │  envelope; words appear in
+│     │ ANSWER   │     │  sync with the voice, current
+│     │ MY CALLS │     │  word highlighted
+│  ╲  │          │  ╱  │  flap works like a jaw
+│   ┌─┴──╲    ╱──┴─┐   │
+│   │      ╲╱      │   │  brick-red envelope, open,
+│   └──────────────┘   │  body shakes as if it were talking
 └──────────────────────┘
 ```
 
-- Sequence: rumble and growing shake, flap flies open, smoke, note unfolds, voice screams while words appear, fire eats the note from the edges, screen flash, ash.
-- Screen shake and flash are skipped under reduced motion (see tokens).
+- **The envelope is the speaker.** It does not shake with a uniform rumble. It moves in **bursts that follow the speech rhythm**: short, sharp hits when a word is stressed, near-stillness in the pauses. Body squashes and stretches a little (taller on the hit, flatter on release), tilts a few degrees left and right, and the **flap opens and closes like a jaw** in time with the voice.
+- The letter slides up out of the envelope pocket at the start (about 0.6s) and then rides along with the envelope's motion.
+- **No fire in this screen.** Fire belongs to 4b.
+- Under reduced motion: no shake and no flap movement; the letter fades in above a still, open envelope and the words highlight in sync.
 - Text is always real DOM text (selectable by screen readers), also announced with `aria-live="polite"` once, not word by word.
+- Implementation note for CP3/CP4: drive the burst rhythm from the voice's loudness envelope (Web Audio `AnalyserNode`) instead of fixed keyframes, so the envelope really moves with the speech. The CSS keyframes in `reference.html` are a stand-in.
+
+## 4b. Burning (recipient)
+
+```
+┌──────────────────────┐
+│                      │
+│     ┌──────────┐     │   t0: sealed envelope appears,
+│     │  (seal)  │     │       a spark at the bottom edge
+│     └──▲▲▲▲▲▲▲─┘     │   t1: flames climb along a slanted
+│       ▲▲▲▲▲▲▲▲       │       front, the envelope chars
+│                      │   t2: nothing left but a heap of
+│     ▃▃▃▅▅▅▃▃         │       ash, flakes drift up
+└──────────────────────┘   then: screen 5a (burned)
+```
+
+- Sequence: the voice ends, the envelope closes, a spark ignites at the lower edge, flames follow a slanted burn front up the envelope (darkening as it goes), the envelope is eaten, an ash heap grows and a few flakes drift away. Hand-off to 5a (this howler has already been delivered).
+- Duration target: about 5 to 6 seconds, then 5a. The loop in `reference.html` is only for reviewing.
+- Under reduced motion: a slow fade of the envelope to the ash heap, no flames.
 
 ## 5. Burned / expired / not found (recipient or anyone)
 

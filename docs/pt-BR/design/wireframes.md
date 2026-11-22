@@ -6,7 +6,7 @@ Viewport alvo: 390 x 844 (iPhone 14) até 360 x 640 (Android pequeno). Uma colun
 
 ## Fluxo
 
-Remetente: 1. Escrever → 2. Link gerado → (envia o link por fora do app) → Destinatário: 3. Envelope fechado → (toque) → 4. Berrando → 5. Queimado. Abrir o link de novo, ou depois de 7 dias, leva à tela 5 (variantes queimado, expirado e não encontrado, mesmo layout).
+Remetente: 1. Escrever → 2. Link gerado → (envia o link por fora do app) → Destinatário: 3. Envelope fechado → (toque) → 4a. Berrando → 4b. Queimando → 5. Queimado. Abrir o link de novo, ou depois de 7 dias, leva à tela 5 (variantes queimado, expirado e não encontrado, mesmo layout).
 
 ## 1. Escrever (remetente)
 
@@ -23,18 +23,26 @@ Remetente: 1. Escrever → 2. Link gerado → (envia o link por fora do app) →
 
 ## 3. Envelope fechado (destinatário)
 
-- Envelope kraft com a rachadura do selo brilhando em laranja, respirando devagar.
+- Envelope vermelho tijolo (fechado, puxando pro laranja) com o selo de cera escura e a rachadura brilhando em laranja, respirando devagar.
 - "Alguém te enviou algo." e "Para: Ana" só se houver nome.
 - Botão "Toque para abrir": este toque desbloqueia o áudio. Envelope inteiro e botão são tocáveis.
 - Aviso: "Som alto. Abaixe o volume antes." e "Só pode ser aberto uma vez."
 - A página **não** chama o endpoint de abrir antes do toque (prévias de link e bots não podem queimar o howler).
 
-## 4. Berrando (destinatário)
+## 4a. Berrando (destinatário)
 
-- Camada de canvas em tela cheia (fumaça e brasas); o papel se desdobra do envelope; as palavras aparecem em sincronia com a voz, com a palavra atual destacada.
-- Sequência: ronco e tremor crescente, aba abre de golpe, fumaça, papel desdobra, voz grita enquanto as palavras aparecem, fogo come o papel pelas bordas, flash, cinzas.
-- Tremor e flash são pulados com movimento reduzido.
+- **O envelope é quem fala.** Ele não treme num ronco uniforme. Ele se mexe em **rajadas no ritmo da fala**: batidas curtas e secas nas palavras fortes, quase parado nas pausas. O corpo estica e comprime um pouco (mais alto na batida, mais achatado ao soltar), inclina alguns graus pros lados, e a **aba abre e fecha como uma mandíbula** no tempo da voz.
+- A carta sobe de dentro do envelope no começo (cerca de 0,6s) e depois acompanha o movimento dele. As palavras aparecem em sincronia com a voz, com a palavra atual destacada.
+- **Sem fogo nesta tela.** O fogo é da 4b.
+- Com movimento reduzido: sem tremor e sem a aba mexendo; a carta aparece com fade sobre o envelope aberto e parado, e as palavras destacam em sincronia.
 - O texto é sempre texto real no DOM, anunciado uma vez com `aria-live="polite"`, não palavra por palavra. Botão de mudo no canto, alvo de 48px.
+- Nota para CP3/CP4: o ritmo das rajadas deve vir do volume da voz (`AnalyserNode` do Web Audio) e não de keyframes fixos, para o envelope mexer de verdade com a fala. Os keyframes CSS do `reference.html` são só um substituto.
+
+## 4b. Queimando (destinatário)
+
+- Sequência: a voz termina, o envelope fecha, uma faísca acende na borda de baixo, as chamas sobem por uma frente de queima inclinada (escurecendo o envelope), o envelope é consumido, um monte de cinzas cresce e alguns flocos sobem e somem. Passa para a 5a (este howler já foi entregue).
+- Duração alvo: de 5 a 6 segundos, depois a 5a. O loop do `reference.html` é só para revisão.
+- Com movimento reduzido: o envelope vira o monte de cinzas num fade lento, sem chamas.
 
 ## 5. Queimado / expirado / não encontrado
 

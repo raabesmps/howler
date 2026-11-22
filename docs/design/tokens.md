@@ -7,7 +7,7 @@
 **Idea: scorched paper.** A letter that is about to burn. The whole product is one object (an envelope) and one moment (it burns), so the interface stays quiet and dark until that moment, and the fire is the only loud color.
 
 - **Tone:** dry, a little theatrical, never cute. Short sentences. The product talks like a stage direction ("Tap to open."), not like an app ("Let's get started!").
-- **Not the movie:** no red-and-gold, no crest, no gothic lettering, no parchment-scroll clichés. The envelope is plain **kraft paper** with a **glowing seal crack**, the interface is **charcoal**, the accent is **ember orange**.
+- **Not the movie:** no gold trim, no crest, no gothic lettering, no parchment-scroll clichés. The envelope is a **closed brick red leaning orange** (deliberately not blood red and not the movie's bright red) with a **dark wax seal and a glowing crack**, the interface is **charcoal**, the accent is **ember orange**.
 - **Not generic-AI:** no purple gradients, no glassmorphism, no emoji in UI, no rounded-everything. Flat surfaces, hard shadows, one serif with character, generous empty space.
 - **Mobile first:** one column, thumb-reachable actions at the bottom, minimum tap target 48px.
 
@@ -20,13 +20,13 @@
 | `--char-700` | `#2E2924` | borders, dividers |
 | `--ash-400` | `#8C8378` | secondary text |
 | `--paper-100` | `#F3EAD8` | primary text, note paper |
-| `--kraft-500` | `#C8A46A` | envelope body |
-| `--kraft-700` | `#9C7B47` | envelope flap and shadow side |
+| `--env-500` | `#B5391A` | envelope body |
+| `--env-700` | `#8A2A12` | envelope flap and shadow side |
 | `--ember-500` | `#FF5B1F` | primary action, fire, seal glow |
 | `--flare-400` | `#FFC247` | fire highlight, focus ring |
 | `--ink-900` | `#1B1612` | text on paper and on ember buttons |
 
-Measured contrast (WCAG AA needs 4.5:1 for body text): `--paper-100` on `--char-950` 16.1:1; `--ash-400` on `--char-950` 5.2:1 (4.8:1 on `--char-900`); `--ink-900` on `--ember-500` 5.8:1; `--ember-500` on `--char-950` 6.2:1; `--ink-900` on `--paper-100` 15.0:1. All pass AA. Re-verify with a tool in CP9.
+Measured contrast (WCAG AA needs 4.5:1 for body text): `--paper-100` on `--char-950` 16.1:1; `--ash-400` on `--char-950` 5.2:1 (4.8:1 on `--char-900`); `--ink-900` on `--ember-500` 5.8:1; `--ember-500` on `--char-950` 6.2:1; `--ink-900` on `--paper-100` 15.0:1; `--paper-100` on `--env-500` 4.9:1 (text on the envelope); `--env-500` on `--char-950` 3.3:1 (graphic, needs 3:1). All pass AA. Re-verify with a tool in CP9.
 
 Error and state colors reuse the palette on purpose: **expired** uses `--ash-400`, **burned** uses `--ember-500` text on charcoal. There is no separate red or green.
 

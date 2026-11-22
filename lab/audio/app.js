@@ -11,7 +11,7 @@
       if (!AC) return null;
       LAB.ctx = new AC();
     }
-    if (LAB.ctx.state !== 'running') LAB.ctx.resume();
+    if (LAB.ctx.state !== 'running' && LAB.ctx.resume) LAB.ctx.resume().catch(function () { /* offline contexts (tests) cannot resume */ });
     return LAB.ctx;
   };
 

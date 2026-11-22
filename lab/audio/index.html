@@ -75,7 +75,28 @@
       <div id="rateB"></div>
     </section>
     <!-- CARD_B_END -->
-    <!-- CARD_C -->
+    <section class="card" id="cardC" aria-labelledby="hC">
+      <h2 id="hC"><span>C.</span> Server-generated voice file + effects</h2>
+      <p>The real product would ask a neural TTS service for an audio file, then play it through the same effects. Here the "server" is simulated with sample files. The samples are made with old offline Windows voices, so they sound flat; judge the effects, not the voice quality. For a fair test of a neural voice, upload a file from any TTS service you like.</p>
+      <label for="cSample">Sample</label>
+      <select id="cSample">
+        <option value="en-short.wav">English, short (You never answer my calls.)</option>
+        <option value="en-long.wav">English, long</option>
+        <option value="pt-short.wav">Portuguese, short</option>
+      </select>
+      <div class="row"><button id="cLoad" class="btn ghost" type="button">Load sample</button></div>
+      <label for="cFile">Or try your own audio file</label>
+      <input id="cFile" type="file" accept="audio/*">
+      <div class="row">
+        <button id="cPlay" class="btn" type="button" disabled>Play with effects</button>
+        <button id="cRaw" class="btn ghost" type="button" disabled>Play raw</button>
+        <button id="cStop" class="btn ghost" type="button">Stop</button>
+      </div>
+      <p id="cState" class="hint" role="status"></p>
+      <div class="meter" aria-hidden="true"><i id="cMeter"></i></div>
+      <p class="note">Cost: neural TTS is billed per character, so every howler has a small cost. Privacy is better than B: only the text goes to the TTS provider, and no one's real voice is stored.</p>
+      <div id="rateC"></div>
+    </section>
   </main>
 
   <section class="panel" aria-labelledby="resHead">
@@ -89,6 +110,6 @@
   <script src="approach-a.js"></script>
   <script src="fx.js"></script>
   <script src="approach-b.js"></script>
-  <!-- SCRIPTS -->
+  <script src="approach-c.js"></script>
 </body>
 </html>

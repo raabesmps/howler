@@ -59,8 +59,9 @@
 
   /* ---------- DSP helpers ---------- */
   function driveCurve(amount) {
-    var n = 2048, c = new Float32Array(n), k = amount * 2.2, deg = Math.PI / 180;
-    for (var i = 0; i < n; i++) { var x = (i * 2) / n - 1; c[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x)); }
+    // odd length so that input 0 maps exactly to the middle sample (output 0): an even length leaves a DC offset
+    var n = 2049, c = new Float32Array(n), k = amount * 2.2, deg = Math.PI / 180;
+    for (var i = 0; i < n; i++) { var x = (i * 2) / (n - 1) - 1; c[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x)); }
     return c;
   }
   function impulse(ctx, seconds, decay) {

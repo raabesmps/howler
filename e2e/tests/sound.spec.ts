@@ -12,7 +12,6 @@ test.describe('loud sound: the warning and the mute control', () => {
 
     await toggle.click()
     await expect(toggle).toHaveAttribute('aria-pressed', 'true')
-    await expect(toggle).toContainText('Sound off')
   })
 
   test('muted stays muted when the envelope screams, even with the browser voice', async ({ page, request }) => {

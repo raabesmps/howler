@@ -1,10 +1,15 @@
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import FanNotice from './FanNotice.vue'
 import ReportButton from './ReportButton.vue'
 
 defineProps<{ kind: 'burned' | 'expired' | 'notfound'; token?: string }>()
 const router = useRouter()
+const heading = ref<HTMLElement | null>(null)
+
+// The screen before this one disappears (the burn, the loading), so keyboard focus would be lost. Put it on the heading: a screen reader reads the outcome.
+onMounted(() => heading.value?.focus())
 
 const COPY = {
   burned: { title: 'This howler has already been delivered.', sub: "Nobody can read it again. That's the point." },
@@ -17,7 +22,7 @@ const COPY = {
   <main class="end">
     <div v-if="kind === 'burned'" class="ash" aria-hidden="true"><i /><i /><i /><b /><b /></div>
     <div v-else class="env" :class="kind" aria-hidden="true" />
-    <h1 class="title display" :class="kind">{{ COPY[kind].title }}</h1>
+    <h1 ref="heading" tabindex="-1" class="title display" :class="kind">{{ COPY[kind].title }}</h1>
     <p v-if="COPY[kind].sub" class="sub center">{{ COPY[kind].sub }}</p>
     <div class="spacer" />
     <button class="btn" type="button" @click="router.push({ name: 'compose' })">Send your own</button>
@@ -28,6 +33,7 @@ const COPY = {
 
 <style scoped>
 .end { min-height: 100dvh; padding: var(--space-5) var(--gutter) var(--space-4); display: flex; flex-direction: column; }
+.title:focus { outline: none; }
 .title { font: 600 22px/1.2 var(--font-display); font-variation-settings: 'SOFT' 100, 'WONK' 1; text-align: center; }
 .title.burned { color: var(--ember-500); }
 .title.expired, .title.notfound { color: var(--ash-400); }

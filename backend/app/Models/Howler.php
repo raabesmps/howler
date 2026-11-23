@@ -150,6 +150,7 @@ class Howler extends Model
         $audio = $this->audio_path;
         $this->status = HowlerStatus::Expired;
         $this->message = null;
+        $this->recipient_name = null;
         $this->audio_path = null;
         $this->save();
 

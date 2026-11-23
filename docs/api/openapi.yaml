@@ -1,0 +1,255 @@
+openapi: 3.1.0
+info:
+  title: Howler API
+  version: 1.0.0
+  summary: Send a message that screams once and is gone.
+  description: |
+    A howler is created with a message (up to 140 characters). The creator receives a one-time link token. The recipient
+    opens it exactly once: the message is delivered to the first caller and deleted; every later call gets 410 Gone.
+
+    Rules that hold for every endpoint:
+    - The token is a secret. It is returned once, by `POST /howlers`, and only its SHA-256 hash is stored.
+    - Looking at a howler (`GET`) never burns it and never reveals the message. Opening is a `POST`, so link previews and
+      crawlers (which only send GET) cannot burn a howler.
+    - Every response is `Cache-Control: no-store`.
+    - Limits are per client IP. Over the limit the answer is 429 with a `Retry-After` header.
+    - Errors are JSON. Validation errors use the Laravel shape (`message` and `errors`).
+servers:
+  - url: http://localhost:8000/api
+    description: Local development (docker compose)
+tags:
+  - name: Howlers
+paths:
+  /howlers:
+    post:
+      tags: [Howlers]
+      operationId: createHowler
+      summary: Create a howler
+      description: 'Limited to 5 per minute and 40 per day per IP (it will also cap the voice cost from CP8).'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateHowlerRequest'
+            example:
+              message: HOW DARE YOU IGNORE MY MESSAGES?!
+              recipient_name: Ron
+      responses:
+        '201':
+          description: Created. This is the only response that ever contains the token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatedHowler'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /howlers/{token}:
+    get:
+      tags: [Howlers]
+      operationId: getHowlerState
+      summary: Read the state of a howler
+      description: |
+        Reports the state only, never the message. A sealed howler past its expiry already reports `expired`, even before
+        the hourly purge marks it. Limited to 30 requests per minute per IP, shared with the open endpoint.
+      parameters:
+        - $ref: '#/components/parameters/Token'
+      responses:
+        '200':
+          description: The state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HowlerState'
+              examples:
+                sealed:
+                  value: { status: sealed, recipient_name: Ron }
+                burned:
+                  value: { status: burned, recipient_name: null }
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /howlers/{token}/open:
+    post:
+      tags: [Howlers]
+      operationId: openHowler
+      summary: Open a howler (once)
+      description: |
+        Delivers the message and burns the howler, inside a database transaction that locks the row. When many requests
+        arrive at the same instant, exactly one gets 200; all the others get 410. The message is deleted in the same
+        transaction and is never returned again. Limited to 30 requests per minute per IP, shared with the state endpoint.
+      parameters:
+        - $ref: '#/components/parameters/Token'
+      responses:
+        '200':
+          description: The one and only delivery.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OpenedHowler'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '410':
+          description: Already delivered, or expired. The message is not in the body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Gone'
+              examples:
+                burned:
+                  value: { status: burned, message: This howler was already delivered. }
+                expired:
+                  value: { status: expired, message: This howler has expired. }
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /howlers/{token}/report:
+    post:
+      tags: [Howlers]
+      operationId: reportHowler
+      summary: Report a howler as abusive
+      description: |
+        Works in any state, because the recipient usually reports after hearing it. The report stores only the reason and
+        the howler id: not the message and not who reported. Limited to 5 per minute per IP.
+      parameters:
+        - $ref: '#/components/parameters/Token'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportRequest'
+      responses:
+        '201':
+          description: Recorded.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [reported]
+                properties:
+                  reported:
+                    type: boolean
+                    const: true
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+components:
+  parameters:
+    Token:
+      name: token
+      in: path
+      required: true
+      description: The secret link token returned when the howler was created.
+      schema:
+        type: string
+        minLength: 20
+  schemas:
+    CreateHowlerRequest:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          minLength: 1
+          maxLength: 140
+          description: Counted in characters, not bytes. Whitespace-only is rejected.
+        recipient_name:
+          type: [string, 'null']
+          maxLength: 40
+          description: Optional name shown on the closed envelope. Not a secret.
+    CreatedHowler:
+      type: object
+      required: [token, recipient_name, expires_at]
+      properties:
+        token:
+          type: string
+          description: 256 random bits, URL-safe. Shown once; only its hash is stored.
+        recipient_name:
+          type: [string, 'null']
+        expires_at:
+          type: string
+          format: date-time
+          description: Seven days after creation.
+    HowlerState:
+      type: object
+      required: [status, recipient_name]
+      properties:
+        status:
+          type: string
+          enum: [sealed, burned, expired]
+        recipient_name:
+          type: [string, 'null']
+          description: Only present while sealed.
+    OpenedHowler:
+      type: object
+      required: [message, recipient_name]
+      properties:
+        message:
+          type: string
+        recipient_name:
+          type: [string, 'null']
+    Gone:
+      type: object
+      required: [status, message]
+      properties:
+        status:
+          type: string
+          enum: [burned, expired]
+        message:
+          type: string
+          description: A human-readable explanation, never the howler's message.
+    ReportRequest:
+      type: object
+      required: [reason]
+      properties:
+        reason:
+          type: string
+          enum: [abuse, harassment, threat, spam, other]
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+    ValidationErrorBody:
+      type: object
+      required: [message, errors]
+      properties:
+        message:
+          type: string
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+  responses:
+    NotFound:
+      description: No howler has this token (never existed, or its tombstone was purged after 30 days).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ValidationError:
+      description: The input is invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationErrorBody'
+    TooManyRequests:
+      description: Rate limit exceeded.
+      headers:
+        Retry-After:
+          description: Seconds until the limit resets.
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

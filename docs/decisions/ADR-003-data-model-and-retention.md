@@ -49,7 +49,7 @@ The plan lists a `token` column. Storing a long random token in plain text would
 | Moment | What happens |
 |--------|--------------|
 | **Opened** | In the same transaction: status `burned`, `opened_at` set, message and `audio_path` cleared. The audio file is deleted after the commit. The content is returned to that one request only |
-| **Expired** | A scheduled job (hourly, CP7) marks sealed howlers past their `expires_at` as `expired`, clears message and `audio_path` and deletes the audio file. Until it runs, the howler already behaves as expired |
+| **Expired** | A scheduled job (`howlers:purge`, hourly, CP7) marks sealed howlers past their `expires_at` as `expired`, clears message, recipient name and `audio_path` and deletes the audio file. Until it runs, the howler already behaves as expired |
 | **Tombstone** | The row without content (id, hash, status, times) is kept **30 days** after it was opened or expired, so the link keeps saying "already delivered" or "expired". After that the job deletes the row and the link looks like it never existed |
 | **Orphan files** | The same job deletes any audio file whose howler is no longer sealed |
 

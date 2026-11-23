@@ -2,7 +2,7 @@
 
 [English](README.md) · [Português](README.pt-BR.md)
 
-API Laravel 13 com PostgreSQL. Guarda os howlers, abre cada um exatamente uma vez e apaga o que não precisa mais. Planejado no CP6 (modelo de dados) e no CP7 (a API); veja `docs/pt-BR/PLANO.md`.
+API Laravel 13 com PostgreSQL. Guarda os howlers, abre cada um exatamente uma vez e apaga o que não precisa mais. Construída no CP6 (modelo de dados) e no CP7 (a API); veja `docs/pt-BR/PLANO.md` e o contrato em [docs/pt-BR/api/](../docs/pt-BR/api/README.md).
 
 Tudo roda em contêineres, no mesmo formato do servidor (ADR-004), então você não precisa ter PHP, Composer nem PostgreSQL instalados.
 
@@ -42,11 +42,19 @@ Start-Process wsl.exe -ArgumentList '-d','Ubuntu','-u','root','--exec','sleep','
 
 Os testes rodam num PostgreSQL de verdade (o banco `howler_test`, criado na primeira subida do contêiner), e não em SQLite: travas de linha e ULIDs se comportam diferente, e a abertura única do CP7 depende delas.
 
+## Configuração que vale conhecer
+
+- `TRUSTED_PROXIES`: endereços de proxy, separados por vírgula, em cujo `X-Forwarded-For` se confia. Deixe vazio localmente. Atrás do proxy reverso (CP10) precisa estar definido, senão todo visitante divide o IP do proxy e os limites por IP deixam de funcionar.
+- O servidor precisa rodar `php artisan schedule:run` a cada minuto (cron) para a limpeza acontecer (CP10).
+
 ## O que fica onde
 
 | Caminho | O que é |
 |---------|---------|
 | `app/Models/Howler.php` | O modelo do howler e seus estados (CP6) |
+| `app/Http/Controllers/HowlerController.php`, `routes/api.php` | Os quatro endpoints (CP7) |
+| `app/Actions/OpenHowler.php` | A abertura de uso único: transação mais trava de linha |
+| `app/Console/Commands/PurgeHowlers.php` | A limpeza de hora em hora (`php artisan howlers:purge`) |
 | `database/migrations/` | As tabelas |
 | `database/factories`, `database/seeders` | Dados de teste e de desenvolvimento |
 | `tests/` | Testes PHPUnit |

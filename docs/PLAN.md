@@ -8,6 +8,20 @@ This is the master plan. Claude Code reads this file and `CLAUDE.md` at the star
 
 ---
 
+## Changes to the plan (2026-11-22)
+
+The plan below is the original. These are the decisions made while building it. They win over the text further down where they differ.
+
+1. **CP2 (audio lab) was built and then superseded.** The idea was to let people compare voices. After testing, the product owner decided that **nobody picks the tone**: the tone is fixed by the product. The lab is kept on the branch `archive/audio-lab` and was never merged (so there is no `cp2` tag). The outcome is [ADR-002](decisions/ADR-002-voice-approach.md).
+2. **CP3, CP4 and CP5 were delivered as one prototype pull request**, at the product owner's request. The tags `cp3`, `cp4`, `cp5` and `prototype-approved` are created together after the merge.
+3. **The voice is decided.** A hysterical, shrieking, over-the-top mother, made by the `gpt-audio` model (voice Coral, dated snapshot) from the server, then cleaned and made loud on the device, with no echo. It was chosen by ear over several rounds. Recording a person's own voice is out of the MVP. The old `gpt-4o-mini-tts` endpoint shuts down on 2027-01-06, so it is not used.
+4. **CP5 "online preview" is still pending.** It needs an authorization to publish. A static host such as GitHub Pages has no voice endpoint, so a preview with the real voice needs a small server function; without it the preview only has the plain browser voice.
+5. **CP6 (data model):** the howler also stores the audio (`audio_path`) and deletes it when the howler is opened or expires (ADR-003).
+6. **CP8 (integration):** the voice is generated **when the howler is created**, on the server, with the key only on the server (the endpoint in `frontend/server/voice.ts` becomes the backend). It keeps the guards of the prototype: 1 to 140 characters, a per-IP limit that also protects the cost, and a transcript check. It also needs the provider and price check (about 1.5 US cents per howler measured, to confirm on the official page).
+7. **CI was added early** (lint, typecheck, unit tests and build on every pull request). CP9 extends it with end-to-end tests and the rest.
+
+---
+
 ## 0. Working rules (apply to every phase)
 
 1. **One checkpoint at a time.** Claude Code only works on the current checkpoint (see `docs/STATUS.md`).
@@ -122,6 +136,9 @@ Each checkpoint has: goal, tasks, commits, how to validate and what needs approv
 ## PHASE 2: Prototype (frontend only, no backend)
 
 ### CP2: Audio lab
+
+*Superseded: see "Changes to the plan" at the top. Outcome: ADR-002.*
+
 **Goal:** find out which voice really scares, comparing 3 approaches side by side in `lab/audio/index.html`.
 
 **Approaches**

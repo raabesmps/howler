@@ -23,3 +23,6 @@ Thumbs.db
 
 # logs
 *.log
+
+# local voice listening tests (generated audio, not committed)
+voice-tests/

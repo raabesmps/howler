@@ -24,10 +24,10 @@ Mais detalhes em [frontend/README.pt-BR.md](frontend/README.pt-BR.md).
 |------|-------|
 | [docs/pt-BR/PLANO.md](docs/pt-BR/PLANO.md) | O plano mestre, com os checkpoints e as mudanças feitas no caminho |
 | [docs/pt-BR/STATUS.md](docs/pt-BR/STATUS.md) | Em que ponto o projeto está agora |
-| [docs/pt-BR/decisions/](docs/pt-BR/decisions/) | Decisões de arquitetura: [ADR-001](docs/pt-BR/decisions/ADR-001-stack-and-layout.md) a stack, [ADR-002](docs/pt-BR/decisions/ADR-002-voice-approach.md) a voz, [ADR-004](docs/pt-BR/decisions/ADR-004-hosting.md) a hospedagem |
+| [docs/pt-BR/decisions/](docs/pt-BR/decisions/) | Decisões de arquitetura: [ADR-001](docs/pt-BR/decisions/ADR-001-stack-and-layout.md) a stack, [ADR-002](docs/pt-BR/decisions/ADR-002-voice-approach.md) a voz, [ADR-003](docs/pt-BR/decisions/ADR-003-data-model-and-retention.md) dados e retenção, [ADR-004](docs/pt-BR/decisions/ADR-004-hosting.md) a hospedagem |
 | [docs/design/](docs/design/) | A direção visual aprovada, os tokens e as referências das telas |
 | [frontend/](frontend/) | Vue 3 + Vite + TypeScript: as telas, o motor de áudio, a queima em canvas |
-| `backend/` | API em Laravel com abertura de uso único (planejado, CP6 e CP7) |
+| [backend/](backend/) | Laravel 13 + PostgreSQL: a tabela e o modelo howlers (CP6); a API de uso único vem a seguir (CP7) |
 
 A documentação é em inglês, com uma aba em português (`docs/pt-BR/`, `README.pt-BR.md`).
 

@@ -1,0 +1,53 @@
+# Howler backend
+
+[English](README.md) · [Português](README.pt-BR.md)
+
+Laravel 13 API with PostgreSQL. It stores the howlers, opens each one exactly once and deletes what it no longer needs. Planned in CP6 (data model) and CP7 (the API); see `docs/PLAN.md`.
+
+Everything runs in containers, the same shape as on the server (ADR-004), so you do not need PHP, Composer or PostgreSQL installed.
+
+## Run it
+
+From the repository root, where Docker runs:
+
+```
+scripts/dev-up.sh                                              # start PostgreSQL and wait until it is ready
+docker compose run --rm backend php artisan migrate:fresh --seed
+docker compose run --rm backend php artisan test
+docker compose up backend                                      # the API at http://localhost:8000
+```
+
+Configuration is in `backend/.env` (copy `backend/.env.example`, it is git-ignored). The database credentials in the example are for local development only.
+
+### On Windows
+
+Docker runs inside WSL (Ubuntu), not Docker Desktop. From PowerShell or Git Bash:
+
+```
+wsl -d Ubuntu -u root -- bash /mnt/c/<path-to-the-repo>/scripts/dev-up.sh
+wsl -d Ubuntu -u root -- bash -c "cd /mnt/c/<path-to-the-repo> && docker compose run --rm backend php artisan test"
+```
+
+In Git Bash, prefix the command with `MSYS_NO_PATHCONV=1`, otherwise it rewrites the `/mnt/c/...` path.
+
+WSL shuts itself down a minute after the last terminal closes, and the database goes with it. To keep it running, leave this hidden process open:
+
+```
+Start-Process wsl.exe -ArgumentList '-d','Ubuntu','-u','root','--exec','sleep','infinity' -WindowStyle Hidden
+```
+
+It has to be started again after a reboot.
+
+## Tests
+
+The tests run on a real PostgreSQL (the `howler_test` database, created with the first start of the container), not on SQLite: row locks and ULIDs behave differently, and the single-use opening of CP7 depends on them.
+
+## What is where
+
+| Path | What it is |
+|------|-----------|
+| `app/Models/Howler.php` | The howler model and its states (CP6) |
+| `database/migrations/` | The tables |
+| `database/factories`, `database/seeders` | Test and development data |
+| `tests/` | PHPUnit tests |
+| `../docker-compose.yml`, `../docker/` | PostgreSQL and the PHP image used for development |

@@ -2,7 +2,7 @@
 
 [English](../../decisions/ADR-004-hosting.md) · [Português](ADR-004-hosting.md)
 
-Status: aceito como direção (2026-11-23). O tamanho da VM, a região, o domínio e os preços são conferidos e fixados no CP10.
+Status: aceito (2026-11-23). Construído no CP10 (abaixo). A região, o tamanho da VM e o domínio são escolha da dona do produto na hora do deploy e ficam registrados no runbook.
 Data: 2026-11-23
 
 ## Contexto
@@ -28,6 +28,28 @@ Região, tamanho da VM, domínio (um subdomínio do portfólio é a opção do p
 - Uma máquina e uma origem eliminam uma classe inteira de problemas (CORS, cookies entre sites, dois deploys para manter em sincronia).
 - O Docker Compose já está no plano (CP10) e é o mesmo que usamos localmente.
 - **Os dados são efêmeros por desenho:** o howler expira em 7 dias e é apagado quando aberto. O pior caso de uma VM única (perder dados) custa, no máximo, alguns howlers ainda não abertos, então backup é de baixo risco.
+
+## Como é construído (CP10)
+
+| Peça | O que é |
+|------|---------|
+| `web` | Caddy. Obtém e renova o certificado https, serve o frontend já construído, manda `/api` e `/up` para o app por FastCGI. Só ele publica portas (80 e 443). Define os cabeçalhos de segurança e a Content-Security-Policy |
+| `app` | A API Laravel em PHP-FPM, sem ferramentas de desenvolvimento. As configurações vêm do arquivo `.env` no servidor, então nada secreto está na imagem |
+| `scheduler` | A mesma imagem rodando `schedule:work`: a limpeza de hora em hora do ADR-003 |
+| `db` | PostgreSQL 17 com um volume. Não é publicado no host |
+
+Decisões dentro disso:
+
+- **Uma origem só, então sem CORS.** O site e a API saem do mesmo endereço. O CORS fica fechado (nenhuma origem de fora é permitida, a menos que `CORS_ALLOWED_ORIGINS` diga).
+- **O endereço do cliente vem do FastCGI.** O Caddy entrega ao PHP o endereço real do visitante como endereço da conexão, então os limites por IP funcionam e nenhuma lista de proxies (`TRUSTED_PROXIES`) é necessária. O FPM nunca é publicado, então ninguém consegue se passar pelo Caddy.
+- **O FPM tem 20 workers, não 5.** Criar um howler segura um worker enquanto a voz é feita (segundos). Os limites por IP restringem quantos podem estar lentos ao mesmo tempo, e 20 deixa espaço para os pedidos baratos (estado, abrir) continuarem fluindo.
+- **As imagens são construídas uma vez e promovidas:** `howler-app` e `howler-web`, com a tag do commit, no registro de contêineres do GitHub. O servidor nunca constrói nada. Staging e produção (CP11) rodam as mesmas imagens.
+- **O deploy é um script só** (`deploy/deploy.sh <tag>`): baixa, migra, sobe, confere `/up`. Se a versão nova não ficar saudável em cerca de um minuto, ele recoloca a tag anterior sozinho. O `deploy/rollback.sh` faz o mesmo à mão.
+- **Migrações não são desfeitas por um rollback.** Elas precisam ser escritas para que a versão anterior continue funcionando no esquema novo: adicionar primeiro, parar de usar o antigo numa versão seguinte, remover numa terceira.
+- **Um dump diário** (`deploy/backup.sh`, guardado 7 dias) serve para uma migração ruim ou um engano, não para arquivo: os dados têm vida curta por projeto.
+- **Os valores de cada ambiente** (domínio, região, tamanho da VM, alertas de gasto) são da dona do produto e ficam no runbook, não no código.
+
+O tamanho da imagem ainda não foi otimizado (a imagem do app carrega as ferramentas de build das suas extensões). É candidato para depois, quando as fases terminarem.
 
 ## Alternativas consideradas
 

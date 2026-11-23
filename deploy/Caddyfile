@@ -1,0 +1,47 @@
+# One origin for everything: the site and /api, behind https.
+#
+# SITE_ADDRESS is the domain (howler.example.com) and Caddy gets and renews its certificate by itself. For a first test
+# without a domain, a hostname such as 203-0-113-10.sslip.io (the VM's IP, dots as dashes) also works.
+
+{$SITE_ADDRESS:localhost} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "no-referrer"
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+		Cross-Origin-Opener-Policy "same-origin"
+		# The page loads only its own files. connect-src allows its own API and, if Sentry is on, Sentry's ingest hosts.
+		# style-src needs 'unsafe-inline' because the screens set style attributes.
+		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.sentry.io; media-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+		-Server
+	}
+
+	# the API and the health check go to Laravel (PHP-FPM in the app container)
+	@api path /api/* /up
+	handle @api {
+		request_body {
+			max_size 8KB
+		}
+		root * /srv/api
+		php_fastcgi app:9000 {
+			# where the code is inside the app container (Caddy only has a stub index.php at its own /srv/api)
+			root /var/www/public
+			# creating a howler waits on the voice model, up to two attempts of 30 seconds
+			read_timeout 95s
+		}
+	}
+
+	# everything else is the single-page app
+	handle {
+		root * /srv/www
+		@assets path /assets/*
+		header @assets Cache-Control "public, max-age=31536000, immutable"
+		@shell not path /assets/*
+		header @shell Cache-Control "no-cache"
+		try_files {path} /index.html
+		file_server
+	}
+}

@@ -88,6 +88,8 @@ Os testes do backend nunca chamam a OpenAI: qualquer pedido que saia do app sem 
 | `VITE_API_TARGET` | ambiente do `npm run dev` | Para onde o servidor de desenvolvimento encaminha `/api` (padrão `http://localhost:8000`) |
 | `VITE_API` | ambiente do `npm run dev` / `build` | `mock` para a API dentro do navegador |
 | `HOWLER_CREATE_PER_MINUTE`, `HOWLER_CREATE_PER_DAY`, `HOWLER_ACCESS_PER_MINUTE`, `HOWLER_REPORT_PER_MINUTE` | `backend/.env` | Os limites de pedidos por IP (padrões 5, 40, 30, 5). Só a configuração de ponta a ponta os aumenta |
+| `CORS_ALLOWED_ORIGINS` | `backend/.env` | Outras origens autorizadas a chamar a API. Vazio por padrão (uma origem só) |
+| `SENTRY_LARAVEL_DSN`, `VITE_SENTRY_DSN` | `.env` do servidor, build | Monitoramento de erros. Vazio significa desligado (veja [DEPLOY.md](DEPLOY.md), ADR-005) |
 | `VITE_SITE_URL` | ambiente do `npm run build` | A URL pública, para as tags da prévia do link |
 
 ## Quando algo dá errado

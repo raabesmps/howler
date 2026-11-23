@@ -24,7 +24,8 @@ More in [frontend/README.md](frontend/README.md).
 |-------|------|
 | [docs/PLAN.md](docs/PLAN.md) | The master plan, with its checkpoints and the changes made along the way |
 | [docs/STATUS.md](docs/STATUS.md) | Where the project is right now |
-| [docs/decisions/](docs/decisions/) | Architecture decisions: [ADR-001](docs/decisions/ADR-001-stack-and-layout.md) stack, [ADR-002](docs/decisions/ADR-002-voice-approach.md) the voice, [ADR-003](docs/decisions/ADR-003-data-model-and-retention.md) data and retention, [ADR-004](docs/decisions/ADR-004-hosting.md) hosting |
+| [docs/decisions/](docs/decisions/) | Architecture decisions: [ADR-001](docs/decisions/ADR-001-stack-and-layout.md) stack, [ADR-002](docs/decisions/ADR-002-voice-approach.md) the voice, [ADR-003](docs/decisions/ADR-003-data-model-and-retention.md) data and retention, [ADR-004](docs/decisions/ADR-004-hosting.md) hosting, [ADR-005](docs/decisions/ADR-005-error-monitoring.md) error monitoring and privacy |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | The deploy and rollback runbook: the VM, GitHub, monitoring, backups, secrets |
 | [docs/TESTING.md](docs/TESTING.md) | The test strategy: what is tested, how to run it, coverage notes |
 | [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Run the whole thing locally: database, API and frontend |
 | [docs/api/](docs/api/README.md) | The API contract (OpenAPI) and how single-use opening works |

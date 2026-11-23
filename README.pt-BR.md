@@ -24,7 +24,8 @@ Mais detalhes em [frontend/README.pt-BR.md](frontend/README.pt-BR.md).
 |------|-------|
 | [docs/pt-BR/PLANO.md](docs/pt-BR/PLANO.md) | O plano mestre, com os checkpoints e as mudanças feitas no caminho |
 | [docs/pt-BR/STATUS.md](docs/pt-BR/STATUS.md) | Em que ponto o projeto está agora |
-| [docs/pt-BR/decisions/](docs/pt-BR/decisions/) | Decisões de arquitetura: [ADR-001](docs/pt-BR/decisions/ADR-001-stack-and-layout.md) a stack, [ADR-002](docs/pt-BR/decisions/ADR-002-voice-approach.md) a voz, [ADR-003](docs/pt-BR/decisions/ADR-003-data-model-and-retention.md) dados e retenção, [ADR-004](docs/pt-BR/decisions/ADR-004-hosting.md) a hospedagem |
+| [docs/pt-BR/decisions/](docs/pt-BR/decisions/) | Decisões de arquitetura: [ADR-001](docs/pt-BR/decisions/ADR-001-stack-and-layout.md) a stack, [ADR-002](docs/pt-BR/decisions/ADR-002-voice-approach.md) a voz, [ADR-003](docs/pt-BR/decisions/ADR-003-data-model-and-retention.md) dados e retenção, [ADR-004](docs/pt-BR/decisions/ADR-004-hosting.md) a hospedagem, [ADR-005](docs/pt-BR/decisions/ADR-005-error-monitoring.md) monitoramento de erros e privacidade |
+| [docs/pt-BR/DEPLOY.md](docs/pt-BR/DEPLOY.md) | O runbook de deploy e rollback: a VM, o GitHub, monitoramento, backups, segredos |
 | [docs/pt-BR/TESTES.md](docs/pt-BR/TESTES.md) | A estratégia de testes: o que é testado, como rodar, notas de cobertura |
 | [docs/pt-BR/DESENVOLVIMENTO.md](docs/pt-BR/DESENVOLVIMENTO.md) | Rodar tudo localmente: banco, API e frontend |
 | [docs/pt-BR/api/](docs/pt-BR/api/README.md) | O contrato da API (OpenAPI) e como funciona a abertura de uso único |

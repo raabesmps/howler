@@ -2,7 +2,7 @@
 
 [English](ADR-004-hosting.md) · [Português](../pt-BR/decisions/ADR-004-hosting.md)
 
-Status: accepted as a direction (2026-11-23). The VM size, region, domain and prices are checked and fixed at CP10.
+Status: accepted (2026-11-23). Built in CP10 (below). The region, VM size and domain are the owner's choice at deploy time and are recorded in the runbook.
 Date: 2026-11-23
 
 ## Context
@@ -28,6 +28,28 @@ Region, VM size, domain (a subdomain of the portfolio is the plan's option), bud
 - A single host and a single origin remove a whole class of problems (CORS, cross-site cookies, two deploys to keep in step).
 - The Docker Compose set-up is already in the plan (CP10) and is the same one used locally.
 - **The data is ephemeral by design:** a howler expires in 7 days and is deleted once opened. The usual worst case of a single VM (losing data) costs at most a few unopened howlers, so backups are low stakes.
+
+## How it is built (CP10)
+
+| Piece | What it is |
+|-------|-----------|
+| `web` | Caddy. Gets and renews the https certificate, serves the built frontend, sends `/api` and `/up` to the app by FastCGI. Only it publishes ports (80 and 443). Sets the security headers and the Content-Security-Policy |
+| `app` | The Laravel API on PHP-FPM, no development tools. Settings come from the `.env` file on the server, so nothing secret is in the image |
+| `scheduler` | The same image running `schedule:work`: the hourly purge of ADR-003 |
+| `db` | PostgreSQL 17 with a volume. Not published to the host |
+
+Decisions inside that:
+
+- **One origin, so no CORS.** The site and the API are served from the same address. CORS stays closed (no foreign origin is allowed unless `CORS_ALLOWED_ORIGINS` says so).
+- **The client address comes from FastCGI.** Caddy gives PHP the real address of the visitor as the connection address, so the per-IP limits work and no proxy list (`TRUSTED_PROXIES`) is needed. FPM is never published, so nobody can pretend to be Caddy.
+- **FPM has 20 workers, not 5.** Creating a howler holds a worker while the voice is made (seconds). The per-IP limits bound how many can be slow at once, and 20 leaves room for the cheap requests (state, open) to keep flowing.
+- **Images are built once and promoted:** `howler-app` and `howler-web`, tagged with the commit, in GitHub's container registry. The server never builds anything. Staging and production (CP11) run the same images.
+- **Deploy is one script** (`deploy/deploy.sh <tag>`): pull, migrate, start, check `/up`. If the new version is not healthy within about a minute it puts the previous tag back by itself. `deploy/rollback.sh` does the same by hand.
+- **Migrations are not undone by a rollback.** They must be written so the previous version still works on the new schema: add first, stop using the old thing in a later release, remove it in a later one again.
+- **A daily dump** (`deploy/backup.sh`, kept 7 days) is for a bad migration or a mistake, not for archival: the data is short-lived by design.
+- **Environment-specific values** (domain, region, VM size, spend alerts) are the owner's and live in the runbook, not in the code.
+
+Image size is not tuned yet (the app image carries the build tools for its extensions). It is a candidate for later, after the phases are done.
 
 ## Alternatives considered
 

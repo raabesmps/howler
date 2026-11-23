@@ -14,7 +14,7 @@ From the repository root, where Docker runs:
 scripts/dev-up.sh                                              # start PostgreSQL and wait until it is ready
 docker compose run --rm backend php artisan migrate:fresh --seed
 docker compose run --rm backend php artisan test
-docker compose up backend                                      # the API at http://localhost:8000
+docker compose up -d backend                                   # the API at http://localhost:8000
 ```
 
 Configuration is in `backend/.env` (copy `backend/.env.example`, it is git-ignored). The database credentials in the example are for local development only.
@@ -44,6 +44,8 @@ The tests run on a real PostgreSQL (the `howler_test` database, created with the
 
 ## Configuration worth knowing
 
+- `OPENAI_API_KEY`: the voice. With docker compose it comes from the git-ignored `.env.local` at the repository root. Without it howlers are created without a server voice.
+- `HOWLER_VOICE_DAILY_LIMIT` (default 300): at most this many server voices a day for everybody, as a safety net for the bill.
 - `TRUSTED_PROXIES`: comma-separated proxy addresses whose `X-Forwarded-For` is believed. Leave it empty locally. Behind the reverse proxy (CP10) it must be set, or every visitor shares the proxy's IP and the per-IP limits break.
 - The server must run `php artisan schedule:run` every minute (cron) for the purge to happen (CP10).
 
@@ -53,6 +55,8 @@ The tests run on a real PostgreSQL (the `howler_test` database, created with the
 |------|-----------|
 | `app/Models/Howler.php` | The howler model and its states (CP6) |
 | `app/Http/Controllers/HowlerController.php`, `routes/api.php` | The four endpoints (CP7) |
+| `app/Services/VoiceGenerator.php` | The voice: model, tone, the words check (ADR-002) |
+| `app/Actions/CreateHowler.php` | Creates the howler and its voice |
 | `app/Actions/OpenHowler.php` | The single-use opening: transaction plus row lock |
 | `app/Console/Commands/PurgeHowlers.php` | The hourly retention job (`php artisan howlers:purge`) |
 | `database/migrations/` | The tables |

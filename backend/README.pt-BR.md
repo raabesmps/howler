@@ -14,7 +14,7 @@ A partir da raiz do repositório, onde o Docker roda:
 scripts/dev-up.sh                                              # sobe o PostgreSQL e espera ele ficar pronto
 docker compose run --rm backend php artisan migrate:fresh --seed
 docker compose run --rm backend php artisan test
-docker compose up backend                                      # a API em http://localhost:8000
+docker compose up -d backend                                      # a API em http://localhost:8000
 ```
 
 A configuração fica em `backend/.env` (copie o `backend/.env.example`, que o git ignora). As credenciais do banco no exemplo são só para desenvolvimento local.
@@ -44,6 +44,8 @@ Os testes rodam num PostgreSQL de verdade (o banco `howler_test`, criado na prim
 
 ## Configuração que vale conhecer
 
+- `OPENAI_API_KEY`: a voz. Com o docker compose ela vem do `.env.local` (ignorado pelo git) na raiz do repositório. Sem ela os howlers são criados sem voz do servidor.
+- `HOWLER_VOICE_DAILY_LIMIT` (padrão 300): no máximo essas vozes do servidor por dia, somando todo mundo, como rede de segurança para a fatura.
 - `TRUSTED_PROXIES`: endereços de proxy, separados por vírgula, em cujo `X-Forwarded-For` se confia. Deixe vazio localmente. Atrás do proxy reverso (CP10) precisa estar definido, senão todo visitante divide o IP do proxy e os limites por IP deixam de funcionar.
 - O servidor precisa rodar `php artisan schedule:run` a cada minuto (cron) para a limpeza acontecer (CP10).
 
@@ -53,6 +55,8 @@ Os testes rodam num PostgreSQL de verdade (o banco `howler_test`, criado na prim
 |---------|---------|
 | `app/Models/Howler.php` | O modelo do howler e seus estados (CP6) |
 | `app/Http/Controllers/HowlerController.php`, `routes/api.php` | Os quatro endpoints (CP7) |
+| `app/Services/VoiceGenerator.php` | A voz: modelo, tom, a checagem das palavras (ADR-002) |
+| `app/Actions/CreateHowler.php` | Cria o howler e a voz dele |
 | `app/Actions/OpenHowler.php` | A abertura de uso único: transação mais trava de linha |
 | `app/Console/Commands/PurgeHowlers.php` | A limpeza de hora em hora (`php artisan howlers:purge`) |
 | `database/migrations/` | As tabelas |

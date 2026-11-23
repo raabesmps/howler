@@ -34,4 +34,5 @@ curl -X POST http://localhost:8000/api/howlers/<token>/open  # 410 {"status":"bu
 - **404 versus 410.** An unknown token is 404. A known one that is burned or expired is 410 (tombstones are kept for 30 days, ADR-003). After the purge, the link is a 404 again.
 - **No identity is stored.** Not on reports, not on openings. The IP is used only as a short-lived rate-limit key.
 - **Limits are per IP** and need the real client address behind the reverse proxy: set `TRUSTED_PROXIES` (CP10).
-- **Audio is not in the API yet.** The voice is generated when the howler is created, on the server, in CP8; `audio_path` stays empty until then, and the open endpoint already deletes the file after the commit.
+- **The voice is made when the howler is created**, on the server, with the key only on the server (`VoiceGenerator`). The create response says whether it worked (`voice`). It is stored in private storage and delivered inside the one and only open response (`audio`, base64 WAV), then deleted. The state endpoint never carries it.
+- **A failed voice never fails the howler.** No key, an upstream error, a transcript that does not match the line, or the daily budget (`HOWLER_VOICE_DAILY_LIMIT`) all end the same way: the howler is created with `voice: false` and the browser reads it with its own voice.

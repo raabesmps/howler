@@ -77,3 +77,81 @@ jobs:
         run: ./vendor/bin/pint --test
       - name: Tests (on PostgreSQL)
         run: php artisan test
+
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: howler
+          POSTGRES_PASSWORD: howler
+          POSTGRES_DB: howler_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U howler -d howler_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # The API the browser tests talk to: the test database, no OpenAI key (so no cost and no randomness: the browser
+      # voice reads the howlers) and rate limits raised so one suite can run from one IP.
+      DB_HOST: 127.0.0.1
+      DB_DATABASE: howler_test
+      OPENAI_API_KEY: ''
+      HOWLER_CREATE_PER_MINUTE: '10000'
+      HOWLER_CREATE_PER_DAY: '10000'
+      HOWLER_ACCESS_PER_MINUTE: '10000'
+      HOWLER_REPORT_PER_MINUTE: '10000'
+      PHP_CLI_SERVER_WORKERS: '4'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_pgsql
+          coverage: none
+          tools: composer:v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+            e2e/package-lock.json
+      - name: Start the API
+        working-directory: backend
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress
+          cp .env.example .env
+          php artisan key:generate
+          php artisan migrate --force
+          # PHP's own server, as in docker-compose.yml: `artisan serve` would not pass these variables on to its child
+          cd public
+          nohup php -S 127.0.0.1:8000 ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php > ../../api.log 2>&1 &
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/up >/dev/null && exit 0; sleep 1; done
+          echo "the API did not start" && cat ../../api.log && exit 1
+      - run: npm ci
+        working-directory: frontend
+      - run: npm ci
+        working-directory: e2e
+      - run: npx playwright install --with-deps chromium
+        working-directory: e2e
+      - name: End-to-end tests
+        run: npx playwright test
+        working-directory: e2e
+        env:
+          E2E_API_TARGET: http://127.0.0.1:8000
+      - name: Keep the report when it fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            e2e/playwright-report
+            e2e/test-results
+            api.log
+          retention-days: 7

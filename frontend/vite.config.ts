@@ -18,7 +18,8 @@ export function withSiteUrl(html: string, site: string | undefined): string {
 }
 
 function siteUrl(site: string | undefined): Plugin {
-  return { name: 'howler-site-url', transformIndexHtml: (html) => withSiteUrl(html, site) }
+  // order 'pre': Vite would otherwise try to resolve the og:image placeholder as a local asset first
+  return { name: 'howler-site-url', transformIndexHtml: { order: 'pre', handler: (html) => withSiteUrl(html, site) } }
 }
 
 export default defineConfig(({ mode }) => {

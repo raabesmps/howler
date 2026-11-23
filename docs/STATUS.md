@@ -2,9 +2,9 @@
 
 [English](STATUS.md) · [Português](pt-BR/STATUS.md)
 
-Current checkpoint: CP10 (staging): built and checked locally; the first real deploy is waiting for the owner (VM, domain, GitHub settings)
-Last tag: cp9 (before it: cp8, cp7, cp6, prototype-approved, cp5, cp4, cp3)
-Awaiting approval: yes (CP10 pull request: ADR-004 and the runbook)
+Current checkpoint: CP10 (staging): code, images and runbook approved and merged; waiting for the first real deploy (the owner: VM, domain, GitHub settings, see docs/DEPLOYMENT.md)
+Last tag: cp10 (before it: cp9, cp8, cp7, cp6, prototype-approved, cp5, cp4, cp3)
+Awaiting approval: no (issue #11 closes after the first real deploy)
 
 ## History
 - 2026-11-22 CP0 approved, merged (PR #13), tag `cp0`
@@ -17,7 +17,7 @@ Awaiting approval: yes (CP10 pull request: ADR-004 and the runbook)
 - 2026-11-23 CP7 approved, merged (PR #20), tag `cp7`. Built: create, state, atomic open, report, per-IP rate limits, hourly purge, OpenAPI contract, 57 tests including a 12-process concurrency test. The branch protection on main now requires both CI checks (`frontend` and `backend`).
 - 2026-11-23 CP8 approved, merged (PR #22), tag `cp8`. Built: typed API client, the real flow end to end, error and rate-limit states, report button, Web Share and link preview, the voice moved to the backend (made at creation, delivered once on open), development guide. Verified in a real browser against the real backend, PostgreSQL and the OpenAI voice.
 - 2026-11-23 CP9 approved, merged (PR #24), tag `cp9`; main now requires the `e2e` check too. Built: 33 end-to-end tests in a real browser (journey, single use, failures, sound, accessibility with axe), a loud-sound warning and a mute control that survives and silences the browser voice, the accessibility fixes the audit found, a performance budget for the burn (23 to 52 fps on the test machine), the `e2e` job in CI, and the test strategy doc.
-- 2026-11-23 CP10 built: production images (app on PHP-FPM, web on Caddy), the production compose file, deploy, rollback and backup scripts, the staging deploy workflow (off until `STAGING_ENABLED` is set), CORS and security headers, error monitoring with Sentry that never sends tokens or messages (ADR-005), and the runbook. Checked on this machine with the real images: deploy, the whole flow over https, a broken version rolling back by itself. Not done yet: the VM, the domain, the GitHub settings and the first real deploy (owner).
+- 2026-11-23 CP10 approved, merged (PR #26), tag `cp10`. Built: production images (app on PHP-FPM, web on Caddy), the production compose file, deploy, rollback and backup scripts, the staging deploy workflow (off until `STAGING_ENABLED` is set), CORS and security headers, error monitoring with Sentry that never sends tokens or messages (ADR-005), and the runbook. Checked on this machine with the real images: deploy, the whole flow over https, a broken version rolling back by itself. Not done yet: the VM, the domain, the GitHub settings and the first real deploy (owner).
 - Refinement of the layout and a pass through docs/TESTING.md are planned after the phases are finished (requested by the owner).
 - Still open from CP5: the online preview. It becomes the staging deploy of CP10 (issue #6).
 

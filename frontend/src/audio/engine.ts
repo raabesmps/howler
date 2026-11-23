@@ -219,33 +219,3 @@ export function playTear(): void {
   g.gain.linearRampToValueAtTime(0.7, c.currentTime + 0.02); g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.4)
   src.connect(bp); bp.connect(g); g.connect(output()); src.start()
 }
-
-/** Fire: a soft roar plus random crackles. Returns a function that fades it out. */
-export function startFire(): () => void {
-  const c = audioContext()
-  const roar = c.createBufferSource(); roar.buffer = noiseBuffer(c, 3, true); roar.loop = true
-  const rl = c.createBiquadFilter(); rl.type = 'bandpass'; rl.frequency.value = 520; rl.Q.value = 0.5
-  const rg = c.createGain(); rg.gain.value = 0.0001
-  roar.connect(rl); rl.connect(rg); rg.connect(output())
-  rg.gain.exponentialRampToValueAtTime(0.45, c.currentTime + 1.2)
-  roar.start()
-
-  const click = noiseBuffer(c, 0.05)
-  let alive = true
-  const crackle = () => {
-    if (!alive) return
-    const s = c.createBufferSource(); s.buffer = click
-    const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1500 + Math.random() * 2500
-    const g = c.createGain(); g.gain.setValueAtTime(0.15 + Math.random() * 0.5, c.currentTime)
-    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.03 + Math.random() * 0.04)
-    s.connect(hp); hp.connect(g); g.connect(output()); s.start()
-    setTimeout(crackle, 30 + Math.random() * 160)
-  }
-  crackle()
-  return () => {
-    alive = false
-    rg.gain.cancelScheduledValues(c.currentTime)
-    rg.gain.setTargetAtTime(0.0001, c.currentTime, 0.6)
-    setTimeout(() => { try { roar.stop() } catch { /* ignore */ } }, 3000)
-  }
-}

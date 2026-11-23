@@ -7,8 +7,8 @@
 const EW = 300
 const EH = 210
 const N = EW * EH
-const BURN_LEN = 6.2
-const SETTLE = 2.9
+const BURN_LEN = 3.6
+const SETTLE = 2.3
 
 interface Frag { x: number; y: number; vx: number; vy: number; rot: number; w: number; size: number; pts: [number, number][]; age: number; life: number; ph: number }
 interface Grain { x: number; y: number; vx: number; vy: number; s: number }
@@ -238,7 +238,7 @@ export class BurnEffect {
     const burning = u < 0.96 && this.edge.length > 0
 
     if (burning) {
-      this.fragAcc += dt * 21
+      this.fragAcc += dt * 36
       while (this.fragAcc >= 1) {
         this.fragAcc -= 1
         const e = this.pickEdge(); if (!e) break
@@ -252,7 +252,7 @@ export class BurnEffect {
         const x = this.EX + e[0] + rr(-3, 3)
         this.frags.push({ x, y: this.EY + e[1] + rr(-2, 3), vx: (this.CX - x) * 0.3 + rr(-14, 14), vy: rr(-30, 6), rot: rr(0, 6.28), w: rr(-5, 5), size, pts, age: 0, life: rr(0.55, 1.35), ph: rr(0, 6.28) })
       }
-      this.flameAcc += dt * 420
+      this.flameAcc += dt * 560
       while (this.flameAcc >= 1) {
         this.flameAcc -= 1
         const e = this.pickEdge(); if (!e) break

@@ -1,20 +1,17 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { BurnEffect } from '../burn/burn'
-import { startFire } from '../audio/engine'
 
 const emit = defineEmits<{ done: [] }>()
 const canvas = ref<HTMLCanvasElement | null>(null)
 let effect: BurnEffect | null = null
-let stopFire: (() => void) | null = null
 
 onMounted(() => {
   if (!canvas.value) return
   effect = new BurnEffect(canvas.value)
-  try { stopFire = startFire() } catch { /* sound is optional */ }
   void effect.start().then(() => emit('done'))
 })
-onBeforeUnmount(() => { effect?.stop(); stopFire?.() })
+onBeforeUnmount(() => { effect?.stop() })
 </script>
 
 <template>

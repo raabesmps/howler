@@ -81,6 +81,7 @@ jobs:
           build-args: |
             VITE_SITE_URL=https://${{ vars.STAGING_DOMAIN }}
             VITE_SENTRY_DSN=${{ vars.SENTRY_FRONTEND_DSN }}
+            VITE_RELEASE=${{ steps.tag.outputs.value }}
           tags: ${{ env.REGISTRY }}/howler-web:${{ steps.tag.outputs.value }}
           cache-from: type=gha,scope=web
           cache-to: type=gha,scope=web,mode=max

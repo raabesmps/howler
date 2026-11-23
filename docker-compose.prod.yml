@@ -26,6 +26,7 @@ services:
     env_file: .env
     environment:
       DB_HOST: db
+      SENTRY_RELEASE: ${TAG} # so an error report points at the exact code
     volumes:
       - app_storage:/var/www/storage # the voice files (deleted once a howler is opened) and logs
     depends_on:
@@ -39,6 +40,7 @@ services:
     env_file: .env
     environment:
       DB_HOST: db
+      SENTRY_RELEASE: ${TAG}
     volumes:
       - app_storage:/var/www/storage
     healthcheck:

@@ -11,4 +11,10 @@ interface ImportMetaEnv {
   readonly VITE_API?: string
   /** Where the API lives. Defaults to /api on the same origin (proxied in development and production). */
   readonly VITE_API_URL?: string
+  /** Public Sentry DSN for the page. Empty means error monitoring is off. */
+  readonly VITE_SENTRY_DSN?: string
+  /** The commit this build came from, so an error points at the code. */
+  readonly VITE_RELEASE?: string
+  /** The public site URL for the link-preview tags. */
+  readonly VITE_SITE_URL?: string
 }

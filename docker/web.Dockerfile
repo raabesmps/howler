@@ -10,7 +10,8 @@ COPY frontend/ ./
 # Public, build-time values for the page (never secrets): the site URL for link previews, the optional Sentry DSN
 ARG VITE_SITE_URL=
 ARG VITE_SENTRY_DSN=
-ENV VITE_SITE_URL=$VITE_SITE_URL VITE_SENTRY_DSN=$VITE_SENTRY_DSN
+ARG VITE_RELEASE=
+ENV VITE_SITE_URL=$VITE_SITE_URL VITE_SENTRY_DSN=$VITE_SENTRY_DSN VITE_RELEASE=$VITE_RELEASE
 RUN npm run build
 
 # ---- serve it

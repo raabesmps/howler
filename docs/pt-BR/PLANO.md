@@ -19,6 +19,7 @@ O plano abaixo é o original. Estas são as decisões tomadas enquanto ele era c
 5. **CP6 (modelo de dados):** o howler também guarda o áudio (`audio_path`) e o apaga quando for aberto ou expirar (ADR-003).
 6. **CP8 (integração):** a voz é gerada **quando o howler é criado**, no servidor, com a chave só no servidor (o endpoint de `frontend/server/voice.ts` vira o backend). Mantém as travas do protótipo: de 1 a 140 caracteres, um limite por IP que também protege o custo, e a conferência da transcrição. Também precisa conferir o provedor e o preço (cerca de 1,5 centavo de dólar por howler medido, a confirmar na página oficial).
 7. **A CI entrou cedo** (lint, tipos, testes unitários e build a cada pull request). O CP9 amplia com os testes ponta a ponta e o resto.
+8. **Direção de hospedagem decidida (2026-11-23):** uma VM do Google Cloud rodando tudo com Docker Compose, e não o Netlify (que não roda Laravel). Veja o [ADR-004](../decisions/ADR-004-hosting.md). Tamanho, região, domínio e preços são fixados no CP10, e o preview online do CP5 vira o deploy de staging.
 
 ---
 

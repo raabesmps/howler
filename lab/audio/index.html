@@ -1,95 +1,132 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Howler audio lab</title>
+<title>Howler: laboratório de voz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,600..800,100,1&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="top">
-    <h1>Audio lab</h1>
-    <div class="msgrow">
-      <label class="sr" for="msg">Message to scream</label>
-      <input id="msg" type="text" maxlength="140" value="You never answer my calls.">
-      <label class="sr" for="lang">Language</label>
-      <select id="lang"><option value="en-US">EN</option><option value="pt-BR">PT</option></select>
-    </div>
-    <div class="tabs" role="tablist" aria-label="Voice approach">
-      <button type="button" role="tab" id="tabA" data-tab="a" aria-selected="true"><b>A</b>Browser</button>
-      <button type="button" role="tab" id="tabB" data-tab="b" aria-selected="false"><b>B</b>Recorded</button>
-      <button type="button" role="tab" id="tabC" data-tab="c" aria-selected="false"><b>C</b>Server TTS</button>
-    </div>
+  <header class="prog">
+    <span id="stepLabel">Passo 1 de 6</span>
+    <div class="dots" id="dots" aria-hidden="true"></div>
   </header>
 
-  <main>
-    <!-- A -->
-    <section id="paneA" role="tabpanel" aria-labelledby="tabA">
-      <p class="what">The voice built into the phone. No effects possible, only pitch and speed.</p>
-      <div class="knob"><label for="aPitch">Pitch <b id="aPitchV"></b></label><input id="aPitch" type="range" min="0" max="2" step="0.05" value="0.3"><small>low voice &harr; high voice</small></div>
-      <div class="knob"><label for="aRate">Speed <b id="aRateV"></b></label><input id="aRate" type="range" min="0.1" max="2" step="0.05" value="0.8"><small>slow &harr; fast</small></div>
-      <details><summary>Choose a voice</summary><select id="aVoice"></select></details>
-      <details class="score"><summary>Score this one</summary><div id="rateA"></div></details>
-    </section>
+  <main id="stage">
 
-    <!-- B -->
-    <section id="paneB" role="tabpanel" aria-labelledby="tabB" hidden>
-      <p class="what">Your recorded voice, turned into a scream.</p>
-      <p id="bWarn" class="note" hidden></p>
-      <div class="row"><button id="bRec" class="btn" type="button">Record (up to 8 s)</button></div>
-      <details class="score"><summary>Score this one</summary><div id="rateB"></div></details>
-    </section>
+    <!-- 1. INTRO -->
+    <section data-step="intro">
+      <h1>Qual voz assusta mais?</h1>
+      <p class="lead">Vou tocar três vozes diferentes. Você só ouve e dá uma nota. Leva uns 3 minutos.</p>
 
-    <!-- C -->
-    <section id="paneC" role="tabpanel" aria-labelledby="tabC" hidden>
-      <p class="what">A server-made voice file (a flat sample), turned into a scream.</p>
-      <label class="sr" for="cSample">Sample</label>
-      <select id="cSample">
-        <option value="en-short.wav">English, short</option>
-        <option value="en-long.wav">English, long</option>
-        <option value="pt-short.wav">Portuguese, short</option>
-      </select>
-      <details><summary>Use my own audio file</summary><input id="cFile" type="file" accept="audio/*"></details>
-      <details class="score"><summary>Score this one</summary><div id="rateC"></div></details>
-    </section>
-
-    <!-- Sound controls: only for B and C -->
-    <section id="sound" class="panel" hidden>
-      <h2>Make it scarier</h2>
-      <div class="chips" id="chips" role="group" aria-label="Starting points">
-        <button type="button" class="chip" data-preset="clean">Clean<small>no effect</small></button>
-        <button type="button" class="chip" data-preset="howler">Howler<small>the default</small></button>
-        <button type="button" class="chip" data-preset="demon">Demon<small>deeper, huge</small></button>
-        <button type="button" class="chip" data-preset="radio">Radio<small>tinny, tight</small></button>
+      <p class="q">Idioma do recado</p>
+      <div class="choice" role="group" aria-label="Idioma do recado" id="langChoice">
+        <button type="button" data-lang="pt" aria-pressed="true">Português</button>
+        <button type="button" data-lang="en" aria-pressed="false">English</button>
       </div>
-      <div id="knobs"></div>
-      <details class="adv"><summary>Advanced (all the raw controls)</summary><div id="advanced"></div></details>
+      <blockquote id="phrase" class="phrase">Você nunca atende as minhas ligações.</blockquote>
+
+      <p class="q">Você vai ouvir pelo</p>
+      <div class="choice" role="group" aria-label="Como você vai ouvir" id="outChoice">
+        <button type="button" data-out="speaker" aria-pressed="true">Alto-falante</button>
+        <button type="button" data-out="phones" aria-pressed="false">Fone</button>
+      </div>
+      <p class="warn">O som é alto. Comece com o volume baixo.</p>
     </section>
 
-    <details class="panel more">
-      <summary>Share my results and device info</summary>
-      <p>Paste this in the chat after testing.</p>
-      <div class="row"><button id="exportBtn" class="btn ghost" type="button">Copy my results</button><span id="exportState" class="hint" role="status"></span></div>
-      <pre id="exportOut" hidden></pre>
-      <h3>This device</h3>
-      <pre id="deviceInfo">detecting...</pre>
-    </details>
+    <!-- 2. VOZ A -->
+    <section data-step="a" hidden>
+      <p class="eyebrow">Voz A</p>
+      <h1>A voz do próprio celular</h1>
+      <p class="lead">É a que o primeiro protótipo usava.</p>
+      <button type="button" class="play" id="aPlay"><i></i><span>Ouvir</span></button>
+      <p class="q">Quanto isso assusta?</p>
+      <div class="scale" data-scale="a"></div>
+    </section>
+
+    <!-- 3. VOZ C -->
+    <section data-step="c" hidden>
+      <p class="eyebrow">Voz C</p>
+      <h1>Voz de servidor com efeito</h1>
+      <p class="hint">Toque nas quatro versões para ouvir cada uma.</p>
+      <div class="tiles" id="tiles">
+        <button type="button" class="tile" data-preset="clean"><b>1</b><span>Limpa</span><small>sem efeito</small></button>
+        <button type="button" class="tile" data-preset="howler"><b>2</b><span>Howler</span><small>a padrão</small></button>
+        <button type="button" class="tile" data-preset="demon"><b>3</b><span>Demônio</span><small>bem mais grave</small></button>
+        <button type="button" class="tile" data-preset="radio"><b>4</b><span>Rádio</span><small>seca e tensa</small></button>
+      </div>
+      <p class="q">Qual ficou melhor?</p>
+      <div class="choice four" role="group" aria-label="Qual versão ficou melhor" id="bestChoice">
+        <button type="button" data-best="clean" aria-pressed="false">1</button>
+        <button type="button" data-best="howler" aria-pressed="false">2</button>
+        <button type="button" data-best="demon" aria-pressed="false">3</button>
+        <button type="button" data-best="radio" aria-pressed="false">4</button>
+      </div>
+      <p class="q">Quanto essa assusta?</p>
+      <div class="scale" data-scale="c"></div>
+      <details class="own"><summary>Tenho um áudio de voz neural (ElevenLabs, OpenAI...)</summary>
+        <input id="cFile" type="file" accept="audio/*">
+        <p class="hint" id="cFileInfo">Se você enviar um áudio, as quatro versões passam a usar ele.</p>
+      </details>
+    </section>
+
+    <!-- 4. AJUSTE FINO -->
+    <section data-step="tune" hidden>
+      <p class="eyebrow">Ajuste fino</p>
+      <h1>O que falta nessa voz?</h1>
+      <p class="lead">Toque no que falta. Eu toco de novo na hora. Pode tocar mais de uma vez.</p>
+      <div class="tweaks" id="tweaks">
+        <button type="button" data-knob="depth"><span>Mais grave</span><em></em></button>
+        <button type="button" data-knob="rage"><span>Mais agressiva</span><em></em></button>
+        <button type="button" data-knob="boom"><span>Graves pesados</span><em></em></button>
+        <button type="button" data-knob="echo"><span>Mais eco</span><em></em></button>
+        <button type="button" data-knob="build"><span>Mais tensão</span><em></em></button>
+        <button type="button" data-knob="undo" class="undo"><span>Desfazer tudo</span><em></em></button>
+      </div>
+      <button type="button" class="play small" id="tunePlay"><i></i><span>Ouvir de novo</span></button>
+      <p class="hint">"Mais tensão" faz a voz começar como sussurro e explodir no fim.</p>
+    </section>
+
+    <!-- 5. VOZ B -->
+    <section data-step="b" hidden>
+      <p class="eyebrow">Voz B</p>
+      <h1>A sua própria voz</h1>
+      <p class="lead">Grave o recado (até 6 segundos). Eu transformo em grito com o efeito que você escolheu.</p>
+      <p class="note" id="bWarn" hidden></p>
+      <button type="button" class="play rec" id="bRec"><i></i><span>Gravar</span></button>
+      <div class="row2" id="bAfter" hidden>
+        <button type="button" class="btn ghost" id="bPlayFx">Ouvir com efeito</button>
+        <button type="button" class="btn ghost" id="bPlayRaw">Ouvir sem efeito</button>
+      </div>
+      <div id="bRate" hidden>
+        <p class="q">Quanto isso assusta?</p>
+        <div class="scale" data-scale="b"></div>
+      </div>
+    </section>
+
+    <!-- 6. FIM -->
+    <section data-step="done" hidden>
+      <h1>Pronto!</h1>
+      <p class="lead">Copie o resultado e cole no chat. Com ele eu fecho a decisão da voz.</p>
+      <dl class="sum" id="summary"></dl>
+      <button type="button" class="btn ghost" id="restart">Recomeçar</button>
+    </section>
   </main>
 
   <footer class="bar">
     <div class="meter" aria-hidden="true"><i id="meter"></i></div>
+    <p id="status" class="status" role="status"></p>
     <div class="barrow">
-      <button id="play" class="btn big" type="button">Play</button>
-      <button id="raw" class="btn ghost" type="button" hidden>Raw</button>
-      <button id="stop" class="btn ghost" type="button">Stop</button>
-      <span id="status" class="hint" role="status">Loud sound. Start with the volume low.</span>
+      <button type="button" class="btn ghost" id="back">Voltar</button>
+      <button type="button" class="btn go" id="next">Começar</button>
     </div>
   </footer>
 
   <script src="app.js"></script>
   <script src="fx.js"></script>
-  <script src="approach-a.js"></script>
-  <script src="approach-b.js"></script>
-  <script src="approach-c.js"></script>
+  <script src="wizard.js"></script>
 </body>
 </html>

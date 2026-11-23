@@ -1,22 +1,13 @@
-/* The sound controls and the effects chain shared by approaches B and C.
+/* The effects engine shared by approaches B and C (no UI here).
    source -> pitch (playbackRate) -> distortion (WaveShaper) -> bass shelf -> compressor
           -> dry/wet reverb (Convolver) -> tremolo (LFO on gain) -> volume ramp -> master -> limiter -> analyser -> speakers
 
-   People see six plain-language knobs (K). They are turned into the raw parameters (P) the chain uses.
-   The "Advanced" panel edits P directly. */
+   A "recipe" is six knobs (K, 0..100) plus shake. They are turned into the raw parameters (P) the chain uses.
+   The page never shows the raw parameters: people pick a starting recipe and nudge it ("more deep", "more echo"). */
 (function () {
   'use strict';
-  var LAB = window.LAB, $ = function (id) { return document.getElementById(id); };
+  var LAB = window.LAB;
 
-  /* ---------- the six simple knobs ---------- */
-  var KNOBS = [
-    { k: 'depth',  label: 'Depth',    hint: 'high ↔ deep monster' },
-    { k: 'rage',   label: 'Rage',     hint: 'clean ↔ aggressive' },
-    { k: 'boom',   label: 'Boom',     hint: 'thin ↔ heavy bass' },
-    { k: 'echo',   label: 'Echo',     hint: 'dry ↔ big room' },
-    { k: 'build',  label: 'Build-up', hint: 'instant ↔ whisper, then explodes' },
-    { k: 'volume', label: 'Volume',   hint: 'quiet ↔ loud' }
-  ];
   var PRESETS = {
     clean:  { depth: 0,  rage: 0,  boom: 0,  echo: 0,  build: 0,  volume: 70, shake: 0 },
     howler: { depth: 38, rage: 35, boom: 50, echo: 35, build: 80, volume: 75, shake: 22 },
@@ -38,64 +29,15 @@
     P.tremDepth = K.shake;
     P.tremRate = +(6 + K.shake * 0.1).toFixed(1);
   }
+
+  LAB.fx = {
+    presets: Object.keys(PRESETS),
+    setPreset: function (name) { Object.keys(PRESETS[name]).forEach(function (k) { K[k] = PRESETS[name][k]; }); derive(); },
+    tweak: function (knob, delta) { K[knob] = Math.max(0, Math.min(100, K[knob] + delta)); derive(); },
+    knobs: function () { return JSON.parse(JSON.stringify(K)); }
+  };
   LAB.getSettings = function () { return { knobs: JSON.parse(JSON.stringify(K)), raw: JSON.parse(JSON.stringify(P)) }; };
-
-  /* ---------- advanced: the raw parameters ---------- */
-  var RAW = [
-    { k: 'pitch',      label: 'Pitch (cents; also changes speed)', min: -1200, max: 400, step: 25,  fmt: function (v) { return (v > 0 ? '+' : '') + v + ' c'; } },
-    { k: 'drive',      label: 'Distortion',                        min: 0, max: 100, step: 1,   fmt: function (v) { return v + ''; } },
-    { k: 'bass',       label: 'Bass boost (dB)',                   min: 0, max: 18,  step: 1,   fmt: function (v) { return '+' + v + ' dB'; } },
-    { k: 'comp',       label: 'Compression',                       min: 0, max: 100, step: 1,   fmt: function (v) { return v + '%'; } },
-    { k: 'reverbMix',  label: 'Reverb mix',                        min: 0, max: 100, step: 1,   fmt: function (v) { return v + '%'; } },
-    { k: 'reverbSize', label: 'Room size (s)',                     min: 0.3, max: 5, step: 0.1, fmt: function (v) { return v.toFixed(1) + ' s'; } },
-    { k: 'rampStart',  label: 'Volume ramp: start level',          min: 0, max: 100, step: 1,   fmt: function (v) { return v + '%'; } },
-    { k: 'rampTime',   label: 'Volume ramp: time to full (s)',     min: 0, max: 3,   step: 0.1, fmt: function (v) { return v.toFixed(1) + ' s'; } },
-    { k: 'tremRate',   label: 'Tremolo speed (Hz)',                min: 1, max: 20,  step: 0.5, fmt: function (v) { return v + ' Hz'; } },
-    { k: 'tremDepth',  label: 'Tremolo depth',                     min: 0, max: 100, step: 1,   fmt: function (v) { return v + '%'; } },
-    { k: 'master',     label: 'Master volume',                     min: 0, max: 100, step: 1,   fmt: function (v) { return v + '%'; } }
-  ];
-
-  /* ---------- UI ---------- */
-  function buildUI() {
-    var html = '';
-    KNOBS.forEach(function (n) {
-      html += '<div class="knob"><label for="kn_' + n.k + '">' + n.label + ' <b id="knv_' + n.k + '"></b></label>' +
-        '<input id="kn_' + n.k + '" type="range" min="0" max="100" step="1"><small>' + n.hint + '</small></div>';
-    });
-    $('knobs').innerHTML = html;
-    KNOBS.forEach(function (n) {
-      $('kn_' + n.k).addEventListener('input', function () {
-        K[n.k] = +this.value; derive(); syncView(); markPreset(null);
-      });
-    });
-
-    var adv = '<p class="note">These change the same sound as the knobs above, but one by one. Moving a knob above resets them.</p>';
-    RAW.forEach(function (s) {
-      adv += '<div class="knob"><label for="rw_' + s.k + '">' + s.label + ' <b id="rwv_' + s.k + '"></b></label>' +
-        '<input id="rw_' + s.k + '" type="range" min="' + s.min + '" max="' + s.max + '" step="' + s.step + '"></div>';
-    });
-    $('advanced').innerHTML = adv;
-    RAW.forEach(function (s) {
-      $('rw_' + s.k).addEventListener('input', function () { P[s.k] = +this.value; $('rwv_' + s.k).textContent = s.fmt(P[s.k]); markPreset(null); });
-    });
-
-    $('chips').addEventListener('click', function (e) {
-      var b = e.target.closest('[data-preset]'); if (!b) return;
-      applyPreset(b.dataset.preset);
-    });
-    applyPreset('howler');
-  }
-  function syncView() {
-    KNOBS.forEach(function (n) { $('kn_' + n.k).value = K[n.k]; $('knv_' + n.k).textContent = K[n.k]; });
-    RAW.forEach(function (s) { $('rw_' + s.k).value = P[s.k]; $('rwv_' + s.k).textContent = s.fmt(P[s.k]); });
-  }
-  function markPreset(name) {
-    Array.prototype.forEach.call($('chips').children, function (c) { c.setAttribute('aria-pressed', String(c.dataset.preset === name)); });
-  }
-  function applyPreset(name) {
-    Object.keys(PRESETS[name]).forEach(function (k) { K[k] = PRESETS[name][k]; });
-    derive(); syncView(); markPreset(name);
-  }
+  LAB.fx.setPreset('howler');
 
   /* ---------- DSP helpers ---------- */
   function driveCurve(amount) {
@@ -186,6 +128,4 @@
     var ctx = OAC ? new OAC(1, 1, 44100) : LAB.audio();
     return new Promise(function (res, rej) { ctx.decodeAudioData(arrayBuffer, res, rej); });
   };
-
-  buildUI();
 })();

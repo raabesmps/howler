@@ -2,7 +2,7 @@
 
 [English](README.md) · [Português](README.pt-BR.md)
 
-Throwaway experiment for CP2: compares three ways to give the howler a voice (see `docs/decisions/ADR-002-voice-approach.md`). Plain HTML and JS, no build step, nothing is uploaded.
+Throwaway experiment for CP2: compares three ways to give the howler a voice (see `docs/decisions/ADR-002-voice-approach.md`). Plain HTML and JS, no build step, nothing is uploaded. The page itself is in Portuguese because only one person uses it.
 
 ## Run it
 
@@ -12,36 +12,30 @@ python -m http.server 8080
 ```
 
 - Same computer: http://localhost:8080
-- Phone on the same Wi-Fi: `http://<your-computer-ip>:8080` (approaches A and C work).
-- Approach B (recording) needs the microphone, and browsers only allow it on `https://` or `localhost`. On a phone over plain http it is disabled with an explanation. Use an https link to test it.
+- Phone on the same Wi-Fi: `http://<your-computer-ip>:8080`.
+- Voice B (recording) needs the microphone, and browsers only allow it on `https://` or `localhost`. Over plain http the page skips that step and says why. The decision does not depend on it.
 
-## The controls (B and C)
+## The guided flow
 
-Pick a starting point (Clean, Howler, Demon, Radio), then adjust six knobs, each described in plain words:
+One question per screen, one primary button, everything fits a phone screen without scrolling.
 
-| Knob | Low | High |
-|------|-----|------|
-| Depth | high voice | deep monster |
-| Rage | clean | aggressive, distorted |
-| Boom | thin | heavy bass |
-| Echo | dry | big room |
-| Build-up | instant | starts as a whisper, then explodes |
-| Volume | quiet | loud (a limiter protects your ears) |
-
-"Advanced" holds the eleven raw controls behind these knobs (pitch in cents, distortion, bass dB, compression, reverb mix and size, ramp, tremolo). The Play bar is fixed at the bottom.
+1. **Intro:** language of the message, speaker or headphones, a volume warning.
+2. **Voice A** (the phone's own voice): listen, score 1 to 5.
+3. **Voice C** (server TTS file, simulated by a sample or by an uploaded file): four versions to listen to (Clean, Howler, Demon, Radio), pick the best one, score it.
+4. **Fine tuning:** one-tap buttons ("more deep", "more aggressive", "heavy bass", "more echo", "more tension") that replay right away.
+5. **Voice B** (your own recorded voice, through the recipe you chose).
+6. **Done:** a summary and a "copy result" button to paste in the chat.
 
 ## Files
 
 | File | What it does |
 |------|--------------|
-| `index.html`, `style.css` | The page |
-| `app.js` | Audio unlock, device info, scoring, export of results |
-| `fx.js` | The effects chain shared by B and C, and the presets |
-| `approach-a.js` | A: `speechSynthesis` |
-| `approach-b.js` | B: microphone recording, decoded and processed |
-| `approach-c.js` | C: sample or uploaded audio file, processed |
+| `index.html`, `style.css` | The page (follows `docs/design/tokens.md`) |
+| `app.js` | Audio context creation (needs a tap) and device info |
+| `fx.js` | The effects engine and the four recipes (no UI) |
+| `wizard.js` | The guided flow, voices A, B and C, and the result export |
 | `samples/` | Short voice files made with offline Windows voices (flat, they test the effects only) |
 
 ## How it was checked
 
-An automated browser test (Playwright, Chromium with a fake microphone) covered: audio unlock, loading and playing a sample, recording and playing with B, the scoring and export, and offline renders of all four presets to confirm that each one changes the signal and ends cleanly. It found and fixed a DC offset in the distortion curve. Scoring on real phones is the part only a person can do.
+An automated browser test (Playwright, Chromium with a fake microphone) walks the whole flow: the primary button stays disabled until each step is done, language switch, voice A, the four versions of C, the one-tap tweaks and undo, recording and playing voice B, the summary and the exported result. It also checks that every screen fits a 390x844 phone without scrolling. Earlier versions of the test found a DC offset in the distortion curve and a stalled-download problem with the dev server, both fixed. Scoring on real phones is the part only a person can do.

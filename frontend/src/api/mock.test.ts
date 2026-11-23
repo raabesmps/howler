@@ -28,7 +28,7 @@ describe('mock api', () => {
 
   it('opens exactly once, then it is burned', async () => {
     const { token } = await api.create({ message: 'Clean your room', recipient: '' })
-    expect(await api.open(token)).toEqual({ message: 'Clean your room', recipient: '' })
+    expect(await api.open(token)).toEqual({ message: 'Clean your room', recipient: '', audio: null })
     expect(await api.status(token)).toBe('burned')
     await expect(api.open(token)).rejects.toMatchObject({ name: 'GoneError', reason: 'burned' })
   })
@@ -61,6 +61,6 @@ describe('mock api', () => {
     await expect(api.create({ message: '', recipient: '' })).rejects.toBeInstanceOf(RangeError)
     await expect(api.create({ message: 'x'.repeat(141), recipient: '' })).rejects.toBeInstanceOf(RangeError)
     const { token } = await api.create({ message: 'Você nunca atende as minhas ligações! 😠', recipient: 'João' })
-    expect(await api.open(token)).toEqual({ message: 'Você nunca atende as minhas ligações! 😠', recipient: 'João' })
+    expect(await api.open(token)).toEqual({ message: 'Você nunca atende as minhas ligações! 😠', recipient: 'João', audio: null })
   })
 })

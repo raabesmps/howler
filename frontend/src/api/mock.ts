@@ -1,5 +1,5 @@
 /*
- * Prototype implementation of HowlerApi, with no server.
+ * Implementation of HowlerApi with no server: for tests and for working on the screens without Docker (VITE_API=mock).
  *
  * To let a link made on one device open on another, the token itself carries the message (base64url of a small JSON).
  * "Single use" is enforced per browser through localStorage. This is a prototype shortcut: in the real product the
@@ -16,6 +16,7 @@ import {
   type HowlerPreview,
   type HowlerStatus,
   type NewHowler,
+  type ReportReason,
 } from './types'
 
 const BURNED_KEY = 'howler.burned'
@@ -94,7 +95,7 @@ export function createMockApi(now: () => number = Date.now): HowlerApi {
       if (m.length < 1 || m.length > MAX_MESSAGE) throw new RangeError(`message must be 1 to ${MAX_MESSAGE} characters`)
       if (r.length > MAX_NAME) throw new RangeError(`name must be at most ${MAX_NAME} characters`)
       const expiresAt = now() + EXPIRY_DAYS * 24 * 60 * 60 * 1000
-      return { token: toBase64Url(JSON.stringify({ i: randomId(), m, r, e: expiresAt } satisfies Payload)), expiresAt }
+      return { token: toBase64Url(JSON.stringify({ i: randomId(), m, r, e: expiresAt } satisfies Payload)), expiresAt, voice: false }
     },
 
     async status(token: string) {
@@ -111,7 +112,11 @@ export function createMockApi(now: () => number = Date.now): HowlerApi {
       const s = statusOf(p)
       if (s !== 'sealed' || !p) throw new GoneError(s === 'sealed' ? 'notfound' : s)
       remember(p.i) // burn first, then reveal: a second call can never get the content
-      return { message: p.m, recipient: p.r }
+      return { message: p.m, recipient: p.r, audio: null }
+    },
+
+    async report(_token: string, _reason: ReportReason): Promise<void> {
+      /* nobody to tell: the prototype has no server */
     },
   }
 }

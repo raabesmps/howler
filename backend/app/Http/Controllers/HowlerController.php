@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\CreateHowler;
 use App\Actions\OpenHowler;
 use App\Enums\HowlerStatus;
 use App\Exceptions\HowlerNotFound;
@@ -16,9 +17,9 @@ use Illuminate\Validation\Rule;
 class HowlerController extends Controller
 {
     /** Creates a sealed howler. The token is in this response and nowhere else: only its hash is stored. */
-    public function store(StoreHowlerRequest $request): JsonResponse
+    public function store(StoreHowlerRequest $request, CreateHowler $create): JsonResponse
     {
-        ['howler' => $howler, 'token' => $token] = Howler::createSealed(
+        ['howler' => $howler, 'token' => $token, 'voice' => $voice] = $create(
             $request->validated('message'),
             $request->validated('recipient_name'),
         );
@@ -27,6 +28,7 @@ class HowlerController extends Controller
             'token' => $token,
             'recipient_name' => $howler->recipient_name,
             'expires_at' => $howler->expires_at->toIso8601String(),
+            'voice' => $voice,
         ], 201)->header('Cache-Control', 'no-store');
     }
 
@@ -70,6 +72,8 @@ class HowlerController extends Controller
         return response()->json([
             'message' => $content['message'],
             'recipient_name' => $content['recipient_name'],
+            // The voice, delivered with the message and never again: null means the browser reads it with its own voice.
+            'audio' => $content['audio'] === null ? null : ['mime' => 'audio/wav', 'data' => base64_encode($content['audio'])],
         ])->header('Cache-Control', 'no-store');
     }
 

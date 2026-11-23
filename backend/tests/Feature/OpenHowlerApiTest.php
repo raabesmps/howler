@@ -19,7 +19,7 @@ class OpenHowlerApiTest extends TestCase
         $this->postJson("/api/howlers/{$token}/open")
             ->assertOk()
             ->assertHeader('Cache-Control', 'no-store, private')
-            ->assertExactJson(['message' => 'HOW DARE YOU!', 'recipient_name' => 'Ana']);
+            ->assertExactJson(['message' => 'HOW DARE YOU!', 'recipient_name' => 'Ana', 'audio' => null]);
 
         $fresh = $howler->fresh();
         $this->assertSame(HowlerStatus::Burned, $fresh->status);

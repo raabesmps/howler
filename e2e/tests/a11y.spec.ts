@@ -7,7 +7,22 @@ import { createHowler, linkFor } from './helpers'
  * Automated checks catch roughly a third of the problems: contrast, names, roles, structure, landmarks. Keyboard use,
  * focus order and reduced motion are covered by their own tests; the rest is in docs/TESTING.md as a manual checklist.
  */
+/** Waits for every finite animation and transition to end: axe measures contrast on what is painted, so a fade in progress gives false results. */
+async function settle(page: Page): Promise<void> {
+  // two frames first: a transition only starts once the browser has painted the new screen
+  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+  await page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((a) => a.effect?.getComputedTiming().iterations !== Infinity)
+        .map((a) => a.finished.catch(() => undefined)),
+    ),
+  )
+}
+
 async function audit(page: Page): Promise<void> {
+  await settle(page)
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()
   const summary = results.violations.map((v) => `${v.id} (${v.impact}): ${v.nodes.map((n) => n.target.join(' ')).join(' | ')}`)
   expect(summary, summary.join('\n')).toEqual([])
@@ -39,7 +54,6 @@ test.describe('accessibility (axe)', () => {
     const token = await createHowler(request)
     await page.goto(linkFor(token))
     await expect(page.getByRole('button', { name: /open the howler/i })).toBeVisible()
-    await page.waitForTimeout(500) // let the entrance settle so contrast is measured on the final colours
     await audit(page)
   })
 
@@ -83,6 +97,7 @@ test.describe('accessibility (axe)', () => {
 
   test('page not found', async ({ page }) => {
     await page.goto('/#/this/does/not/exist')
+    await expect(page.getByRole('heading', { name: /nothing here/i })).toBeVisible()
     await audit(page)
   })
 })

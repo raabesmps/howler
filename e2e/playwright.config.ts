@@ -3,8 +3,8 @@ import { defineConfig, devices } from '@playwright/test'
 /*
  * End-to-end tests: a real browser against the real frontend, the real Laravel API and a real PostgreSQL.
  *
- * The backend is started by the caller (CI: `php artisan serve`; locally: `scripts/e2e-backend.sh`, which runs it in
- * Docker with the voice turned off and the rate limits raised). This config starts only the frontend and forwards /api
+ * The backend is started by the caller (CI: PHP built-in server; locally: `scripts/e2e-backend.sh`, which runs it in
+ * Docker with the voice turned off and the rate limits raised). This config builds and serves only the frontend and forwards /api
  * to the backend, so the browser, as in production, only ever talks to one origin.
  *
  * There is no OpenAI key in these runs, so howlers have no server voice and the browser's own voice reads them: that is
@@ -28,11 +28,13 @@ export default defineConfig({
     ...devices['Pixel 7'], // mobile first
   },
   webServer: {
-    command: `npm run dev -- --host localhost --port ${PORT} --strictPort`,
+    // The production build, not the dev server: it is what ships, and the dev server can reload the page in the middle of a test
+    // (it re-optimises dependencies the first time a lazy screen loads), which made tests flaky.
+    command: `npm run build && npx vite preview --host localhost --port ${PORT} --strictPort`,
     cwd: '../frontend',
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
-    timeout: 60_000,
+    timeout: 120_000,
     env: { VITE_API_TARGET: API },
   },
 })

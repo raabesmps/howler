@@ -7,39 +7,40 @@ Date: 2026-11-22
 
 ## Context
 
-The first prototype used the browser's `speechSynthesis`. That audio does not pass through Web Audio, so it cannot get distortion, reverb, bass or extra volume, and it sounds like a high-pitched GPS voice. The howler needs a voice that can be processed into a real scream.
+The first prototype used the browser's `speechSynthesis`. That audio cannot be processed and it sounds like a high-pitched GPS voice. The howler needs a voice that actually screams.
 
-Three approaches were tried in an audio lab (kept on the `cp02-audio-lab` branch): A) the browser voice, B) the sender's own recorded voice, C) a voice file generated on the server by a TTS service. Both approaches B and C were run through the same effects chain (pitch, saturation, bass, compression, reverb, tremolo, volume ramp, limiter). The effects chain works on any decoded audio, so it is not the deciding factor.
+The product owner's direction: **nobody picks the tone**. The sender only writes the message; the tone is fixed by the product. The target is a furious mother's howler, and we agreed it cannot be a copy of anyone: our version is a **hysterical, shrieking, over-the-top mother**. It is a character tone, not an impersonation of a real person, and no franchise names appear in the product, code or docs.
 
-The product owner's direction after testing: **nobody picks the tone**. The sender only writes the message; the tone is fixed by the product (decided by the two of us), and the target is a furious mother's howler: a scolding, house-filling, booming voice that builds up in anger. It is a character tone, not an impersonation of any real person, and no franchise names appear in the product.
+Three approaches were tried: A) the browser voice, B) the sender's own recorded voice, C) a voice generated on the server by a model. C won clearly (a fixed tone, no friction for the sender, no real person's voice stored, easy to moderate as text).
 
-## Comparison
-
-| Criterion | A. Browser voice | B. Recorded voice | C. Server TTS file |
-|-----------|------------------|-------------------|--------------------|
-| Can be processed into a scream | No (no Web Audio) | Yes | Yes |
-| A fixed tone chosen by the product | No (depends on the device voices) | No (it is the sender's own voice) | Yes |
-| Sender effort | None | Microphone permission, must record, needs https | None |
-| Privacy (LGPD) | Nothing stored | A person's voice is personal data, stored until opened | Only text goes to the provider |
-| Abuse and moderation | Text only | Audio of a real person, hard to moderate | Text only |
-| Languages | Depends on installed voices | Any | Provider dependent; English and Brazilian Portuguese are well covered |
+Then the tone was tuned by ear over several rounds of takes, with these findings:
+- A plain read, even loud, is not a scream. What matters is the **direction** given to the model and **how the line is written**.
+- Echo and reverb were rejected: the wanted sound is a dry, close, loud shout. Spelling out stretched vowels was rejected too.
+- Heavy loudness processing caused hiss, harshness and "pumping" that hurt the ears. A **clean** treatment fixed it.
+- The `gpt-4o-mini-tts` speech endpoint with the voice Coral was good, but **it is deprecated and shuts down on 2027-01-06** (OpenAI text-to-speech guide). It cannot be the base of the product.
+- The newer `gpt-audio` model, which acts the line instead of only reading it, with the voice Coral, **was chosen by ear** as the best scream. `gpt-audio-1.5` read the stage direction aloud and added speech that was not in the line, so it is not usable as is. Framing the task as a stage actress in a comedy sketch was needed: framing the character as someone "losing control, almost crying" made the newer models refuse.
 
 ## Decision
 
-1. **Production: C.** The text goes to a neural TTS service when the howler is created, the audio file is stored until the howler is opened, then deleted. The voice and its "furious" delivery are fixed by the product, and the effects chain from `frontend/src/audio/engine.ts` is applied on the device when it plays. The concrete provider and voice are chosen at CP8 by listening to real samples together.
-2. **Prototype: an in-browser stand-in.** Until a backend exists, the prototype speaks with Piper models running in the browser (WebAssembly, MIT licence) and gives the anger through the treatment in `engine.ts`: the message is spoken in pieces, each louder, faster and higher than the last, then pushed through saturation, a heavy compressor and a huge hall. It is clearly a stand-in: a Piper voice reads calmly, the first visit downloads a model of about 60 MB, and it needs a secure context (https) to store it.
-3. **Fallback: A.** If the voice cannot be prepared (offline, blocked, browsers without the needed storage API), the howler still works with the plain browser voice, so a message is never lost after it has been opened.
-4. **B is out of the MVP.** Recording a person's voice brings the highest privacy and abuse risk for the smallest gain. It may return later as an explicit opt-in feature.
+1. **Model and voice:** `gpt-audio` (pinned to the dated snapshot `gpt-audio-2025-08-28`, so the tone does not change by itself), voice **Coral**, called through the chat completions endpoint with audio output. The direction and the comedy-sketch framing are fixed in `frontend/server/voice.ts`.
+2. **Treatment on the device (named "V2"):** a noise gate that removes hiss between words, a little compression, the harsh highs tamed, and a measured volume of about -14 dB average with peaks under -1 dBFS. **No echo, no saturation, no extra boost of the highs.** Implemented in `frontend/src/audio/engine.ts` and `dsp.ts`.
+3. **The key stays on the server.** In the prototype a small endpoint inside the Vite dev server (`POST /api/voice`) reads `OPENAI_API_KEY` from the git-ignored `.env.local` and returns the audio. In the product this becomes the backend (CP8), where the audio is made when the howler is created, stored until it is opened, then deleted (ADR-003).
+4. **Guards on the endpoint:** the text must be 1 to 140 characters; at most 6 requests per minute per client (the cost is per use); the transcript returned by the model must match the sender's text word for word (it rejects stage directions read aloud, refusals, extra speech and a model that obeyed instructions hidden in the sender's text), with one retry.
+5. **Fallback:** if the voice cannot be generated (offline, refusal, upstream error), the howler still works with the plain browser voice, so a message is never lost after it has been opened.
+6. **B (recording a person's voice) is out of the MVP.** It brings the highest privacy and abuse risk for the smallest gain.
 
 ## Alternatives considered
 
-- **Pitch-shifted `speechSynthesis` only**: rejected, it cannot be processed (the reason this decision exists).
-- **Capturing `speechSynthesis` output through tab or system audio capture**: not possible in a normal page.
-- **Client-side neural TTS as the final answer**: possible, but large downloads and slow on phones; and a calm read cannot carry real anger, which is what a good server voice can. It stays as the prototype stand-in and a possible offline fallback.
-- **Generating the voice at open time**: adds latency at the dramatic moment and keeps the text on the server unprocessed; generating at creation time avoids both. (The prototype has to synthesize at open time only because it has no server.)
+- **`gpt-4o-mini-tts` (speech endpoint):** worked well, rejected because it shuts down on 2027-01-06.
+- **`gpt-audio-1.5`:** rejected for now, it reads directions aloud and adds speech. Worth retesting later.
+- **`gpt-realtime-2.1-mini` (the replacement OpenAI recommends):** not tried. It uses the Realtime API (a different workflow), so it is a candidate if `gpt-audio` is retired.
+- **ElevenLabs** (supports tags such as `[shouting]`) and **Azure** (shouting styles on some voices): not needed so far; the fallback if the OpenAI tone cannot be kept.
+- **In-browser Piper models:** used in the first prototype as a stand-in and removed: they read calmly and cannot scream.
 
 ## Consequences
 
-- CP6 (data model) needs `audio_path` and a retention rule: delete the file when the howler is opened or expires (ADR-003).
-- CP7 and CP8 need a TTS provider key kept only on the server (`.env`, never in the repo) and a per-IP rate limit that also protects the provider cost. Provider choice and prices are checked at CP8, not assumed here.
-- The prototype depends on third-party CDNs for the WebAssembly runtime and the voice model, which is acceptable for a preview and goes away when the server voice arrives.
+- **Cost:** a measured howler used about 300 input and 220 output tokens. With the audio output price listed by aggregators (about US$ 64 per million tokens, **to be confirmed on the OpenAI pricing page**) it is roughly 1.5 US cents per howler, doubled in the rare retry. The rate limit also protects this cost.
+- **Latency:** about 3 seconds to generate. The prototype generates when the envelope is opened (the rumble covers it); the product generates at creation, so the audio is ready beforehand.
+- **Risk:** the tone belongs to a model snapshot. If OpenAI retires `gpt-audio-2025-08-28`, the tone must be re-checked by ear before switching.
+- **Moderation:** abusive messages are not moderated in the MVP; the model may refuse some, and the fallback voice covers it. The report button and the rate limit are the MVP's defences (CP7).
+- CP6 needs `audio_path` and a retention rule (ADR-003). CP8 needs the key only on the server and a per-IP limit.

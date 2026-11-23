@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '../api'
 import { MAX_MESSAGE, MAX_NAME } from '../api/types'
+import { describeError } from '../lib/errors'
 import FanNotice from '../components/FanNotice.vue'
 
 const router = useRouter()
@@ -23,8 +24,8 @@ async function seal(): Promise<void> {
   try {
     const { token } = await api.create({ message: message.value, recipient: recipient.value })
     await router.push({ name: 'sent', params: { token }, query: recipient.value.trim() ? { to: recipient.value.trim() } : {} })
-  } catch {
-    error.value = 'Could not seal it. Try again.'
+  } catch (e) {
+    error.value = describeError(e)
     busy.value = false
   }
 }
@@ -47,7 +48,8 @@ async function seal(): Promise<void> {
 
     <div class="bottom">
       <p v-if="error" class="err" role="alert">{{ error }}</p>
-      <button class="btn" type="button" :disabled="!canSeal" @click="seal">Seal it</button>
+      <button class="btn" type="button" :disabled="!canSeal" @click="seal">{{ busy ? 'Sealing...' : 'Seal it' }}</button>
+      <p v-if="busy" class="wait" role="status">Making the scream. This takes a few seconds.</p>
       <FanNotice class="notice" />
     </div>
   </main>
@@ -86,5 +88,6 @@ textarea:focus-visible, .to input:focus-visible { outline: none; }
 
 .bottom { padding: var(--space-4) var(--space-4) calc(var(--space-4) + env(safe-area-inset-bottom)); }
 .notice { margin-top: var(--space-3); }
+.wait { color: var(--ash-400); font-size: 13px; text-align: center; margin-top: var(--space-2); }
 .err { color: var(--flare-400); font-size: 14px; margin-bottom: var(--space-2); text-align: center; }
 </style>

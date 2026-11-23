@@ -88,6 +88,8 @@ The backend tests never call OpenAI: any request that leaves the app without bei
 | `VITE_API_TARGET` | environment of `npm run dev` | Where the dev server forwards `/api` (default `http://localhost:8000`) |
 | `VITE_API` | environment of `npm run dev` / `build` | `mock` for the in-browser API |
 | `HOWLER_CREATE_PER_MINUTE`, `HOWLER_CREATE_PER_DAY`, `HOWLER_ACCESS_PER_MINUTE`, `HOWLER_REPORT_PER_MINUTE` | `backend/.env` | The per-IP rate limits (defaults 5, 40, 30, 5). Only the end-to-end setup raises them |
+| `CORS_ALLOWED_ORIGINS` | `backend/.env` | Other origins allowed to call the API. Empty by default (one origin) |
+| `SENTRY_LARAVEL_DSN`, `VITE_SENTRY_DSN` | server `.env`, build | Error monitoring. Empty means off (see [DEPLOYMENT.md](DEPLOYMENT.md), ADR-005) |
 | `VITE_SITE_URL` | environment of `npm run build` | The public URL, for the link-preview tags |
 
 ## When something goes wrong

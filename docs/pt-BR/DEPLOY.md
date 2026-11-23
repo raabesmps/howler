@@ -1,0 +1,186 @@
+# Runbook de deploy e rollback
+
+[English](../DEPLOYMENT.md) · [Português](DEPLOY.md)
+
+Como o Howler é colocado num servidor, atualizado e revertido. O desenho está no [ADR-004](decisions/ADR-004-hosting.md) (uma VM do Google Cloud rodando Docker Compose) e no [ADR-005](decisions/ADR-005-error-monitoring.md) (monitoramento de erros e privacidade). Este guia são os passos.
+
+**Quem faz o quê.** O código, as imagens e o script de deploy estão no repositório e são testados. Criar a VM, o DNS, as configurações do GitHub, o Sentry e os alertas de gasto são da dona do produto, porque precisam das contas e do dinheiro dela. Nada no repositório mexe no Google Cloud nem faz deploy enquanto a dona não ligar o workflow.
+
+## O que roda onde
+
+```
+ visitante ──https──▶ Caddy (web) ──/api, /up──▶ Laravel PHP-FPM (app) ──▶ PostgreSQL (db)
+                         │                                  ▲
+                         └── o site já construído (estático)└── scheduler (limpeza de hora em hora)
+```
+
+Os quatro são contêineres do `docker-compose.prod.yml`, iniciados pelo `deploy/deploy.sh`. Só o Caddy publica portas (80, 443). O banco e o PHP-FPM só são alcançáveis dentro da rede do Docker. As configurações ficam em `/opt/howler/.env` no servidor, nunca no repositório.
+
+## 1. Decidir
+
+| Decisão | Sugestão | Por quê |
+|---------|----------|---------|
+| Região | `southamerica-east1` (São Paulo) se a maior parte dos visitantes está no Brasil | Latência. Custa um pouco mais que as regiões dos EUA: confira o preço atual |
+| Tamanho da VM | Uma VM pequena de uso geral com 2 vCPU e 2 a 4 GB de RAM, disco de 20 GB | Cabem o Caddy, o PHP-FPM (20 workers), o PostgreSQL e o scheduler. A voz é feita pela OpenAI, não pela VM |
+| Domínio | Um subdomínio, por exemplo `howler.<seu-domínio>` | O Caddy obtém e renova sozinho o certificado https dele |
+| Limite da OpenAI | O limite mensal que você já definiu, mais o `HOWLER_VOICE_DAILY_LIMIT` | O custo por howler é cerca de 1,5 centavo de dólar (ADR-002) |
+
+Confira os preços e os limites do nível gratuito do Google Cloud na página oficial antes de escolher: eles não são assumidos aqui.
+
+## 2. Criar e preparar a VM
+
+Crie a VM no console do Google Cloud (ou com o `gcloud`) com estas propriedades:
+
+- Debian 12 ou Ubuntu 24.04 LTS (qualquer versão que tenha os pacotes do próprio Docker; versões muito novas podem não ter).
+- Um **IP externo estático** (para o registro de DNS nunca precisar mudar).
+- Regras de firewall: permitir TCP 80, TCP e UDP 443 de qualquer lugar, e TCP 22 só do seu próprio endereço, se der.
+
+Depois, na VM, como root ou com sudo:
+
+```
+# Docker e o plugin Compose (siga docs.docker.com/engine/install para a sua distribuição)
+# um usuário que faz o deploy, no grupo docker, com a pasta dele
+adduser --disabled-password --gecos "" deploy
+usermod -aG docker deploy
+install -d -o deploy -g deploy /opt/howler
+
+# o sistema aplica sozinho as correções de segurança
+apt-get install -y unattended-upgrades
+dpkg-reconfigure -plow unattended-upgrades
+
+# impede que os logs dos contêineres encham o disco
+cat > /etc/docker/daemon.json <<'JSON'
+{ "log-driver": "json-file", "log-opts": { "max-size": "10m", "max-file": "3" } }
+JSON
+systemctl restart docker
+
+# SSH: só chaves, sem senha, sem login como root (edite /etc/ssh/sshd_config e reinicie o ssh)
+#   PasswordAuthentication no
+#   PermitRootLogin no
+```
+
+Numa máquina de 2 GB, crie um arquivo de swap de 2 GB para um pico não derrubar um contêiner.
+
+Aponte o registro DNS do seu domínio (um **registro A**) para o IP estático da VM.
+
+## 3. As configurações do servidor
+
+Na VM, como o usuário `deploy`, em `/opt/howler`:
+
+```
+cp env.production.example .env      # o arquivo está no repositório: deploy/env.production.example
+chmod 600 .env
+```
+
+(Na primeira vez o arquivo ainda não está no servidor: copie à mão, por exemplo com `scp deploy/env.production.example deploy@<ip>:/opt/howler/.env`.) Preencha:
+
+| Configuração | Valor |
+|--------------|-------|
+| `APP_URL`, `SITE_ADDRESS` | `https://howler.exemplo.com`, `howler.exemplo.com` |
+| `APP_KEY` | `echo "base64:$(openssl rand -base64 32)"` (ou `php artisan key:generate --show` na imagem, quando ela já existir) |
+| `DB_PASSWORD` | `openssl rand -base64 32 \| tr -d '/+='` |
+| `OPENAI_API_KEY` | a sua chave (só no servidor). Sem ela os howlers ficam sem voz do servidor e o navegador os lê |
+| `HOWLER_VOICE_DAILY_LIMIT` | o máximo de vozes do servidor por dia, somando todo mundo |
+
+Para um primeiro teste **sem domínio**, `SITE_ADDRESS=203-0-113-10.sslip.io` (o IP com hifens) também recebe um certificado de verdade.
+
+## 4. Conectar o GitHub
+
+Crie uma chave de deploy só para isso (uma chave que não serve para mais nada):
+
+```
+ssh-keygen -t ed25519 -f howler-deploy -C howler-deploy -N ""
+# ponha o howler-deploy.pub em /home/deploy/.ssh/authorized_keys na VM
+ssh-keyscan -t ed25519 <o endereço da VM>        # a chave do servidor, a ser fixada
+```
+
+No repositório, **Settings → Secrets and variables → Actions**:
+
+| Tipo | Nome | Valor |
+|------|------|-------|
+| Secret | `STAGING_SSH_KEY` | o conteúdo do arquivo privado `howler-deploy` |
+| Secret | `STAGING_SSH_KNOWN_HOSTS` | a linha impressa pelo `ssh-keyscan` |
+| Variável | `STAGING_SSH_HOST` | o IP ou o domínio da VM |
+| Variável | `STAGING_SSH_USER` | `deploy` |
+| Variável | `STAGING_DOMAIN` | `howler.exemplo.com` |
+| Variável | `STAGING_ENABLED` | `true` (isso liga o deploy) |
+| Variável (opcional) | `SENTRY_FRONTEND_DSN` | o DSN do Sentry da página (seção 7) |
+
+O workflow ([deploy-staging.yml](../../.github/workflows/deploy-staging.yml)) usa o ambiente `staging`: em **Settings → Environments → staging** dá para exigir aprovadores, se você quiser um clique de aprovação antes de cada deploy.
+
+## 5. Fazer o deploy
+
+**Na primeira vez:** Actions → **Deploy staging** → **Run workflow** (deixe a tag vazia). Ele constrói as duas imagens, copia o compose e os scripts para a VM, loga a VM no registro com um token de vida curta, roda o `deploy.sh` (baixar, migrar, subir, conferir a saúde) e por fim confere `https://<domínio>/up` de fora.
+
+**Depois:** todo merge na `main` faz o deploy sozinho. O workflow fica vermelho se a versão nova não ficar saudável.
+
+Confira: `https://<domínio>/up` responde 200; depois abra o site no celular e mande um howler para você mesma.
+
+## 6. Voltar atrás (rollback)
+
+Três jeitos, do menos ao mais manual.
+
+1. **Automático.** Se uma versão nova não ficar saudável em cerca de um minuto, o `deploy.sh` recoloca a tag anterior sozinho e o workflow falha. Você não faz nada.
+2. **No servidor:** `cd /opt/howler && ./rollback.sh`. Ele volta para a versão registrada em `.previous_tag`. As imagens anteriores ainda estão na máquina, então não precisa de login.
+3. **Qualquer versão antiga:** Actions → Deploy staging → Run workflow, com a **tag** de uma versão que se sabe boa (as tags são os 12 primeiros caracteres do hash de um commit, listadas em Packages do repositório). Nada é construído: as imagens já existem.
+
+**As migrações não são desfeitas por um rollback.** Escreva-as para que a versão anterior continue funcionando no esquema novo:
+1. a versão A adiciona a coluna ou tabela nova (o código antigo a ignora);
+2. a versão B passa a usá-la e deixa de usar a antiga;
+3. a versão C remove a antiga.
+Se uma migração não consegue seguir isso, diga no pull request dela e planeje o rollback (um dump do banco antes: seção 8).
+
+## 7. Monitoramento, logs, alertas
+
+**Sentry** (opcional, a conta é da dona; leia o ADR-005 antes: tokens e recados nunca podem chegar a ele).
+1. Crie dois projetos no Sentry: um para PHP/Laravel e um para Vue.
+2. Ponha o DSN do Laravel em `/opt/howler/.env` como `SENTRY_LARAVEL_DSN`, e o DSN do Vue na variável do repositório `SENTRY_FRONTEND_DSN`. Faça o deploy de novo.
+3. Envie um evento de teste: no servidor `docker compose -f docker-compose.prod.yml exec app php artisan sentry:test`, e lance um erro na página (console do navegador no site: `setTimeout(() => { throw new Error('sentry test') })`).
+4. **Abra os dois eventos no Sentry e confirme que não há token, recado, IP nem cookies.** O filtro é testado, e esta é a checagem com o serviço de verdade.
+
+**Logs.** `cd /opt/howler && docker compose -f docker-compose.prod.yml logs --tail 100 app` (ou `web`, `scheduler`, `db`). Os logs do Laravel vão para o stderr do contêiner. O Docker guarda até 30 MB por contêiner (seção 2).
+
+**Disponibilidade.** No Google Cloud: Monitoring → Uptime checks → crie um para `https://<domínio>/up` a cada minuto, com alerta por e-mail.
+
+**Dinheiro.** Google Cloud: Billing → Budgets & alerts, com um valor mensal e alertas em 50, 90 e 100 por cento. OpenAI: o limite mensal na conta, e o `HOWLER_VOICE_DAILY_LIMIT` como segunda linha.
+
+## 8. Backups
+
+Os dados têm vida curta de propósito (um howler vive 7 dias e é apagado ao ser aberto), então um backup serve para uma migração ruim ou um engano, não para arquivo.
+
+```
+crontab -e   # como deploy
+17 3 * * *  /opt/howler/backup.sh >> /opt/howler/backups/backup.log 2>&1
+```
+
+Ele guarda 7 dumps diários em `/opt/howler/backups`. Para restaurar: `gunzip -c backups/howler-<data>.sql.gz | docker compose -f docker-compose.prod.yml exec -T db psql -U howler howler`.
+
+## 9. Segredos
+
+| Segredo | Onde vive | Para trocar |
+|---------|-----------|-------------|
+| `OPENAI_API_KEY` | só em `/opt/howler/.env` | Chave nova na OpenAI, edite o `.env`, `docker compose -f docker-compose.prod.yml up -d` |
+| `DB_PASSWORD` | `/opt/howler/.env` e o banco | Troque os dois juntos (`ALTER USER`), depois reinicie |
+| `APP_KEY` | `/opt/howler/.env` | Pode trocar sem medo: nada é criptografado com ela e os tokens são guardados como hashes SHA-256 (ADR-003) |
+| Chave de deploy | secret do GitHub e `authorized_keys` | Par de chaves novo, troque os dois |
+
+Nenhum deles está no repositório, numa imagem ou num log.
+
+## 10. O que foi conferido, e o que fica para o primeiro deploy
+
+Conferido nesta máquina com as imagens de produção de verdade (os mesmos Dockerfiles e o mesmo compose): um primeiro deploy, o fluxo inteiro por https (criar, estado, abrir, abrir de novo dá 410), os cabeçalhos de segurança e a Content-Security-Policy, que só o Caddy publica portas e o banco não, que o app roda como usuário sem privilégios com o debug desligado, um segundo deploy, **uma versão propositalmente quebrada voltando sozinha**, o rollback manual, o backup e o limite de 8 KB por pedido. O workflow de deploy passa no `actionlint` e os scripts passam no `shellcheck`.
+
+**Fica para o primeiro deploy de verdade** (precisa da VM, do domínio e das configurações do GitHub): o certificado sendo emitido para o domínio real, os passos de SSH e de registro do workflow, a checagem de disponibilidade, o teste do Sentry com um projeto de verdade e uma passada no celular. Trate o primeiro deploy como a validação deste runbook e anote tudo que for diferente.
+
+## Quando algo dá errado
+
+| O que você vê | Provavelmente | O que fazer |
+|---------------|---------------|-------------|
+| O workflow é pulado | `STAGING_ENABLED` não é `true` | Defina a variável |
+| `Permission denied (publickey)` | A chave de deploy não está no `authorized_keys`, ou o secret está errado | Confira a seção 4 |
+| `Host key verification failed` | `STAGING_SSH_KNOWN_HOSTS` falta ou é de outro host | Rode o `ssh-keyscan` de novo |
+| O site mostra erro de certificado por um minuto | O Caddy ainda está obtendo o certificado | Espere; confira se o DNS aponta para o IP e se as portas 80 e 443 estão abertas |
+| O `deploy.sh` diz que não ficou saudável e volta atrás | A versão nova não inicia | `docker compose -f docker-compose.prod.yml logs --tail 50 app web` |
+| `502` em `/api` | O contêiner do app está parado ou reiniciando | `docker compose -f docker-compose.prod.yml ps`, depois os logs dele |
+| Os howlers ficam sem voz do servidor | Sem chave, o limite diário foi atingido, ou a OpenAI recusou | A resposta da criação diz `"voice": false`; o motivo está no log do app (nunca o recado) |
+| Disco cheio | Imagens antigas ou logs | `docker image prune -a`, confira `/opt/howler/backups` |

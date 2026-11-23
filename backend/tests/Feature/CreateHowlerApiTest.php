@@ -18,7 +18,7 @@ class CreateHowlerApiTest extends TestCase
 
         $response->assertCreated()
             ->assertHeader('Cache-Control', 'no-store, private')
-            ->assertJsonStructure(['token', 'recipient_name', 'expires_at'])
+            ->assertJsonStructure(['token', 'recipient_name', 'expires_at', 'voice'])
             ->assertJsonPath('recipient_name', 'Ana')
             ->assertJsonMissingPath('id')
             ->assertJsonMissingPath('message');

@@ -33,14 +33,21 @@ services:
     working_dir: /app
     volumes:
       - ./backend:/app
+    env_file:
+      - path: .env.local # holds OPENAI_API_KEY; git-ignored, optional
+        required: false
     environment:
       DB_HOST: db
+      PHP_CLI_SERVER_WORKERS: "4"
     depends_on:
       db:
         condition: service_healthy
     ports:
       - "127.0.0.1:8000:8000"
-    command: php artisan serve --host=0.0.0.0 --port=8000
+    # PHP's own server, not `artisan serve`: artisan only forwards a short list of environment variables to its child, so
+    # OPENAI_API_KEY (from .env.local, above) would never arrive. Several workers, because creating a howler waits on the
+    # voice for a few seconds and must not block everyone else.
+    command: sh -c "cd public && php -S 0.0.0.0:8000 ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php"
 
 volumes:
   pgdata:

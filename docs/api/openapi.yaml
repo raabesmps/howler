@@ -25,7 +25,10 @@ paths:
       tags: [Howlers]
       operationId: createHowler
       summary: Create a howler
-      description: 'Limited to 5 per minute and 40 per day per IP (it will also cap the voice cost from CP8).'
+      description: |
+        Limited to 5 per minute and 40 per day per IP, which also caps the voice cost. When the server has a key, it makes
+        the howler's voice before answering (a few seconds) and stores it until the howler is opened. If the voice cannot
+        be made, or the daily voice budget is spent, the howler is still created and `voice` is false.
       requestBody:
         required: true
         content:
@@ -165,8 +168,11 @@ components:
           description: Optional name shown on the closed envelope. Not a secret.
     CreatedHowler:
       type: object
-      required: [token, recipient_name, expires_at]
+      required: [token, recipient_name, expires_at, voice]
       properties:
+        voice:
+          type: boolean
+          description: Whether the server made the howler's voice. When false, the browser reads the message with its own voice.
         token:
           type: string
           description: 256 random bits, URL-safe. Shown once; only its hash is stored.
@@ -188,12 +194,25 @@ components:
           description: Only present while sealed.
     OpenedHowler:
       type: object
-      required: [message, recipient_name]
+      required: [message, recipient_name, audio]
       properties:
         message:
           type: string
         recipient_name:
           type: [string, 'null']
+        audio:
+          description: The voice, delivered with the message in this one response and deleted from the server right after. Null when there is none.
+          oneOf:
+            - type: 'null'
+            - type: object
+              required: [mime, data]
+              properties:
+                mime:
+                  type: string
+                  const: audio/wav
+                data:
+                  type: string
+                  contentEncoding: base64
     Gone:
       type: object
       required: [status, message]

@@ -34,4 +34,5 @@ curl -X POST http://localhost:8000/api/howlers/<token>/open  # 410 {"status":"bu
 - **404 contra 410.** Token desconhecido é 404. Um conhecido, queimado ou expirado, é 410 (as marcas de túmulo ficam 30 dias, ADR-003). Depois da limpeza, o link volta a ser 404.
 - **Nenhuma identidade é guardada.** Nem nas denúncias, nem nas aberturas. O IP serve só como chave de curta duração do limite de pedidos.
 - **Os limites são por IP** e precisam do endereço real do cliente atrás do proxy reverso: defina `TRUSTED_PROXIES` (CP10).
-- **O áudio ainda não está na API.** A voz é gerada na criação do howler, no servidor, no CP8; até lá o `audio_path` fica vazio, e o endpoint de abertura já apaga o arquivo depois do commit.
+- **A voz é feita quando o howler é criado**, no servidor, com a chave só no servidor (`VoiceGenerator`). A resposta da criação diz se deu certo (`voice`). Ela fica num armazenamento privado e é entregue dentro da única resposta de abertura (`audio`, WAV em base64), depois é apagada. O endpoint de estado nunca a carrega.
+- **Uma voz que falha nunca derruba o howler.** Sem chave, erro do provedor, transcrição que não bate com a frase ou o orçamento diário (`HOWLER_VOICE_DAILY_LIMIT`) terminam do mesmo jeito: o howler é criado com `voice: false` e o navegador lê com a voz dele.

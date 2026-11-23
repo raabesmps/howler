@@ -7,6 +7,24 @@
     <meta name="robots" content="noindex" />
     <title>Howler</title>
     <meta name="description" content="Write a message. Send the link. It screams once, then burns." />
+
+    <!--
+      Link preview. It is the same for every link, on purpose: a howler's link keeps its token after the # (hash routing),
+      and browsers never send that part to a server, so a chat app or crawler that unfurls the link only ever sees this
+      generic closed envelope. It cannot see the message, the name or even the token.
+      The two tags with __SITE_URL__ need absolute URLs; they are filled in from VITE_SITE_URL at build time (vite.config.ts)
+      and dropped when it is not set.
+    -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Howler" />
+    <meta property="og:title" content="Someone sent you something" />
+    <meta property="og:description" content="Open it once. It screams, then burns." />
+    <meta property="og:url" content="__SITE_URL__/" />
+    <meta property="og:image" content="__SITE_URL__/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="A closed red envelope with a dark wax seal." />
+    <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
     <div id="app"></div>

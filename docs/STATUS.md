@@ -2,9 +2,9 @@
 
 [English](STATUS.md) · [Português](pt-BR/STATUS.md)
 
-Current checkpoint: CP7 done, CP8 next (frontend connected to the backend)
+Current checkpoint: CP8 (frontend connected to the backend)
 Last tag: cp7 (before it: cp6, prototype-approved, cp5, cp4, cp3)
-Awaiting approval: no
+Awaiting approval: yes (CP8 pull request)
 
 ## History
 - 2026-11-22 CP0 approved, merged (PR #13), tag `cp0`
@@ -15,7 +15,8 @@ Awaiting approval: no
 - 2026-11-23 Hosting decided: one Google Cloud VM, not Netlify (ADR-004, PR #18, merged).
 - 2026-11-23 CP6 approved, merged (PR #19), tag `cp6`: Docker inside WSL, Laravel 13 on PostgreSQL, the howlers table with database-level rules, 22 tests, ADR-003.
 - 2026-11-23 CP7 approved, merged (PR #20), tag `cp7`. Built: create, state, atomic open, report, per-IP rate limits, hourly purge, OpenAPI contract, 57 tests including a 12-process concurrency test. The branch protection on main now requires both CI checks (`frontend` and `backend`).
+- 2026-11-23 CP8 built: typed API client, the real flow end to end, error and rate-limit states, report button, Web Share and link preview, the voice moved to the backend (made at creation, delivered once on open), development guide. Verified in a real browser against the real backend, PostgreSQL and the OpenAI voice.
 - Still open from CP5: the online preview. It becomes the staging deploy of CP10 (issue #6).
 
 ## Next
-- CP8: connect the frontend to the real API. The voice moves to the backend and is generated when the howler is created.
+- CP9: end-to-end tests (Playwright), accessibility, the loud-volume warning, performance on phones, and the full CI.

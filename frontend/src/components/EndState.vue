@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import FanNotice from './FanNotice.vue'
+import ReportButton from './ReportButton.vue'
 
-defineProps<{ kind: 'burned' | 'expired' | 'notfound' }>()
+defineProps<{ kind: 'burned' | 'expired' | 'notfound'; token?: string }>()
 const router = useRouter()
 
 const COPY = {
@@ -21,7 +22,7 @@ const COPY = {
     <div class="spacer" />
     <button class="btn" type="button" @click="router.push({ name: 'compose' })">Send your own</button>
     <FanNotice class="notice" />
-    <button v-if="kind === 'burned'" class="link report" type="button">Report this</button>
+    <ReportButton v-if="kind === 'burned' && token" :token="token" class="report" />
   </main>
 </template>
 

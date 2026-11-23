@@ -5,25 +5,28 @@
  * -> "this howler has already been delivered".
  */
 import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
-import { api } from '../api/mock'
+import { api } from '../api'
 import { GoneError } from '../api/types'
+import { describeError } from '../lib/errors'
 import { activeWord, splitWords, wordTimings } from '../lib/text'
 import { prefersReducedMotion, shake, sleep } from '../lib/shake'
 import { isMuted, playTear, playVoice, setMuted, startRumble, unlockAudio, type VoicePlayback } from '../audio/engine'
-import { fetchVoice } from '../audio/voice'
+import { prepareVoice } from '../audio/voice'
 import Envelope from '../components/Envelope.vue'
 import Seal from '../components/Seal.vue'
 import FanNotice from '../components/FanNotice.vue'
 import TalkingEnvelope from '../components/TalkingEnvelope.vue'
 import BurnStage from '../components/BurnStage.vue'
 import EndState from '../components/EndState.vue'
+import ReportButton from '../components/ReportButton.vue'
 
-type Phase = 'loading' | 'closed' | 'opening' | 'screaming' | 'burning' | 'end'
+type Phase = 'loading' | 'error' | 'closed' | 'opening' | 'screaming' | 'burning' | 'end'
 const props = defineProps<{ token: string }>()
 
 const phase = ref<Phase>('loading')
 const endKind = ref<'burned' | 'expired' | 'notfound'>('notfound')
 const recipient = ref('')
+const problem = ref('')
 const words = ref<string[]>([])
 const active = ref(-1)
 const closing = ref(false)
@@ -37,13 +40,21 @@ let stopShake: (() => void) | null = null
 let stopRumble: (() => void) | null = null
 let alive = true
 
-onMounted(async () => {
-  const status = await api.status(props.token)
-  if (status !== 'sealed') { endKind.value = status; phase.value = 'end'; return }
-  const preview = await api.preview(props.token)
-  recipient.value = preview.recipient
-  phase.value = 'closed'
-})
+async function load(): Promise<void> {
+  phase.value = 'loading'
+  try {
+    const status = await api.status(props.token)
+    if (status !== 'sealed') { endKind.value = status; phase.value = 'end'; return }
+    recipient.value = (await api.preview(props.token)).recipient
+    problem.value = ''
+    phase.value = 'closed'
+  } catch (e) {
+    problem.value = describeError(e)
+    phase.value = 'error'
+  }
+}
+
+onMounted(load)
 
 onBeforeUnmount(() => {
   alive = false
@@ -110,17 +121,25 @@ async function openIt(): Promise<void> {
   if (!calm) stopShake = shake(envRef.value?.$el ?? null, -3, () => Math.min(1, (performance.now() - t0) / 1400))
 
   let message: string
+  let voiceBytes: ArrayBuffer | null
   try {
-    message = (await api.open(props.token)).message
+    const content = await api.open(props.token)
+    message = content.message
+    voiceBytes = content.audio
   } catch (e) {
     stopShake?.(); stopRumble?.()
-    finishWith(e)
+    if (e instanceof GoneError) { finishWith(e); return }
+    // Nothing was delivered: stay on the closed envelope so they can try again. If the server did burn it before the
+    // connection dropped, the next try says "already delivered".
+    problem.value = describeError(e)
+    phase.value = 'closed'
     return
   }
+  problem.value = ''
   words.value = splitWords(message)
 
-  // the server makes the voice; if it cannot, the plain browser voice still delivers the message
-  const voice = await fetchVoice(message).catch(() => null)
+  // the server made the voice when the howler was created; without it the plain browser voice still delivers the message
+  const voice = await prepareVoice(voiceBytes)
   await sleep(Math.max(0, 1500 - (performance.now() - t0))) // let the rumble build, even when the voice is quick
   stopShake?.(); stopRumble?.()
   if (!alive) return
@@ -143,7 +162,13 @@ function burned(): void { endKind.value = 'burned'; phase.value = 'end' }
 
 <template>
   <div class="open">
-    <EndState v-if="phase === 'end'" :kind="endKind" />
+    <EndState v-if="phase === 'end'" :kind="endKind" :token="token" />
+
+    <main v-else-if="phase === 'error'" class="problem-screen">
+      <p class="big display">Couldn't check this howler.</p>
+      <p class="sub center" role="alert">{{ problem }}</p>
+      <button class="btn" type="button" @click="load">Try again</button>
+    </main>
 
     <p v-else-if="phase === 'loading'" class="loading center" role="status">Opening...</p>
 
@@ -156,7 +181,8 @@ function burned(): void { endKind.value = 'burned'; phase.value = 'end' }
       <div class="bottom">
         <p class="big display"><template v-if="recipient">For {{ recipient }}.<br /></template><em>Tap the seal.</em></p>
         <p class="foot">Loud sound. Turn the volume down first.<br />It can only be opened once.</p>
-        <button class="link report" type="button">Report this</button>
+        <p v-if="problem" class="problem" role="alert">{{ problem }}</p>
+        <ReportButton :token="token" />
         <FanNotice />
       </div>
     </main>
@@ -186,7 +212,9 @@ function burned(): void { endKind.value = 'burned'; phase.value = 'end' }
 .bottom { position: absolute; left: var(--gutter); right: var(--gutter); bottom: calc(var(--space-4) + env(safe-area-inset-bottom)); z-index: 5; text-align: center; display: flex; flex-direction: column; align-items: center; gap: var(--space-1); }
 .big { font: 700 34px/1.05 var(--font-display); font-variation-settings: 'SOFT' 100, 'WONK' 1; }
 .big em { color: var(--ember-500); }
-.report { margin-top: 0; }
+.problem { color: var(--flare-400); font-size: 14px; }
+.problem-screen { min-height: 100dvh; padding: var(--space-5) var(--gutter); display: flex; flex-direction: column; justify-content: center; gap: var(--space-3); text-align: center; }
+.problem-screen .sub { color: var(--ash-400); }
 
 .scream { background: radial-gradient(80% 50% at 50% 72%, #3a1308 0%, #0e0907 75%); }
 .mute { position: absolute; top: var(--space-4); right: var(--space-4); z-index: 6; min-width: 48px; height: 48px; padding: 0 12px; border-radius: var(--radius-s); border: 1px solid rgba(243, 234, 216, 0.25); background: rgba(16, 14, 12, 0.6); font: 600 13px/1 var(--font-ui); }

@@ -8,7 +8,10 @@ use App\Exceptions\HowlerNotFound;
 use App\Exceptions\HowlerNotOpenable;
 use App\Http\Requests\StoreHowlerRequest;
 use App\Models\Howler;
+use App\Models\HowlerReport;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class HowlerController extends Controller
 {
@@ -68,6 +71,24 @@ class HowlerController extends Controller
             'message' => $content['message'],
             'recipient_name' => $content['recipient_name'],
         ])->header('Cache-Control', 'no-store');
+    }
+
+    /**
+     * Reports a howler as abusive. Works in any state, because the recipient usually reports after hearing it. The
+     * message is already gone by then, so the report keeps the reason only: nothing about the content or the reporter.
+     */
+    public function report(string $token, Request $request): JsonResponse
+    {
+        $data = $request->validate(['reason' => ['required', 'string', Rule::in(HowlerReport::REASONS)]]);
+
+        $howler = Howler::findByToken($token);
+        if ($howler === null) {
+            return $this->notFound();
+        }
+
+        HowlerReport::create(['howler_id' => $howler->id, 'reason' => $data['reason']]);
+
+        return response()->json(['reported' => true], 201)->header('Cache-Control', 'no-store');
     }
 
     private function notFound(): JsonResponse

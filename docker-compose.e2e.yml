@@ -1,0 +1,12 @@
+# Used with docker-compose.yml to run the API the way the end-to-end tests need it (see scripts/e2e-backend.sh):
+# the voice is off (no key, so the suite is free and deterministic), the rate limits are raised so a whole suite can run
+# from one IP, and it uses the howler_test database instead of your development data.
+services:
+  backend:
+    environment:
+      OPENAI_API_KEY: ""
+      DB_DATABASE: howler_test
+      HOWLER_CREATE_PER_MINUTE: "10000"
+      HOWLER_CREATE_PER_DAY: "10000"
+      HOWLER_ACCESS_PER_MINUTE: "10000"
+      HOWLER_REPORT_PER_MINUTE: "10000"

@@ -35,13 +35,13 @@ class AppServiceProvider extends ServiceProvider
         $perIp = fn (Request $request): string => (string) $request->ip();
 
         RateLimiter::for('create-howler', fn (Request $request) => [
-            Limit::perMinute(5)->by($perIp($request)),
-            Limit::perDay(40)->by($perIp($request)),
+            Limit::perMinute(config('howler.limits.create_per_minute'))->by($perIp($request)),
+            Limit::perDay(config('howler.limits.create_per_day'))->by($perIp($request)),
         ]);
 
         // Opening and checking are cheap, but guessing tokens must not be free either.
-        RateLimiter::for('howler-access', fn (Request $request) => Limit::perMinute(30)->by($perIp($request)));
+        RateLimiter::for('howler-access', fn (Request $request) => Limit::perMinute(config('howler.limits.access_per_minute'))->by($perIp($request)));
 
-        RateLimiter::for('report-howler', fn (Request $request) => Limit::perMinute(5)->by($perIp($request)));
+        RateLimiter::for('report-howler', fn (Request $request) => Limit::perMinute(config('howler.limits.report_per_minute'))->by($perIp($request)));
     }
 }

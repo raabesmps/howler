@@ -2,11 +2,12 @@
 
 [English](STATUS.md) · [Português](pt-BR/STATUS.md)
 
-Current checkpoint: CP1
-Last tag: cp0
-Awaiting approval: yes (CP1)
+Current checkpoint: CP3 to CP5 (the prototype, delivered as one pull request at the product owner's request)
+Last tag: cp1
+Awaiting approval: yes (prototype PR; CP2 audio lab PR #15 is superseded and waits to be closed)
 
 ## History
-- 2026-11-22 CP0 started
 - 2026-11-22 CP0 approved, merged (PR #13), tag `cp0`
-- 2026-11-22 CP1 started
+- 2026-11-22 CP1 approved, merged (PR #14), tag `cp1`
+- 2026-11-22 CP2 audio lab built (PR #15). After testing, the direction changed: no voice choosing, the real flow with a fixed tone. ADR-002 accepted.
+- 2026-11-22 CP3 to CP5 started and built as one prototype: compose, share, envelope that screams, burn, end screens. Preview over https is pending approval to publish.

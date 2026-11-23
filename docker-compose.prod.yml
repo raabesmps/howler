@@ -1,0 +1,72 @@
+# The production stack, one VM (ADR-004): Caddy (https, the site, /api), the Laravel app (PHP-FPM), its scheduler and
+# PostgreSQL. It is deployed by deploy/deploy.sh; the settings come from the .env file next to it on the server
+# (deploy/env.production.example). Nothing here publishes the database or PHP-FPM: only Caddy's 80 and 443.
+name: howler-prod # a different project from the development compose file (which is "howler"): they must never share containers or volumes
+
+services:
+  web:
+    image: ${REGISTRY:-ghcr.io/raabesmps}/howler-web:${TAG:?set TAG to the image tag to run}
+    restart: unless-stopped
+    ports:
+      # the host ports are 80 and 443; HTTP_PORT and HTTPS_PORT exist only so the stack can run next to something else on a dev machine
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+      - "${HTTPS_PORT:-443}:443/udp"
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-localhost}
+    volumes:
+      - caddy_data:/data # the certificates: losing them only means asking for new ones
+      - caddy_config:/config
+    depends_on:
+      - app
+
+  app:
+    image: ${REGISTRY:-ghcr.io/raabesmps}/howler-app:${TAG:?set TAG to the image tag to run}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DB_HOST: db
+    volumes:
+      - app_storage:/var/www/storage # the voice files (deleted once a howler is opened) and logs
+    depends_on:
+      db:
+        condition: service_healthy
+
+  scheduler:
+    image: ${REGISTRY:-ghcr.io/raabesmps}/howler-app:${TAG:?set TAG to the image tag to run}
+    restart: unless-stopped
+    command: php artisan schedule:work # the hourly purge of opened and expired howlers (ADR-003)
+    env_file: .env
+    environment:
+      DB_HOST: db
+    volumes:
+      - app_storage:/var/www/storage
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f 'schedule:work' >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-howler}
+      POSTGRES_USER: ${DB_USERNAME:-howler}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  pgdata:
+  app_storage:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,23 @@
+# Keep the build context small and keep secrets and local state out of the images.
+.git
+.github
+.claude
+.serena
+**/node_modules
+**/vendor
+**/dist
+e2e
+docs
+lab
+voice-tests
+scripts
+**/.env
+**/.env.*
+!**/.env.example
+backend/storage/logs/*
+backend/storage/framework/cache/*
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+backend/storage/app/*
+backend/bootstrap/cache/*.php
+frontend/public/og.png.bak

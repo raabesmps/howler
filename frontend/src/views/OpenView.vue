@@ -10,7 +10,7 @@ import { GoneError } from '../api/types'
 import { describeError } from '../lib/errors'
 import { activeWord, splitWords, wordTimings } from '../lib/text'
 import { prefersReducedMotion, shake, sleep } from '../lib/shake'
-import { isMuted, playTear, playVoice, setMuted, startRumble, unlockAudio, type VoicePlayback } from '../audio/engine'
+import { isMuted, playTear, playVoice, startRumble, unlockAudio, type VoicePlayback } from '../audio/engine'
 import { prepareVoice } from '../audio/voice'
 import Envelope from '../components/Envelope.vue'
 import Seal from '../components/Seal.vue'
@@ -19,6 +19,7 @@ import TalkingEnvelope from '../components/TalkingEnvelope.vue'
 import BurnStage from '../components/BurnStage.vue'
 import EndState from '../components/EndState.vue'
 import ReportButton from '../components/ReportButton.vue'
+import SoundToggle from '../components/SoundToggle.vue'
 
 type Phase = 'loading' | 'error' | 'closed' | 'opening' | 'screaming' | 'burning' | 'end'
 const props = defineProps<{ token: string }>()
@@ -30,7 +31,6 @@ const problem = ref('')
 const words = ref<string[]>([])
 const active = ref(-1)
 const closing = ref(false)
-const muted = ref(isMuted())
 const calm = prefersReducedMotion()
 
 const envRef = ref<{ $el: HTMLElement } | null>(null)
@@ -63,7 +63,10 @@ onBeforeUnmount(() => {
   stopRumble?.()
 })
 
-function toggleMute(): void { muted.value = !muted.value; setMuted(muted.value) }
+/** The browser's own voice is not routed through our mute switch, so muting has to silence it directly. */
+function onSoundChange(muted: boolean): void {
+  if (muted) { try { speechSynthesis.cancel() } catch { /* no speech support */ } }
+}
 
 function finishWith(e: unknown): void {
   endKind.value = e instanceof GoneError ? e.reason : 'notfound'
@@ -75,7 +78,7 @@ function speakFallback(message: string): number {
   const est = Math.max(1.6, words.value.length * 0.42)
   try {
     const u = new SpeechSynthesisUtterance(message)
-    u.pitch = 0.6; u.rate = 0.95; u.volume = 1
+    u.pitch = 0.6; u.rate = 0.95; u.volume = isMuted() ? 0 : 1
     speechSynthesis.cancel(); speechSynthesis.speak(u)
   } catch { /* no voice at all: the words still light up */ }
   return est
@@ -180,7 +183,9 @@ function burned(): void { endKind.value = 'burned'; phase.value = 'end' }
       </Envelope>
       <div class="bottom">
         <p class="big display"><template v-if="recipient">For {{ recipient }}.<br /></template><em>Tap the seal.</em></p>
-        <p class="foot">Loud sound. Turn the volume down first.<br />It can only be opened once.</p>
+        <p class="warn" role="note"><strong>Loud sound.</strong> Turn the volume down first, or mute it.</p>
+        <SoundToggle />
+        <p class="foot">It can only be opened once.</p>
         <p v-if="problem" class="problem" role="alert">{{ problem }}</p>
         <ReportButton :token="token" />
         <FanNotice />
@@ -188,7 +193,7 @@ function burned(): void { endKind.value = 'burned'; phase.value = 'end' }
     </main>
 
     <main v-else-if="phase === 'screaming'" class="scream">
-      <button class="mute" type="button" :aria-label="muted ? 'Unmute' : 'Mute'" :aria-pressed="muted" @click="toggleMute">{{ muted ? 'Muted' : 'Mute' }}</button>
+      <SoundToggle class="mute" @change="onSoundChange" />
       <TalkingEnvelope ref="talker" :words="words" :active="active" :closing="closing" :calm="calm" />
       <p class="sr-only" role="status">{{ words.join(' ') }}</p>
     </main>
@@ -217,6 +222,8 @@ function burned(): void { endKind.value = 'burned'; phase.value = 'end' }
 .problem-screen .sub { color: var(--ash-400); }
 
 .scream { background: radial-gradient(80% 50% at 50% 72%, #3a1308 0%, #0e0907 75%); }
-.mute { position: absolute; top: var(--space-4); right: var(--space-4); z-index: 6; min-width: 48px; height: 48px; padding: 0 12px; border-radius: var(--radius-s); border: 1px solid rgba(243, 234, 216, 0.25); background: rgba(16, 14, 12, 0.6); font: 600 13px/1 var(--font-ui); }
+.mute { position: absolute; top: var(--space-4); right: var(--space-4); z-index: 6; }
+.warn { color: var(--flare-400); font-size: 15px; }
+.warn strong { color: var(--paper-100); }
 .burning { background: #0c0807; }
 </style>

@@ -1,0 +1,15 @@
+# Used with docker-compose.yml to run the API the way the end-to-end tests need it (see scripts/e2e-backend.sh):
+# the voice is off (no key, so the suite is free and deterministic), the rate limits are raised so a whole suite can run
+# from one IP, and it uses the howler_test database instead of your development data.
+services:
+  backend:
+    environment:
+      OPENAI_API_KEY: ""
+      DB_DATABASE: howler_test
+      HOWLER_CREATE_PER_MINUTE: "10000"
+      HOWLER_CREATE_PER_DAY: "10000"
+      HOWLER_ACCESS_PER_MINUTE: "10000"
+      HOWLER_REPORT_PER_MINUTE: "10000"
+    # The code does not change during a test run, so do not re-check every file for changes: on a mounted Windows folder
+    # those checks took seconds and made some requests stall.
+    command: sh -c "cd public && php -d opcache.validate_timestamps=0 -S 0.0.0.0:8000 ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php"

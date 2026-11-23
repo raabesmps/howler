@@ -25,7 +25,7 @@ button { cursor: pointer; }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 .btn.ghost { background: transparent; color: var(--paper-100); border-color: var(--char-700); box-shadow: none; }
 
-.link { background: none; border: 0; color: var(--ash-400); text-decoration: underline; font-size: 15px; padding: var(--space-3); }
+.link { background: none; border: 0; color: var(--ash-400); text-decoration: underline; font-size: 15px; padding: var(--space-3); min-height: 44px; }
 .foot { color: var(--ash-400); font-size: 12px; line-height: 1.4; text-align: center; }
 .center { text-align: center; }
 

@@ -6,10 +6,11 @@
  * chosen by ear (ADR-002). The effects are the rumble before the envelope opens and the paper tear.
  */
 import { noiseGate, normalizeTo } from './dsp'
+import { readMuted, storeMuted } from './mute'
 
 let ctx: AudioContext | null = null
 let outNode: GainNode | null = null
-let muted = false
+let muted = readMuted()
 
 export function audioContext(): AudioContext {
   if (!ctx) {
@@ -28,6 +29,7 @@ function output(): GainNode {
 
 export function setMuted(m: boolean): void {
   muted = m
+  storeMuted(m)
   if (outNode) outNode.gain.setTargetAtTime(m ? 0 : 1, audioContext().currentTime, 0.02)
 }
 export const isMuted = (): boolean => muted

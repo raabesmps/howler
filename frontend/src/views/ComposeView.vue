@@ -84,6 +84,7 @@ textarea {
 textarea::placeholder { color: rgba(27, 22, 18, 0.32); }
 textarea:focus-visible, .to input:focus-visible { outline: none; }
 .meta { position: relative; z-index: 2; display: flex; justify-content: space-between; padding-top: var(--space-3); font: 600 13px/1 var(--font-ui); color: var(--paper-100); }
+.meta span { padding: 4px 8px; border-radius: var(--radius-s); background: rgba(18, 13, 10, 0.86); } /* a real backdrop, so the text keeps its contrast over the scorch at any length */
 .meta .near { color: var(--flare-400); }
 
 .bottom { padding: var(--space-4) var(--space-4) calc(var(--space-4) + env(safe-area-inset-bottom)); }

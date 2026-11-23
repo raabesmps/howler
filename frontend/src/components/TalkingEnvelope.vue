@@ -65,8 +65,8 @@ defineExpose({ drive, rest })
 .letter.up { transform: translateY(0) rotate(-1.4deg); }
 .letter p { font-family: var(--font-display); font-variation-settings: 'SOFT' 100, 'WONK' 1; font-weight: 800; line-height: 1.04; letter-spacing: -0.02em; text-transform: uppercase; overflow-wrap: anywhere; }
 .w { display: inline-block; margin-right: 0.28em; transition: opacity 120ms linear; }
-.w.wait { opacity: 0.22; }
-.w.said { opacity: 0.55; }
+.w.wait { opacity: 0.66; } /* still readable: 4.5:1 on the paper (WCAG AA); the highlight does the karaoke */
+.w.said { opacity: 0.8; }
 .w.now { opacity: 1; background: var(--ember-500); color: var(--ink-900); padding: 0 5px; margin-left: -5px; margin-right: calc(0.28em - 5px + 5px); }
 .front {
   position: absolute; inset: 0; z-index: 2;

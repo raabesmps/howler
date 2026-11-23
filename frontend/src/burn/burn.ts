@@ -4,9 +4,13 @@
  * Ported from the approved design reference (docs/design/burn-ref.js).
  */
 
+import { FrameGovernor, startLevel } from './budget'
+
 const EW = 300
 const EH = 210
 const N = EW * EH
+/** Wall-clock safety: if a very slow device has not finished after this many times the intended length, end it anyway. */
+const DEADLINE_FACTOR = 2
 const BURN_LEN = 3.6
 const SETTLE = 2.3
 
@@ -117,6 +121,8 @@ export class BurnEffect {
     sprite([[0, 'rgba(225,75,28,.75)'], [0.5, 'rgba(150,35,12,.32)'], [1, 'rgba(100,20,8,0)']]),
   ]
   private resolveDone: (() => void) | null = null
+  private governor = new FrameGovernor(startLevel(navigator.hardwareConcurrency, (navigator as Navigator & { deviceMemory?: number }).deviceMemory))
+  private lastDpr = 0
 
   constructor(private canvas: HTMLCanvasElement) {
     this.ctx = canvas.getContext('2d')!
@@ -133,7 +139,8 @@ export class BurnEffect {
     const r = this.canvas.getBoundingClientRect()
     this.W = Math.round(r.width) || 390
     this.H = Math.round(r.height) || 760
-    const dpr = Math.min(window.devicePixelRatio || 1, 2)
+    const dpr = Math.min(window.devicePixelRatio || 1, this.governor.budget.dprCap)
+    this.lastDpr = dpr
     this.canvas.width = this.W * dpr
     this.canvas.height = this.H * dpr
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
@@ -151,14 +158,19 @@ export class BurnEffect {
     this.fragAcc = this.flameAcc = this.sparkAcc = 0
     this.running = true
     let last = performance.now()
+    const startedAt = last
     const tick = (now: number): void => {
       if (!this.running) return
-      const dt = Math.min((now - last) / 1000, 0.033)
+      const frameMs = now - last
+      // a slow device must not stretch the burn: allow bigger steps than 60 fps would need, and give up after a deadline
+      const dt = Math.min(frameMs / 1000, 0.1)
       last = now
+      if (this.governor.sample(frameMs) && this.lastDpr !== Math.min(window.devicePixelRatio || 1, this.governor.budget.dprCap)) this.measure()
       this.time += dt
       this.update(dt)
       this.render()
-      if (this.time >= BURN_LEN + SETTLE) { this.running = false; this.resolveDone?.(); return }
+      const overdue = now - startedAt > (BURN_LEN + SETTLE) * 1000 * DEADLINE_FACTOR
+      if (this.time >= BURN_LEN + SETTLE || overdue) { this.running = false; this.resolveDone?.(); return }
       this.raf = requestAnimationFrame(tick)
     }
     this.raf = requestAnimationFrame(tick)
@@ -234,11 +246,12 @@ export class BurnEffect {
     const u = Math.min(1, this.time / BURN_LEN)
     const t0 = -0.28
     this.burnT = t0 + (tEnd - t0) * Math.pow(u, 1.12)
-    this.burnPass(this.burnT)
+    // the burn front moves slowly: on a slow device it is recomputed every 2nd to 4th frame (see budget.ts)
+    if ((this.frame - 1) % this.governor.budget.burnEvery === 0) this.burnPass(this.burnT)
     const burning = u < 0.96 && this.edge.length > 0
 
     if (burning) {
-      this.fragAcc += dt * 36
+      this.fragAcc += dt * 36 * this.governor.budget.spawn
       while (this.fragAcc >= 1) {
         this.fragAcc -= 1
         const e = this.pickEdge(); if (!e) break
@@ -252,13 +265,13 @@ export class BurnEffect {
         const x = this.EX + e[0] + rr(-3, 3)
         this.frags.push({ x, y: this.EY + e[1] + rr(-2, 3), vx: (this.CX - x) * 0.3 + rr(-14, 14), vy: rr(-30, 6), rot: rr(0, 6.28), w: rr(-5, 5), size, pts, age: 0, life: rr(0.55, 1.35), ph: rr(0, 6.28) })
       }
-      this.flameAcc += dt * 560
+      this.flameAcc += dt * 560 * this.governor.budget.spawn
       while (this.flameAcc >= 1) {
         this.flameAcc -= 1
         const e = this.pickEdge(); if (!e) break
         this.flames.push({ x: this.EX + e[0] + rr(-2, 2), y: this.EY + e[1] + rr(-1, 2), vx: rr(-12, 12), vy: -rr(55, 135), age: 0, life: rr(0.45, 0.95), size: rr(0.8, 1.5), ph: rr(0, 6.28) })
       }
-      this.sparkAcc += dt * 26
+      this.sparkAcc += dt * 26 * this.governor.budget.spawn
       while (this.sparkAcc >= 1) {
         this.sparkAcc -= 1
         const e = this.pickEdge(); if (!e) break

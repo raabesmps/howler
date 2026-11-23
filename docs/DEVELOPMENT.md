@@ -74,6 +74,7 @@ curl -X POST http://localhost:8000/api/howlers/<token>/open     # 410
 | Backend code style | `docker compose run --rm backend ./vendor/bin/pint --test` |
 | Frontend tests | `cd frontend && npm test` (on Windows from a path starting with `C:/`) |
 | Frontend lint and types | `cd frontend && npm run lint && npm run typecheck` |
+| End to end (real browser) | `scripts/e2e-backend.sh`, then `cd e2e && npm test` (see [TESTING.md](TESTING.md)) |
 
 The backend tests never call OpenAI: any request that leaves the app without being faked fails the test, and the real key is blanked for them.
 
@@ -86,11 +87,13 @@ The backend tests never call OpenAI: any request that leaves the app without bei
 | `TRUSTED_PROXIES` | `backend/.env` | Proxy addresses to trust for the client IP. Empty locally, required behind the reverse proxy (CP10) |
 | `VITE_API_TARGET` | environment of `npm run dev` | Where the dev server forwards `/api` (default `http://localhost:8000`) |
 | `VITE_API` | environment of `npm run dev` / `build` | `mock` for the in-browser API |
+| `HOWLER_CREATE_PER_MINUTE`, `HOWLER_CREATE_PER_DAY`, `HOWLER_ACCESS_PER_MINUTE`, `HOWLER_REPORT_PER_MINUTE` | `backend/.env` | The per-IP rate limits (defaults 5, 40, 30, 5). Only the end-to-end setup raises them |
 | `VITE_SITE_URL` | environment of `npm run build` | The public URL, for the link-preview tags |
 
 ## When something goes wrong
 
 - **`/api` answers with the web page instead of JSON, or 500:** the backend is not running or not ready yet. Run the `curl http://localhost:8000/up` check.
 - **The howler has no server voice (`"voice": false` in the create response):** no key, the daily limit was reached, or the model did not speak the line exactly (it retries once). The reason is in `backend/storage/logs/laravel.log` (never the message or the key). The howler still works with the browser voice.
+- **The API is slow, with random multi-second requests (Windows):** the project folder is mounted from Windows into Linux, and PHP re-checking every file for changes is slow there. The development image keeps compiled code and re-checks every 2 seconds; the end-to-end setup turns the re-check off. Rebuild the image after pulling (`docker compose build backend`).
 - **Port 5173 is taken:** another Vite is running. Vite picks the next port and prints it.
 - **Containers vanish on Windows:** WSL went idle. Start the keep-alive process.

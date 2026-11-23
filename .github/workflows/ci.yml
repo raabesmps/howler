@@ -132,7 +132,7 @@ jobs:
           # PHP's own server, as in docker-compose.yml: `artisan serve` would not pass these variables on to its child
           cd public
           nohup php -S 127.0.0.1:8000 ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php > ../../api.log 2>&1 &
-          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/up >/dev/null && exit 0; sleep 1; done
+          for _ in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/up >/dev/null && exit 0; sleep 1; done
           echo "the API did not start" && cat ../../api.log && exit 1
       - run: npm ci
         working-directory: frontend
@@ -155,3 +155,28 @@ jobs:
             e2e/test-results
             api.log
           retention-days: 7
+
+  images:
+    name: images
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      # Only builds (nothing is pushed): proves the production images still build, so a broken Dockerfile never reaches main.
+      - name: Build the app image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/app.prod.Dockerfile
+          push: false
+          cache-from: type=gha,scope=app
+          cache-to: type=gha,scope=app,mode=max
+      - name: Build the web image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/web.Dockerfile
+          push: false
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,scope=web,mode=max

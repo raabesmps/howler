@@ -24,7 +24,7 @@ More in [frontend/README.md](frontend/README.md).
 |-------|------|
 | [docs/PLAN.md](docs/PLAN.md) | The master plan, with its checkpoints and the changes made along the way |
 | [docs/STATUS.md](docs/STATUS.md) | Where the project is right now |
-| [docs/decisions/](docs/decisions/) | Architecture decisions: [ADR-001](docs/decisions/ADR-001-stack-and-layout.md) stack, [ADR-002](docs/decisions/ADR-002-voice-approach.md) the voice |
+| [docs/decisions/](docs/decisions/) | Architecture decisions: [ADR-001](docs/decisions/ADR-001-stack-and-layout.md) stack, [ADR-002](docs/decisions/ADR-002-voice-approach.md) the voice, [ADR-004](docs/decisions/ADR-004-hosting.md) hosting |
 | [docs/design/](docs/design/) | The approved visual direction, tokens and screen references |
 | [frontend/](frontend/) | Vue 3 + Vite + TypeScript: the screens, the audio engine, the canvas burn |
 | `backend/` | Laravel API with single-use opening (planned, CP6 and CP7) |

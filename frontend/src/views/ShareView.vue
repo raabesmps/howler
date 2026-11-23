@@ -67,7 +67,7 @@ async function copy(): Promise<void> {
 .addr span { display: block; margin-bottom: 4px; font: 600 11px/1 var(--font-ui); font-style: normal; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.75; }
 .tag { position: relative; z-index: 4; width: 78%; margin: -18px auto 0; padding: 14px 16px 12px; background: var(--paper-100); color: var(--ink-900); border-radius: 3px; transform: rotate(1.6deg); box-shadow: 0 10px 0 -4px rgba(0, 0, 0, 0.5); }
 .tag::before { content: ''; position: absolute; left: 50%; top: -9px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--char-950); box-shadow: inset 0 0 0 3px #8c8378; }
-.tag small { display: block; margin-bottom: 6px; font: 600 11px/1 var(--font-ui); letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.6; }
+.tag small { display: block; margin-bottom: 6px; font: 600 11px/1 var(--font-ui); letter-spacing: 0.1em; text-transform: uppercase; color: #5a5148; }
 .tag input { width: 100%; padding: 0; border: 0; background: transparent; font: 600 14px/1.3 ui-monospace, 'SFMono-Regular', Consolas, monospace; color: var(--ink-900); text-overflow: ellipsis; }
 .title { margin-top: var(--space-5); text-align: center; font: 600 22px/1.2 var(--font-display); font-variation-settings: 'SOFT' 100, 'WONK' 1; }
 .hint { text-align: center; color: var(--ash-400); font-size: 15px; }

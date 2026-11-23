@@ -2,8 +2,6 @@ export const MAX_MESSAGE = 140
 export const MAX_NAME = 40
 export const EXPIRY_DAYS = 7
 
-import type { Lang } from '../lib/text'
-
 export type HowlerStatus = 'sealed' | 'burned' | 'expired' | 'notfound'
 
 export interface NewHowler {
@@ -13,7 +11,6 @@ export interface NewHowler {
 
 export interface HowlerPreview {
   recipient: string
-  voiceLang: Lang
 }
 
 export interface HowlerContent {
@@ -26,11 +23,7 @@ export interface HowlerApi {
   create(input: NewHowler): Promise<{ token: string; expiresAt: number }>
   /** Reports the state only. Must never reveal the content. */
   status(token: string): Promise<HowlerStatus>
-  /**
-   * What the closed envelope may show: the name it is addressed to (not secret) and, for the prototype only, which
-   * language the voice will need so the right model can be warmed up before the tap. Never the message.
-   * In the real API the audio is made on the server when the howler is created.
-   */
+  /** What the closed envelope may show: the name it is addressed to (not secret). Never the message. */
   preview(token: string): Promise<HowlerPreview>
   /** Returns the content exactly once, then the howler is burned. Throws GoneError afterwards. */
   open(token: string): Promise<HowlerContent>

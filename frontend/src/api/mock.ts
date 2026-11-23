@@ -17,7 +17,6 @@ import {
   type HowlerStatus,
   type NewHowler,
 } from './types'
-import { detectLang, type Lang } from '../lib/text'
 
 const BURNED_KEY = 'howler.burned'
 const MAX_REMEMBERED = 300
@@ -31,8 +30,6 @@ interface Payload {
   r: string
   /** expires at (ms since epoch) */
   e: number
-  /** language of the message, for choosing the voice */
-  l: Lang
 }
 
 function toBase64Url(text: string): string {
@@ -51,7 +48,7 @@ function fromBase64Url(token: string): string {
 function decode(token: string): Payload | null {
   try {
     const p = JSON.parse(fromBase64Url(token)) as Partial<Payload>
-    if (typeof p.i !== 'string' || typeof p.m !== 'string' || typeof p.r !== 'string' || typeof p.e !== 'number' || (p.l !== 'en' && p.l !== 'pt')) return null
+    if (typeof p.i !== 'string' || typeof p.m !== 'string' || typeof p.r !== 'string' || typeof p.e !== 'number') return null
     if (p.m.length < 1 || p.m.length > MAX_MESSAGE || p.r.length > MAX_NAME) return null
     return p as Payload
   } catch {
@@ -97,7 +94,7 @@ export function createMockApi(now: () => number = Date.now): HowlerApi {
       if (m.length < 1 || m.length > MAX_MESSAGE) throw new RangeError(`message must be 1 to ${MAX_MESSAGE} characters`)
       if (r.length > MAX_NAME) throw new RangeError(`name must be at most ${MAX_NAME} characters`)
       const expiresAt = now() + EXPIRY_DAYS * 24 * 60 * 60 * 1000
-      return { token: toBase64Url(JSON.stringify({ i: randomId(), m, r, e: expiresAt, l: detectLang(m) } satisfies Payload)), expiresAt }
+      return { token: toBase64Url(JSON.stringify({ i: randomId(), m, r, e: expiresAt } satisfies Payload)), expiresAt }
     },
 
     async status(token: string) {
@@ -106,7 +103,7 @@ export function createMockApi(now: () => number = Date.now): HowlerApi {
 
     async preview(token: string): Promise<HowlerPreview> {
       const p = decode(token)
-      return { recipient: p?.r ?? '', voiceLang: p?.l ?? 'en' }
+      return { recipient: p?.r ?? '' }
     },
 
     async open(token: string): Promise<HowlerContent> {

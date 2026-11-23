@@ -13,5 +13,5 @@ export default tseslint.config(
     languageOptions: { globals: { ...globals.browser }, parserOptions: { parser: tseslint.parser } },
     rules: { 'vue/multi-word-component-names': 'off' },
   },
-  { files: ['**/*.js', 'vite.config.ts'], languageOptions: { globals: { ...globals.node } } },
+  { files: ['**/*.js', 'vite.config.ts', 'server/**/*.ts'], languageOptions: { globals: { ...globals.node } } },
 )

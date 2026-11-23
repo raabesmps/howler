@@ -19,13 +19,11 @@ describe('mock api', () => {
     expect(JSON.stringify(await api.status(token))).not.toContain('answer')
   })
 
-  it('previews the recipient and voice language without revealing the message', async () => {
-    const pt = await api.create({ message: 'Você nunca atende as minhas ligações', recipient: 'Ana' })
-    const en = await api.create({ message: 'You never answer my calls', recipient: '' })
-    expect(await api.preview(pt.token)).toEqual({ recipient: 'Ana', voiceLang: 'pt' })
-    expect(await api.preview(en.token)).toEqual({ recipient: '', voiceLang: 'en' })
-    expect(await api.preview('garbage')).toEqual({ recipient: '', voiceLang: 'en' })
-    expect(JSON.stringify(await api.preview(pt.token))).not.toContain('ligações')
+  it('previews the recipient without revealing the message', async () => {
+    const a = await api.create({ message: 'Você nunca atende as minhas ligações', recipient: 'Ana' })
+    expect(await api.preview(a.token)).toEqual({ recipient: 'Ana' })
+    expect(await api.preview('garbage')).toEqual({ recipient: '' })
+    expect(JSON.stringify(await api.preview(a.token))).not.toContain('ligações')
   })
 
   it('opens exactly once, then it is burned', async () => {

@@ -4,13 +4,13 @@
  * the envelope screams the message (shaking with the loudness of the voice) -> it closes -> it burns from the centre
  * -> "this howler has already been delivered".
  */
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { api } from '../api/mock'
 import { GoneError } from '../api/types'
-import { activeWord, splitWords, wordTimings, type Lang } from '../lib/text'
+import { activeWord, splitWords, wordTimings } from '../lib/text'
 import { prefersReducedMotion, shake, sleep } from '../lib/shake'
-import { isMuted, playHowl, playTear, setMuted, startRumble, unlockAudio, type HowlPlayback } from '../audio/engine'
-import { prepareVoice, synthesize } from '../audio/voice'
+import { isMuted, playTear, playVoice, setMuted, startRumble, unlockAudio, type VoicePlayback } from '../audio/engine'
+import { fetchVoice } from '../audio/voice'
 import Envelope from '../components/Envelope.vue'
 import Seal from '../components/Seal.vue'
 import FanNotice from '../components/FanNotice.vue'
@@ -24,10 +24,6 @@ const props = defineProps<{ token: string }>()
 const phase = ref<Phase>('loading')
 const endKind = ref<'burned' | 'expired' | 'notfound'>('notfound')
 const recipient = ref('')
-const lang = ref<Lang>('en')
-const ready = ref(false)
-const pct = ref(0)
-const voiceFallback = ref(false)
 const words = ref<string[]>([])
 const active = ref(-1)
 const closing = ref(false)
@@ -36,26 +32,17 @@ const calm = prefersReducedMotion()
 
 const envRef = ref<{ $el: HTMLElement } | null>(null)
 const talker = ref<InstanceType<typeof TalkingEnvelope> | null>(null)
-let playback: HowlPlayback | null = null
+let playback: VoicePlayback | null = null
 let stopShake: (() => void) | null = null
 let stopRumble: (() => void) | null = null
 let alive = true
-
-const prep = computed(() => (ready.value ? '' : pct.value > 0 ? `Warming up the voice... ${pct.value}%` : 'Warming up the voice...'))
 
 onMounted(async () => {
   const status = await api.status(props.token)
   if (status !== 'sealed') { endKind.value = status; phase.value = 'end'; return }
   const preview = await api.preview(props.token)
   recipient.value = preview.recipient
-  lang.value = preview.voiceLang
   phase.value = 'closed'
-  try {
-    await prepareVoice(lang.value, (p) => { pct.value = p.total ? Math.floor((p.loaded / p.total) * 100) : 0 })
-  } catch {
-    voiceFallback.value = true // offline or blocked: the howler still works with the plain browser voice
-  }
-  ready.value = true
 })
 
 onBeforeUnmount(() => {
@@ -77,18 +64,18 @@ function speakFallback(message: string): number {
   const est = Math.max(1.6, words.value.length * 0.42)
   try {
     const u = new SpeechSynthesisUtterance(message)
-    u.lang = lang.value === 'pt' ? 'pt-BR' : 'en-GB'; u.pitch = 0.6; u.rate = 0.95; u.volume = 1
+    u.pitch = 0.6; u.rate = 0.95; u.volume = 1
     speechSynthesis.cancel(); speechSynthesis.speak(u)
   } catch { /* no voice at all: the words still light up */ }
   return est
 }
 
-async function scream(message: string, pieces: AudioBuffer[] | null): Promise<void> {
+async function scream(message: string, voice: AudioBuffer | null): Promise<void> {
   let duration: number
   let clock: () => number
   let level: () => number
-  if (pieces) {
-    playback = playHowl(pieces)
+  if (voice) {
+    playback = playVoice(voice)
     duration = playback.duration
     clock = () => playback!.time()
     level = () => playback!.level()
@@ -115,7 +102,7 @@ async function scream(message: string, pieces: AudioBuffer[] | null): Promise<vo
 }
 
 async function openIt(): Promise<void> {
-  if (phase.value !== 'closed' || !ready.value) return
+  if (phase.value !== 'closed') return
   unlockAudio()
   phase.value = 'opening'
   const t0 = performance.now()
@@ -132,10 +119,8 @@ async function openIt(): Promise<void> {
   }
   words.value = splitWords(message)
 
-  let pieces: AudioBuffer[] | null = null
-  if (!voiceFallback.value) {
-    try { pieces = await synthesize(message, lang.value) } catch { pieces = null }
-  }
+  // the server makes the voice; if it cannot, the plain browser voice still delivers the message
+  const voice = await fetchVoice(message).catch(() => null)
   await sleep(Math.max(0, 1500 - (performance.now() - t0))) // let the rumble build, even when the voice is quick
   stopShake?.(); stopRumble?.()
   if (!alive) return
@@ -144,7 +129,7 @@ async function openIt(): Promise<void> {
   await nextTick()
   try { playTear() } catch { /* sound is optional */ }
   await sleep(450) // the letter rises first
-  await scream(message, pieces)
+  await scream(message, voice)
   if (!alive) return
   await sleep(500)
   closing.value = true
@@ -166,12 +151,11 @@ function burned(): void { endKind.value = 'burned'; phase.value = 'end' }
       <p class="top-line">Someone sent you something</p>
       <div class="wisp a" /><div class="wisp b" /><div class="glow" />
       <Envelope ref="envRef" variant="full">
-        <Seal size="lg" interactive :disabled="!ready || phase === 'opening'" label="Open the howler. It can only be opened once." @press="openIt" />
+        <Seal size="lg" interactive :disabled="phase === 'opening'" label="Open the howler. It can only be opened once." @press="openIt" />
       </Envelope>
       <div class="bottom">
         <p class="big display"><template v-if="recipient">For {{ recipient }}.<br /></template><em>Tap the seal.</em></p>
-        <p v-if="prep" class="prep" role="status">{{ prep }}</p>
-        <p v-else class="foot">Loud sound. Turn the volume down first.<br />It can only be opened once.</p>
+        <p class="foot">Loud sound. Turn the volume down first.<br />It can only be opened once.</p>
         <button class="link report" type="button">Report this</button>
         <FanNotice />
       </div>
@@ -202,7 +186,6 @@ function burned(): void { endKind.value = 'burned'; phase.value = 'end' }
 .bottom { position: absolute; left: var(--gutter); right: var(--gutter); bottom: calc(var(--space-4) + env(safe-area-inset-bottom)); z-index: 5; text-align: center; display: flex; flex-direction: column; align-items: center; gap: var(--space-1); }
 .big { font: 700 34px/1.05 var(--font-display); font-variation-settings: 'SOFT' 100, 'WONK' 1; }
 .big em { color: var(--ember-500); }
-.prep { color: var(--flare-400); font-size: 14px; min-height: 34px; }
 .report { margin-top: 0; }
 
 .scream { background: radial-gradient(80% 50% at 50% 72%, #3a1308 0%, #0e0907 75%); }

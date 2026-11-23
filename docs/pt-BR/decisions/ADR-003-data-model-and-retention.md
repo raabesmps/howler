@@ -49,7 +49,7 @@ O plano lista uma coluna `token`. Guardar um token aleatório longo em texto pur
 | Momento | O que acontece |
 |---------|----------------|
 | **Aberto** | Na mesma transação: status `burned`, `opened_at` preenchido, recado e `audio_path` apagados. O arquivo de áudio é apagado depois do commit. O conteúdo é devolvido só àquela requisição |
-| **Expirado** | Uma tarefa agendada (de hora em hora, CP7) marca como `expired` os howlers selados passados do `expires_at`, apaga recado e `audio_path` e apaga o arquivo de áudio. Até ela rodar, o howler já se comporta como expirado |
+| **Expirado** | Uma tarefa agendada (`howlers:purge`, de hora em hora, CP7) marca como `expired` os howlers selados passados do `expires_at`, apaga recado, nome do destinatário e `audio_path` e apaga o arquivo de áudio. Até ela rodar, o howler já se comporta como expirado |
 | **Marca de túmulo** | A linha sem conteúdo (id, hash, status, horários) fica **30 dias** depois de aberta ou expirada, para o link continuar dizendo "já foi entregue" ou "expirou". Depois disso a tarefa apaga a linha e o link parece nunca ter existido |
 | **Arquivos órfãos** | A mesma tarefa apaga todo arquivo de áudio cujo howler não esteja mais selado |
 

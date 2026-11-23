@@ -2,7 +2,7 @@
 
 [English](README.md) · [Português](README.pt-BR.md)
 
-Laravel 13 API with PostgreSQL. It stores the howlers, opens each one exactly once and deletes what it no longer needs. Planned in CP6 (data model) and CP7 (the API); see `docs/PLAN.md`.
+Laravel 13 API with PostgreSQL. It stores the howlers, opens each one exactly once and deletes what it no longer needs. Built in CP6 (data model) and CP7 (the API); see `docs/PLAN.md` and the contract in [docs/api/](../docs/api/README.md).
 
 Everything runs in containers, the same shape as on the server (ADR-004), so you do not need PHP, Composer or PostgreSQL installed.
 
@@ -42,11 +42,19 @@ It has to be started again after a reboot.
 
 The tests run on a real PostgreSQL (the `howler_test` database, created with the first start of the container), not on SQLite: row locks and ULIDs behave differently, and the single-use opening of CP7 depends on them.
 
+## Configuration worth knowing
+
+- `TRUSTED_PROXIES`: comma-separated proxy addresses whose `X-Forwarded-For` is believed. Leave it empty locally. Behind the reverse proxy (CP10) it must be set, or every visitor shares the proxy's IP and the per-IP limits break.
+- The server must run `php artisan schedule:run` every minute (cron) for the purge to happen (CP10).
+
 ## What is where
 
 | Path | What it is |
 |------|-----------|
 | `app/Models/Howler.php` | The howler model and its states (CP6) |
+| `app/Http/Controllers/HowlerController.php`, `routes/api.php` | The four endpoints (CP7) |
+| `app/Actions/OpenHowler.php` | The single-use opening: transaction plus row lock |
+| `app/Console/Commands/PurgeHowlers.php` | The hourly retention job (`php artisan howlers:purge`) |
 | `database/migrations/` | The tables |
 | `database/factories`, `database/seeders` | Test and development data |
 | `tests/` | PHPUnit tests |

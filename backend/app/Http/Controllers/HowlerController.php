@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\OpenHowler;
 use App\Enums\HowlerStatus;
+use App\Exceptions\HowlerNotFound;
+use App\Exceptions\HowlerNotOpenable;
 use App\Http\Requests\StoreHowlerRequest;
 use App\Models\Howler;
 use Illuminate\Http\JsonResponse;
@@ -41,6 +44,29 @@ class HowlerController extends Controller
             'status' => $status->value,
             // The name on the closed envelope is not a secret, but it is gone once the howler is no longer sealed.
             'recipient_name' => $status === HowlerStatus::Sealed ? $howler->recipient_name : null,
+        ])->header('Cache-Control', 'no-store');
+    }
+
+    /**
+     * Delivers the content, once. The first request gets the message and the howler burns; every later one gets 410.
+     * It is a POST on purpose: link previews and crawlers only ever issue GETs, so they cannot burn a howler.
+     */
+    public function open(string $token, OpenHowler $open): JsonResponse
+    {
+        try {
+            $content = $open($token);
+        } catch (HowlerNotFound) {
+            return $this->notFound();
+        } catch (HowlerNotOpenable $e) {
+            return response()->json([
+                'status' => $e->status->value,
+                'message' => $e->status === HowlerStatus::Expired ? 'This howler has expired.' : 'This howler was already delivered.',
+            ], 410)->header('Cache-Control', 'no-store');
+        }
+
+        return response()->json([
+            'message' => $content['message'],
+            'recipient_name' => $content['recipient_name'],
         ])->header('Cache-Control', 'no-store');
     }
 

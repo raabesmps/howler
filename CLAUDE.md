@@ -31,7 +31,7 @@ Filled in as each part of the stack lands.
 |------|------|------|
 | frontend (`cd frontend`) | `npm run lint`, `npm run typecheck` | `npm test` (Vitest). On Windows run it from a path with an uppercase drive letter (`C:/...`) or it fails with "Cannot read properties of undefined (reading 'config')" |
 | backend (CP6+) | `./vendor/bin/pint --test` | `php artisan test` |
-| e2e (CP9+) | n/a | `npx playwright test` |
+| e2e (CP9+) | n/a | `scripts/e2e-backend.sh` (where Docker runs), then `cd e2e && npx playwright test` (see docs/TESTING.md) |
 
 ## Layout
 

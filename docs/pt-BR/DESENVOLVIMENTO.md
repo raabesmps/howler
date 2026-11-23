@@ -74,6 +74,7 @@ curl -X POST http://localhost:8000/api/howlers/<token>/open     # 410
 | Estilo de código do backend | `docker compose run --rm backend ./vendor/bin/pint --test` |
 | Testes do frontend | `cd frontend && npm test` (no Windows, de um caminho que começa com `C:/`) |
 | Lint e tipos do frontend | `cd frontend && npm run lint && npm run typecheck` |
+| Ponta a ponta (navegador de verdade) | `scripts/e2e-backend.sh`, depois `cd e2e && npm test` (veja [TESTES.md](TESTES.md)) |
 
 Os testes do backend nunca chamam a OpenAI: qualquer pedido que saia do app sem ser simulado faz o teste falhar, e a chave de verdade é zerada para eles.
 
@@ -86,11 +87,13 @@ Os testes do backend nunca chamam a OpenAI: qualquer pedido que saia do app sem 
 | `TRUSTED_PROXIES` | `backend/.env` | Endereços de proxy em quem confiar para o IP do cliente. Vazio local, obrigatório atrás do proxy reverso (CP10) |
 | `VITE_API_TARGET` | ambiente do `npm run dev` | Para onde o servidor de desenvolvimento encaminha `/api` (padrão `http://localhost:8000`) |
 | `VITE_API` | ambiente do `npm run dev` / `build` | `mock` para a API dentro do navegador |
+| `HOWLER_CREATE_PER_MINUTE`, `HOWLER_CREATE_PER_DAY`, `HOWLER_ACCESS_PER_MINUTE`, `HOWLER_REPORT_PER_MINUTE` | `backend/.env` | Os limites de pedidos por IP (padrões 5, 40, 30, 5). Só a configuração de ponta a ponta os aumenta |
 | `VITE_SITE_URL` | ambiente do `npm run build` | A URL pública, para as tags da prévia do link |
 
 ## Quando algo dá errado
 
 - **`/api` responde a página web em vez de JSON, ou 500:** o backend não está rodando ou ainda não ficou pronto. Faça a checagem `curl http://localhost:8000/up`.
 - **O howler ficou sem voz do servidor (`"voice": false` na resposta da criação):** sem chave, o limite diário foi atingido, ou o modelo não falou a frase exatamente (ele tenta de novo uma vez). O motivo está em `backend/storage/logs/laravel.log` (nunca o recado nem a chave). O howler continua funcionando com a voz do navegador.
+- **A API está lenta, com pedidos que demoram vários segundos de forma aleatória (Windows):** a pasta do projeto é montada do Windows no Linux, e o PHP conferir todos os arquivos a cada mudança é lento ali. A imagem de desenvolvimento guarda o código compilado e reconfere a cada 2 segundos; a configuração de ponta a ponta desliga a reconferência. Reconstrua a imagem depois de atualizar (`docker compose build backend`).
 - **A porta 5173 está ocupada:** há outro Vite rodando. O Vite escolhe a próxima porta e mostra qual.
 - **Os contêineres somem no Windows:** o WSL ficou ocioso. Inicie o processo que o mantém ligado.

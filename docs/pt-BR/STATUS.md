@@ -2,9 +2,9 @@
 
 [English](../STATUS.md) · [Português](STATUS.md)
 
-Checkpoint atual: CP8 concluído, CP9 a seguir (testes, acessibilidade, desempenho, CI)
+Checkpoint atual: CP9 (testes, acessibilidade, desempenho, CI)
 Última tag: cp8 (antes dela: cp7, cp6, prototype-approved, cp5, cp4, cp3)
-Aguardando aprovação: não
+Aguardando aprovação: sim (pull request do CP9)
 
 ## Histórico
 - 2026-11-22 CP0 aprovado, mergeado (PR #13), tag `cp0`
@@ -16,7 +16,8 @@ Aguardando aprovação: não
 - 2026-11-23 CP6 aprovado, mergeado (PR #19), tag `cp6`: Docker dentro do WSL, Laravel 13 com PostgreSQL, a tabela howlers com regras no próprio banco, 22 testes, ADR-003.
 - 2026-11-23 CP7 aprovado, mergeado (PR #20), tag `cp7`. Construído: criar, estado, abertura atômica, denúncia, limites por IP, limpeza de hora em hora, contrato OpenAPI, 57 testes incluindo um de concorrência com 12 processos. A proteção da `main` agora exige as duas verificações da CI (`frontend` e `backend`).
 - 2026-11-23 CP8 aprovado, mergeado (PR #22), tag `cp8`. Construído: cliente de API tipado, o fluxo real de ponta a ponta, estados de erro e de limite de pedidos, botão de denúncia, Web Share e prévia do link, a voz movida para o backend (feita na criação, entregue uma vez na abertura), guia de desenvolvimento. Verificado num navegador de verdade contra o backend real, o PostgreSQL e a voz da OpenAI.
+- 2026-11-23 CP9 construído: 33 testes de ponta a ponta num navegador de verdade (jornada, uso único, falhas, som, acessibilidade com axe), um aviso de som alto e um controle de mudo que persiste e silencia também a voz do navegador, as correções de acessibilidade que a auditoria achou, um orçamento de desempenho para a queima (de 23 para 52 fps na máquina de teste), o job `e2e` na CI e o documento de estratégia de testes.
 - Ainda aberto do CP5: a prévia online. Ela vira o deploy de staging do CP10 (issue #6).
 
 ## A seguir
-- CP9: testes de ponta a ponta (Playwright), acessibilidade, o aviso de volume alto, desempenho em celulares e a CI completa.
+- CP10: deploy numa VM do Google Cloud (Docker Compose, Caddy, GitHub Actions por SSH) e a prévia de staging.

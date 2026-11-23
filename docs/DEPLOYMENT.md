@@ -35,7 +35,7 @@ Create the VM in the Google Cloud console (or with `gcloud`) with these properti
 - A **static external IP** (so the DNS record never has to change).
 - Firewall rules: allow TCP 80, TCP and UDP 443 from anywhere, and TCP 22 only from your own address if you can.
 
-Then, on the VM, as root or with sudo:
+**Shortcut:** `deploy/server-setup.sh` does everything in the list below except the firewall and the SSH settings: `sudo bash server-setup.sh "<the public half of the deploy key>"` (copy the file to the VM first; read it before running it, it is short). To do it by hand instead, as root or with sudo:
 
 ```
 # Docker and the Compose plugin (follow docs.docker.com/engine/install for your distribution)
@@ -62,6 +62,8 @@ systemctl restart docker
 On a 2 GB machine, add a 2 GB swap file so a spike does not kill a container.
 
 Point the DNS record of your domain (an **A record**) at the VM's static IP.
+
+**If the DNS is on Cloudflare, set the record to "DNS only" (the grey cloud), not "Proxied".** With the proxy on, the visitor's address that Laravel sees is Cloudflare's, so every visitor would share a few addresses and the per-IP rate limits (and their protection of the OpenAI bill) would stop working; it can also get in the way of the certificate. Keeping the proxy would need extra code to trust Cloudflare's address header: not done.
 
 ## 3. The server settings
 
@@ -179,6 +181,7 @@ Checked on this machine with the real production images (the same Dockerfiles an
 | The workflow is skipped | `STAGING_ENABLED` is not `true` | Set the variable |
 | `Permission denied (publickey)` | The deploy key is not in `authorized_keys`, or the wrong secret | Check section 4 |
 | `Host key verification failed` | `STAGING_SSH_KNOWN_HOSTS` is missing or for another host | Run `ssh-keyscan` again |
+| The rate limits do not seem to work, or every visitor looks like the same address | The DNS record is proxied by Cloudflare | Set it to "DNS only" (section 2) |
 | The site shows a certificate error for a minute | Caddy is still getting the certificate | Wait; check DNS points at the IP and ports 80 and 443 are open |
 | `deploy.sh` says unhealthy and rolls back | The new version does not start | `docker compose -f docker-compose.prod.yml logs --tail 50 app web` |
 | `502` on `/api` | The app container is down or restarting | `docker compose -f docker-compose.prod.yml ps`, then its logs |

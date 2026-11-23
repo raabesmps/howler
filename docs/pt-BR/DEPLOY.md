@@ -35,7 +35,7 @@ Crie a VM no console do Google Cloud (ou com o `gcloud`) com estas propriedades:
 - Um **IP externo estático** (para o registro de DNS nunca precisar mudar).
 - Regras de firewall: permitir TCP 80, TCP e UDP 443 de qualquer lugar, e TCP 22 só do seu próprio endereço, se der.
 
-Depois, na VM, como root ou com sudo:
+**Atalho:** o `deploy/server-setup.sh` faz tudo da lista abaixo, menos o firewall e as configurações de SSH: `sudo bash server-setup.sh "<a parte pública da chave de deploy>"` (copie o arquivo para a VM antes; leia-o antes de rodar, ele é curto). Para fazer à mão, como root ou com sudo:
 
 ```
 # Docker e o plugin Compose (siga docs.docker.com/engine/install para a sua distribuição)
@@ -62,6 +62,8 @@ systemctl restart docker
 Numa máquina de 2 GB, crie um arquivo de swap de 2 GB para um pico não derrubar um contêiner.
 
 Aponte o registro DNS do seu domínio (um **registro A**) para o IP estático da VM.
+
+**Se o DNS está no Cloudflare, deixe o registro em "DNS only" (a nuvem cinza), não "Proxied".** Com o proxy ligado, o endereço do visitante que o Laravel enxerga é o do Cloudflare, então todos os visitantes dividiriam poucos endereços e os limites de pedidos por IP (e a proteção deles à conta da OpenAI) deixariam de funcionar; ele também pode atrapalhar o certificado. Manter o proxy exigiria código extra para confiar no cabeçalho de endereço do Cloudflare: não foi feito.
 
 ## 3. As configurações do servidor
 
@@ -179,6 +181,7 @@ Conferido nesta máquina com as imagens de produção de verdade (os mesmos Dock
 | O workflow é pulado | `STAGING_ENABLED` não é `true` | Defina a variável |
 | `Permission denied (publickey)` | A chave de deploy não está no `authorized_keys`, ou o secret está errado | Confira a seção 4 |
 | `Host key verification failed` | `STAGING_SSH_KNOWN_HOSTS` falta ou é de outro host | Rode o `ssh-keyscan` de novo |
+| Os limites de pedidos parecem não funcionar, ou todo visitante parece ter o mesmo endereço | O registro DNS está com proxy do Cloudflare | Deixe em "DNS only" (seção 2) |
 | O site mostra erro de certificado por um minuto | O Caddy ainda está obtendo o certificado | Espere; confira se o DNS aponta para o IP e se as portas 80 e 443 estão abertas |
 | O `deploy.sh` diz que não ficou saudável e volta atrás | A versão nova não inicia | `docker compose -f docker-compose.prod.yml logs --tail 50 app web` |
 | `502` em `/api` | O contêiner do app está parado ou reiniciando | `docker compose -f docker-compose.prod.yml ps`, depois os logs dele |

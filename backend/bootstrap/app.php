@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ApiSecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -13,8 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->api(append: [ApiSecurityHeaders::class]);
+
         // Behind the reverse proxy (Caddy, CP10) the client IP arrives in X-Forwarded-For. The per-IP rate limit needs the
         // real address, so the proxies to trust are listed in TRUSTED_PROXIES (comma separated). Empty means trust none.
+        // With Caddy and FastCGI (docker-compose.prod.yml) it stays empty: Caddy passes the real address as the connection address.
         $proxies = array_filter(array_map('trim', explode(',', (string) env('TRUSTED_PROXIES', ''))));
         if ($proxies !== []) {
             $middleware->trustProxies(at: $proxies);

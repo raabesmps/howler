@@ -15,7 +15,12 @@ const canShare = typeof navigator !== 'undefined' && typeof navigator.share === 
 const copied = ref(false)
 
 async function share(): Promise<void> {
-  try { await navigator.share({ title: 'Howler', text: 'Someone sent you something.', url: link.value }) } catch { /* cancelled */ }
+  try {
+    await navigator.share({ title: 'Howler', text: 'Someone sent you something.', url: link.value })
+  } catch (e) {
+    // closing the share sheet is not an error; anything else (blocked, unsupported target) falls back to copying
+    if (!(e instanceof DOMException && e.name === 'AbortError')) await copy()
+  }
 }
 async function copy(): Promise<void> {
   try {

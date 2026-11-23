@@ -8,6 +8,6 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // The howler seeder is added together with the model.
+        $this->call(HowlerSeeder::class);
     }
 }

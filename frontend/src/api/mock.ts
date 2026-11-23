@@ -16,7 +16,6 @@ import {
   type HowlerPreview,
   type HowlerStatus,
   type NewHowler,
-  type ReportReason,
 } from './types'
 
 const BURNED_KEY = 'howler.burned'
@@ -115,7 +114,7 @@ export function createMockApi(now: () => number = Date.now): HowlerApi {
       return { message: p.m, recipient: p.r, audio: null }
     },
 
-    async report(_token: string, _reason: ReportReason): Promise<void> {
+    async report(): Promise<void> {
       /* nobody to tell: the prototype has no server */
     },
   }

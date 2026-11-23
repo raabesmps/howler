@@ -5,12 +5,12 @@
  * -> "this howler has already been delivered".
  */
 import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
-import { api } from '../api/mock'
+import { api } from '../api'
 import { GoneError } from '../api/types'
 import { activeWord, splitWords, wordTimings } from '../lib/text'
 import { prefersReducedMotion, shake, sleep } from '../lib/shake'
 import { isMuted, playTear, playVoice, setMuted, startRumble, unlockAudio, type VoicePlayback } from '../audio/engine'
-import { fetchVoice } from '../audio/voice'
+import { prepareVoice } from '../audio/voice'
 import Envelope from '../components/Envelope.vue'
 import Seal from '../components/Seal.vue'
 import FanNotice from '../components/FanNotice.vue'
@@ -110,8 +110,11 @@ async function openIt(): Promise<void> {
   if (!calm) stopShake = shake(envRef.value?.$el ?? null, -3, () => Math.min(1, (performance.now() - t0) / 1400))
 
   let message: string
+  let voiceBytes: ArrayBuffer | null
   try {
-    message = (await api.open(props.token)).message
+    const content = await api.open(props.token)
+    message = content.message
+    voiceBytes = content.audio
   } catch (e) {
     stopShake?.(); stopRumble?.()
     finishWith(e)
@@ -119,8 +122,8 @@ async function openIt(): Promise<void> {
   }
   words.value = splitWords(message)
 
-  // the server makes the voice; if it cannot, the plain browser voice still delivers the message
-  const voice = await fetchVoice(message).catch(() => null)
+  // the server made the voice when the howler was created; without it the plain browser voice still delivers the message
+  const voice = await prepareVoice(voiceBytes)
   await sleep(Math.max(0, 1500 - (performance.now() - t0))) // let the rumble build, even when the voice is quick
   stopShake?.(); stopRumble?.()
   if (!alive) return

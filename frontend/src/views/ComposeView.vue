@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { api } from '../api/mock'
+import { api } from '../api'
 import { MAX_MESSAGE, MAX_NAME } from '../api/types'
 import FanNotice from '../components/FanNotice.vue'
 

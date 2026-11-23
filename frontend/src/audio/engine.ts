@@ -1,7 +1,7 @@
 /*
  * Audio engine: the howler's voice treatment, its playback and the sound effects. Web Audio only, no audio assets.
  *
- * The voice comes from the server already screaming (see server/voice.ts). Here it is cleaned and made loud, never given
+ * The voice comes from the server already screaming (see backend/app/Services/VoiceGenerator.php). Here it is cleaned and made loud, never given
  * an echo: noise gate, a little compression, the harsh highs tamed, and a measured volume. It is the "V2" treatment
  * chosen by ear (ADR-002). The effects are the rumble before the envelope opens and the paper tear.
  */

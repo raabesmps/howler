@@ -26,7 +26,7 @@ To work on the screens **without Docker**, start it with `VITE_API=mock npm run 
 
 On Windows, run the tests from a path that starts with an uppercase drive letter (`C:/...`): with a lowercase `c:` Vitest loads two copies of itself and fails with "Cannot read properties of undefined (reading 'config')".
 
-Phones and https: browsers only enable sharing and copying on `https://` or `localhost`, so on a phone over plain `http://<ip>:5173` the Share and Copy buttons are limited. The staging deploy (CP10) is https.
+Phones and https: browsers only enable sharing and copying on `https://` or `localhost`, so on a phone over plain `http://<ip>:5173` the Share and Copy buttons are limited. The live site is https.
 
 ## What is where
 

@@ -26,7 +26,7 @@ Para mexer nas telas **sem Docker**, rode `VITE_API=mock npm run dev`: tudo pass
 
 No Windows, rode os testes a partir de um caminho com a letra do drive em maiúscula (`C:/...`): com `c:` minúsculo o Vitest carrega duas cópias de si mesmo e falha com "Cannot read properties of undefined (reading 'config')".
 
-Celulares e https: os navegadores só liberam compartilhar e copiar em `https://` ou `localhost`, então num celular por `http://<ip>:5173` os botões Compartilhar e Copiar ficam limitados. O deploy de staging (CP10) é https.
+Celulares e https: os navegadores só liberam compartilhar e copiar em `https://` ou `localhost`, então num celular por `http://<ip>:5173` os botões Compartilhar e Copiar ficam limitados. O site no ar é https.
 
 ## O que fica onde
 

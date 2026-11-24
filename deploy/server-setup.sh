@@ -8,7 +8,7 @@
 #   - makes Docker keep at most 30 MB of logs per container
 #   - creates the user `deploy` (in the docker group) and the folder /opt/howler it deploys into
 #   - authorises the deploy key for that user (when you pass it)
-#   - turns on automatic security updates
+#   - installs cron (for the daily backup) and turns on automatic security updates
 #   - adds a 2 GB swap file on a machine with little memory
 # It does NOT touch the firewall (that is Google Cloud's, outside the VM) and does NOT change SSH settings: do that by
 # hand, once you have checked that your own key works, so a mistake here can never lock you out.
@@ -27,7 +27,7 @@ esac
 echo "==> packages"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
-apt-get install -y ca-certificates curl gnupg unattended-upgrades
+apt-get install -y ca-certificates curl gnupg unattended-upgrades cron
 
 echo "==> Docker"
 if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then

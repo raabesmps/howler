@@ -12,8 +12,8 @@
  */
 import type { App } from 'vue'
 
-/** A token is 32 random bytes as URL-safe base64: 43 characters. */
-const TOKEN_SHAPE = /[A-Za-z0-9_-]{43}(?![A-Za-z0-9_-])/g
+/** A token is 16 random bytes as URL-safe base64: 22 characters (links made before v1.1.0 have 43). */
+const TOKEN_SHAPE = /(?<![A-Za-z0-9_-])(?:[A-Za-z0-9_-]{43}|[A-Za-z0-9_-]{22})(?![A-Za-z0-9_-])/g
 export const TOKEN = '[token]'
 
 /** An address with the fragment and the query removed and any token blanked. */

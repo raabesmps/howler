@@ -63,7 +63,7 @@ echo "== 2. a howler's whole life"
 created="$(curl -s -m 90 -X POST "$API" -H 'Content-Type: application/json' -d '{"message":"SMOKE TEST. PLEASE IGNORE.","recipient_name":"Smoke"}' -w '|%{http_code}')"
 check "create answers 201" "${created##*|}" "201"
 token="$(field "$created" token)"
-check "the token has 43 characters" "${#token}" "43"
+check "the token has 22 characters" "${#token}" "22"
 contains "create says whether the voice was made" "$created" '"voice":'
 state="$(curl -s -m 30 "${API}/${token}")"
 check "the state is sealed, with the name" "$state" '{"status":"sealed","recipient_name":"Smoke"}'

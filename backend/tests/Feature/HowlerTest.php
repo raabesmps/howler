@@ -45,13 +45,13 @@ class HowlerTest extends TestCase
         $this->assertNull(Howler::findByToken(''));
     }
 
-    public function test_tokens_are_long_unique_and_url_safe(): void
+    public function test_tokens_are_short_unique_and_url_safe(): void
     {
         $tokens = array_map(fn () => Howler::newToken(), range(1, 200));
 
         $this->assertCount(200, array_unique($tokens));
         foreach ($tokens as $token) {
-            $this->assertGreaterThanOrEqual(43, strlen($token));
+            $this->assertSame(22, strlen($token));
             $this->assertMatchesRegularExpression('/^[A-Za-z0-9_-]+$/', $token);
         }
     }

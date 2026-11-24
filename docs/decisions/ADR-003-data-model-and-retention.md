@@ -42,7 +42,7 @@ Four `CHECK` constraints make a leftover message impossible even if the applicat
 
 ### The token is stored as a hash (a deliberate deviation from the plan)
 
-The plan lists a `token` column. Storing a long random token in plain text would hand out working links to anyone who gets a copy of the database. So the token is generated (256 random bits, URL safe), shown **once** when the howler is created, and only its SHA-256 is stored. Looking up a link hashes the received token. A fast hash is enough because the token is random and long, not a password.
+The plan lists a `token` column. Storing a long random token in plain text would hand out working links to anyone who gets a copy of the database. So the token is generated (128 random bits, 22 URL-safe characters since v1.1.0; the links of v1.0.0 had 256 bits and 43 characters and keep working, see the update below), shown **once** when the howler is created, and only its SHA-256 is stored. Looking up a link hashes the received token. A fast hash is enough because the token is random and long, not a password.
 
 ### Retention
 
@@ -69,3 +69,7 @@ Nothing about the person who opens the link is stored: no IP, no device. The rat
 - The seeder uses fixed tokens for development only and refuses to run in production.
 - The tombstone period (30 days) and the hourly purge are settings that can change without touching the schema.
 - The raw token cannot be recovered: if a sender loses the link, there is no way to show it again. That is intended.
+
+## Update (v1.1.0): a shorter token
+
+The link was too long to share comfortably (a 43-character token). The token is now **16 random bytes, 22 characters**: 128 bits, the same strength as a UUID, which stays unguessable (the access routes are also rate-limited per IP). Links made before the change keep working: nothing checks the length, and the log scrubbers match both lengths. Shorter than this (for example 96 bits) was rejected: the gain is a few characters, the margin is no longer the industry default.

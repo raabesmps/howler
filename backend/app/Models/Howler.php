@@ -45,10 +45,14 @@ class Howler extends Model
 
     /* ---------- the link token ---------- */
 
-    /** A random, long, URL-safe token (256 bits). It is shown once, when the howler is created, and never stored. */
+    /**
+     * A random URL-safe token: 128 bits, 22 characters (the same strength as a UUID, enough to be unguessable;
+     * the links of v1.0.0 had 256 bits and 43 characters and keep working). It is shown once, when the howler is
+     * created, and never stored.
+     */
     public static function newToken(): string
     {
-        return rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');
+        return rtrim(strtr(base64_encode(random_bytes(16)), '+/', '-_'), '=');
     }
 
     public static function hashToken(string $token): string

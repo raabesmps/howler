@@ -82,10 +82,10 @@ class SentryScrubberTest extends TestCase
         $this->assertSame('/api/howlers', SentryScrubber::url('/api/howlers'));
     }
 
-    public function test_a_real_token_is_always_43_characters_so_the_pattern_catches_all_of_them(): void
+    public function test_a_real_token_is_always_22_characters_so_the_pattern_catches_all_of_them(): void
     {
         for ($i = 0; $i < 200; $i++) {
-            $this->assertSame(43, strlen(Howler::newToken()));
+            $this->assertSame(22, strlen(Howler::newToken()));
         }
     }
 

@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { createApp } from 'vue'
 import { initMonitoring, scrubReport, scrubText, scrubUrl, TOKEN } from './monitoring'
 
-// a real token has this shape: 43 characters of URL-safe base64
-const token = 'xwKd8KRsGLooXU16N6irtWqQG9vlOpSxlfAbCdEfGhI'
+// a real token has this shape: 22 characters of URL-safe base64 (links made before v1.1.0 have 43)
+const token = 'xwKd8KRsGLooXU16N6irtW'
+const oldToken = 'xwKd8KRsGLooXU16N6irtWqQG9vlOpSxlfAbCdEfGhI'
 
 describe('scrubUrl and scrubText', () => {
   it('drops the fragment (where the token lives), the query, and anything token-shaped', () => {
@@ -16,6 +17,7 @@ describe('scrubUrl and scrubText', () => {
     expect(scrubText(`failed for ${token} twice`)).toBe(`failed for ${TOKEN} twice`)
     expect(scrubText('/h/anything-here')).toBe(`/h/${TOKEN}`)
     expect(scrubText('howler is burned')).toBe('howler is burned')
+    expect(scrubText(`old link ${oldToken} here`)).toBe(`old link ${TOKEN} here`)
   })
 })
 

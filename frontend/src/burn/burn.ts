@@ -319,7 +319,7 @@ export class BurnEffect {
     const glowA = Math.sin(Math.min(1, burnFrac * 1.05) * Math.PI) * 0.5 + (burnFrac > 0 ? 0.08 : 0)
     if (glowA > 0.01) {
       const cy = this.EY + EH / 2
-      const gr = ctx.createRadialGradient(this.CX, cy, 10, this.CX, cy, 300)
+      const gr = ctx.createRadialGradient(this.CX, cy, 10, this.CX, cy, Math.min(300, this.W / 2))
       gr.addColorStop(0, `rgba(255,100,30,${glowA})`); gr.addColorStop(1, 'rgba(255,100,30,0)')
       ctx.globalCompositeOperation = 'lighter'
       ctx.fillStyle = gr; ctx.fillRect(0, 0, this.W, this.H)

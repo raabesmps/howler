@@ -21,7 +21,7 @@ Os quatro são contêineres do `docker-compose.prod.yml`, iniciados pelo `deploy
 | Decisão | Sugestão | Por quê |
 |---------|----------|---------|
 | Região | `southamerica-east1` (São Paulo) se a maior parte dos visitantes está no Brasil | Latência. Custa um pouco mais que as regiões dos EUA: confira o preço atual |
-| Tamanho da VM | Uma VM pequena de uso geral com 2 vCPU e 2 a 4 GB de RAM, disco de 20 GB | Cabem o Caddy, o PHP-FPM (20 workers), o PostgreSQL e o scheduler. A voz é feita pela OpenAI, não pela VM |
+| Tamanho da VM | Staging: uma e2-micro (1 GB) funciona com o swap de 2 GB que o script de preparo cria, e o PHP-FPM já está dimensionado para ela (8 workers). Produção: 2 vCPU e 2 a 4 GB de RAM, e suba o `pm.max_children` para cerca de 20 | Cabem o Caddy, o PHP-FPM, o PostgreSQL e o scheduler. A voz é feita pela OpenAI, não pela VM |
 | Domínio | Um subdomínio, por exemplo `howler.<seu-domínio>` | O Caddy obtém e renova sozinho o certificado https dele |
 | Limite da OpenAI | O limite mensal que você já definiu, mais o `HOWLER_VOICE_DAILY_LIMIT` | O custo por howler é cerca de 1,5 centavo de dólar (ADR-002) |
 

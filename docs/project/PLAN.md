@@ -20,6 +20,7 @@ The plan below is the original. These are the decisions made while building it. 
 6. **CP8 (integration):** the voice is generated **when the howler is created**, on the server, with the key only on the server (the endpoint in `frontend/server/voice.ts` becomes the backend). It keeps the guards of the prototype: 1 to 140 characters, a per-IP limit that also protects the cost, and a transcript check. It also needs the provider and price check (about 1.5 US cents per howler measured, to confirm on the official page).
 7. **CI was added early** (lint, typecheck, unit tests and build on every pull request). CP9 extends it with end-to-end tests and the rest.
 8. **Hosting direction decided (2026-11-23):** one Google Cloud VM running everything with Docker Compose, not Netlify (it cannot run Laravel). See [ADR-004](../decisions/ADR-004-hosting.md). Size, region, domain and prices are fixed at CP10, and the online preview of CP5 becomes the staging deploy.
+9. **Production on the same VM, no online staging (2026-11-24):** CP11 runs production on the VM CP10 prepared, at the domain of the first deploy; releases are a manual workflow that needs the owner's approval, with a database dump first and a smoke test after (a rollback if it fails). The license is MIT. See the update in [ADR-004](../decisions/ADR-004-hosting.md).
 
 ---
 

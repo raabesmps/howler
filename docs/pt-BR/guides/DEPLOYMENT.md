@@ -4,7 +4,7 @@
 
 Como o Howler é colocado num servidor, atualizado e revertido. O desenho está no [ADR-004](../decisions/ADR-004-hosting.md) (uma VM do Google Cloud rodando Docker Compose) e no [ADR-005](../decisions/ADR-005-error-monitoring.md) (monitoramento de erros e privacidade). Este guia são os passos.
 
-**Quem faz o quê.** O código, as imagens e o script de deploy estão no repositório e são testados. Criar a VM, o DNS, as configurações do GitHub, o Sentry e os alertas de gasto são da dona do produto, porque precisam das contas e do dinheiro dela. Nada no repositório mexe no Google Cloud nem faz deploy enquanto a dona não ligar o workflow.
+**Quem faz o quê.** O código, as imagens e o script de deploy estão no repositório e são testados. Criar a VM, o DNS, as configurações do GitHub, o Sentry e os alertas de gasto são da dona do produto, porque precisam das contas e do dinheiro dela. Nada no repositório mexe no Google Cloud, e nada é implantado até a dona rodar o workflow de produção e aprová-lo.
 
 ## O que roda onde
 
@@ -21,7 +21,7 @@ Os quatro são contêineres do `deploy/docker-compose.prod.yml`, iniciados pelo 
 | Decisão | Sugestão | Por quê |
 |---------|----------|---------|
 | Região | `southamerica-east1` (São Paulo) se a maior parte dos visitantes está no Brasil | Latência. Custa um pouco mais que as regiões dos EUA: confira o preço atual |
-| Tamanho da VM | Staging: uma e2-micro (1 GB) funciona com o swap de 2 GB que o script de preparo cria, e o PHP-FPM já está dimensionado para ela (8 workers). Produção: 2 vCPU e 2 a 4 GB de RAM, e suba o `pm.max_children` para cerca de 20 | Cabem o Caddy, o PHP-FPM, o PostgreSQL e o scheduler. A voz é feita pela OpenAI, não pela VM |
+| Tamanho da VM | A VM que roda hoje é uma e2-micro (1 GB): funciona com o swap de 2 GB que o script de preparo cria, e o PHP-FPM já está dimensionado para ela (8 workers). Antes de um lançamento com tráfego de verdade, passe para 2 vCPU e 2 a 4 GB de RAM (trocar o tipo de máquina: alguns minutos fora do ar) e suba o `pm.max_children` para cerca de 20 | Cabem o Caddy, o PHP-FPM, o PostgreSQL e o scheduler. A voz é feita pela OpenAI, não pela VM |
 | Domínio | Um subdomínio, por exemplo `howler.<seu-domínio>` | O Caddy obtém e renova sozinho o certificado https dele |
 | Limite da OpenAI | O limite mensal que você já definiu, mais o `HOWLER_VOICE_DAILY_LIMIT` | O custo por howler é cerca de 1,5 centavo de dólar (ADR-002) |
 
@@ -100,31 +100,31 @@ No repositório, **Settings → Secrets and variables → Actions**:
 
 | Tipo | Nome | Valor |
 |------|------|-------|
-| Secret | `STAGING_SSH_KEY` | o conteúdo do arquivo privado `howler-deploy` |
-| Secret | `STAGING_SSH_KNOWN_HOSTS` | a linha impressa pelo `ssh-keyscan` |
-| Variável | `STAGING_SSH_HOST` | o IP ou o domínio da VM |
-| Variável | `STAGING_SSH_USER` | `deploy` |
-| Variável | `STAGING_DOMAIN` | `howler.exemplo.com` |
-| Variável | `STAGING_ENABLED` | `true` (isso liga o deploy) |
+| Secret | `PRODUCTION_SSH_KEY` | o conteúdo do arquivo privado `howler-deploy` |
+| Secret | `PRODUCTION_SSH_KNOWN_HOSTS` | a linha impressa pelo `ssh-keyscan` |
+| Variável | `PRODUCTION_SSH_HOST` | o IP ou o domínio da VM |
+| Variável | `PRODUCTION_SSH_USER` | `deploy` |
+| Variável | `PRODUCTION_DOMAIN` | `howler.exemplo.com` |
+| Ambiente | `production` | com você como aprovadora obrigatória e `main` como única branch permitida (abaixo) |
 | Variável (opcional) | `SENTRY_FRONTEND_DSN` | o DSN do Sentry da página (seção 7) |
 
-O workflow ([deploy-staging.yml](../../../.github/workflows/deploy-staging.yml)) usa o ambiente `staging`: em **Settings → Environments → staging** dá para exigir aprovadores, se você quiser um clique de aprovação antes de cada deploy.
+O workflow ([deploy-production.yml](../../../.github/workflows/deploy-production.yml)) usa o ambiente `production`. Crie-o em **Settings → Environments → New environment → production**, adicione você mesma em **Required reviewers** e, em **Deployment branches**, permita só a `main`. Daí em diante todo deploy espera a sua aprovação e só pode rodar a partir da `main`. Um merge na `main` não faz deploy nenhum.
 
 ## 5. Fazer o deploy
 
-**Na primeira vez:** Actions → **Deploy staging** → **Run workflow** (deixe a tag vazia). Ele constrói as duas imagens, copia o compose e os scripts para a VM, loga a VM no registro com um token de vida curta, roda o `deploy.sh` (baixar, migrar, subir, conferir a saúde) e por fim confere `https://<domínio>/up` de fora.
+**Para lançar uma versão:** Actions → **Deploy production** → **Run workflow** na `main` (deixe a tag vazia). O GitHub pede a aprovação da aprovadora; depois disso o workflow confere que o commit tem a CI verde, constrói as duas imagens, faz um dump do banco na VM, copia o compose e os scripts, loga a VM no registro com um token de vida curta e roda o `deploy.sh` (baixar, migrar, subir, conferir a saúde). Em seguida confere `https://<domínio>/up` de fora e roda o teste de fumaça.
 
-**Depois:** todo merge na `main` faz o deploy sozinho. O workflow fica vermelho se a versão nova não ficar saudável.
+**O teste de fumaça** (`deploy/smoke.sh`) vive a vida inteira de um howler contra o site de verdade: a página, o https e os cabeçalhos dele; criar um howler; olhá-lo (nenhum recado vaza); abri-lo uma vez; a segunda abertura recusada; as portas fechadas (um link desconhecido, um `GET` na abertura, entrada inválida, um corpo grande demais). Depois uma expiração: ele move a expiração de um howler de teste para o passado no banco, confere que o site diz que expirou, roda a limpeza no servidor e confere que o recado sumiu. Se qualquer coisa falhar, o workflow recoloca a versão anterior sozinho e fica vermelho. Dá para rodá-lo à mão também: `deploy/smoke.sh https://<domínio>` (ele cria dois howlers comuns: cerca de 3 centavos de dólar de voz).
 
-Confira: `https://<domínio>/up` responde 200; depois abra o site no celular e mande um howler para você mesma.
+Confira você mesma também: abra o site no celular e mande um howler para você.
 
 ## 6. Voltar atrás (rollback)
 
 Três jeitos, do menos ao mais manual.
 
-1. **Automático.** Se uma versão nova não ficar saudável em cerca de um minuto, o `deploy.sh` recoloca a tag anterior sozinho e o workflow falha. Você não faz nada.
+1. **Automático.** Se uma versão nova não ficar saudável em cerca de um minuto, ou se o teste de fumaça falhar, a tag anterior é recolocada sozinha e o workflow falha. Você não faz nada.
 2. **No servidor:** `cd /opt/howler && ./rollback.sh`. Ele volta para a versão registrada em `.previous_tag`. As imagens anteriores ainda estão na máquina, então não precisa de login.
-3. **Qualquer versão antiga:** Actions → Deploy staging → Run workflow, com a **tag** de uma versão que se sabe boa (as tags são os 12 primeiros caracteres do hash de um commit, listadas em Packages do repositório). Nada é construído: as imagens já existem.
+3. **Qualquer versão antiga:** Actions → Deploy production → Run workflow, com a **tag** de uma versão que se sabe boa (ele ainda espera a aprovação) (as tags são os 12 primeiros caracteres do hash de um commit, listadas em Packages do repositório). Nada é construído: as imagens já existem.
 
 **As migrações não são desfeitas por um rollback.** Escreva-as para que a versão anterior continue funcionando no esquema novo:
 1. a versão A adiciona a coluna ou tabela nova (o código antigo a ignora);
@@ -168,22 +168,23 @@ Ele guarda 7 dumps diários em `/opt/howler/backups`. Para restaurar: `gunzip -c
 
 Nenhum deles está no repositório, numa imagem ou num log.
 
-## 10. O que foi conferido, e o que fica para o primeiro deploy
+## 10. O que foi conferido nos primeiros deploys
 
-Conferido nesta máquina com as imagens de produção de verdade (os mesmos Dockerfiles e o mesmo compose): um primeiro deploy, o fluxo inteiro por https (criar, estado, abrir, abrir de novo dá 410), os cabeçalhos de segurança e a Content-Security-Policy, que só o Caddy publica portas e o banco não, que o app roda como usuário sem privilégios com o debug desligado, um segundo deploy, **uma versão propositalmente quebrada voltando sozinha**, o rollback manual, o backup e o limite de 8 KB por pedido. O workflow de deploy passa no `actionlint` e os scripts passam no `shellcheck`.
+O runbook foi escrito antes do primeiro deploy e corrigido por ele. Conferido na VM de verdade: https com certificado Let's Encrypt e o redirecionamento do http; os cabeçalhos de segurança e a Content-Security-Policy, sem erros de console num navegador de verdade; o fluxo inteiro com a voz real; a abertura única; os limites por IP enxergando o endereço real do visitante; a limpeza de hora em hora no scheduler; um dump diário no cron; um redeploy automático, os dois rollbacks (no servidor e reimplantando uma tag antiga pelo workflow) e, localmente com as mesmas imagens, uma versão propositalmente quebrada voltando sozinha. O primeiro deploy achou e corrigiu três coisas: o healthcheck do app (`pgrep -x` do BusyBox), fim de linha CRLF em secrets salvos pelo PowerShell e o `cron` ausente no Ubuntu minimal.
 
-**Fica para o primeiro deploy de verdade** (precisa da VM, do domínio e das configurações do GitHub): o certificado sendo emitido para o domínio real, os passos de SSH e de registro do workflow, a checagem de disponibilidade, o teste do Sentry com um projeto de verdade e uma passada no celular. Trate o primeiro deploy como a validação deste runbook e anote tudo que for diferente.
+**Continua sendo da dona:** o Sentry, com a checagem de que nenhum token ou recado aparece num evento de verdade (seção 7), e restringir o SSH (porta 22) ao endereço da dona.
 
 ## Quando algo dá errado
 
 | O que você vê | Provavelmente | O que fazer |
 |---------------|---------------|-------------|
-| O workflow é pulado | `STAGING_ENABLED` não é `true` | Defina a variável |
+| O workflow é pulado, ou espera e não faz nada | Ele não foi rodado na `main`, ou a aprovadora ainda não aprovou o ambiente `production` | Rode na `main` e aprove |
 | `Permission denied (publickey)` | A chave de deploy não está no `authorized_keys`, ou o secret está errado | Confira a seção 4 |
 | `Host key verification failed` ou `invalid format` na chave, com secrets que parecem certos | Um secret foi salvo com fim de linha do Windows (CRLF), por exemplo ao ser enviado pelo PowerShell | Salve a partir de um arquivo com `gh secret set NOME < arquivo` no Git Bash, ou cole na página do GitHub. O workflow remove os caracteres a mais, mas confira |
-| `Host key verification failed` | `STAGING_SSH_KNOWN_HOSTS` falta ou é de outro host | Rode o `ssh-keyscan` de novo |
+| `Host key verification failed` | `PRODUCTION_SSH_KNOWN_HOSTS` falta ou é de outro host | Rode o `ssh-keyscan` de novo |
 | Os limites de pedidos parecem não funcionar, ou todo visitante parece ter o mesmo endereço | O registro DNS está com proxy do Cloudflare | Deixe em "DNS only" (seção 2) |
 | O site mostra erro de certificado por um minuto | O Caddy ainda está obtendo o certificado | Espere; confira se o DNS aponta para o IP e se as portas 80 e 443 estão abertas |
+| O workflow termina com "the smoke test failed" | Uma verificação do `deploy/smoke.sh` falhou depois do deploy; a versão anterior foi recolocada | Leia a linha que falhou no log, corrija e lance de novo |
 | O `deploy.sh` diz que não ficou saudável e volta atrás | A versão nova não inicia | `docker compose -f docker-compose.prod.yml logs --tail 50 app web` |
 | `502` em `/api` | O contêiner do app está parado ou reiniciando | `docker compose -f docker-compose.prod.yml ps`, depois os logs dele |
 | Os howlers ficam sem voz do servidor | Sem chave, o limite diário foi atingido, ou a OpenAI recusou | A resposta da criação diz `"voice": false`; o motivo está no log do app (nunca o recado) |

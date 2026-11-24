@@ -2,9 +2,9 @@
 
 [English](STATUS.md) · [Português](../pt-BR/project/STATUS.md)
 
-Current checkpoint: CP10 done (staging is live at https://howler.aquifunciona.dev.br); CP11 (production and launch) is next. Sentry and restricting SSH to the owner's address remain optional follow-ups
+Current checkpoint: CP11 (production and launch): built; the release v1.0.0 is waiting for the owner's approval. After it: merge, run the production deploy (and approve it), then tag v1.0.0
 Last tag: cp10 (before it: cp9, cp8, cp7, cp6, prototype-approved, cp5, cp4, cp3)
-Awaiting approval: no (issue #11 closes after the first real deploy)
+Awaiting approval: yes (CP11 pull request: publish v1.0.0) (issue #11 closes after the first real deploy)
 
 ## History
 - 2026-11-22 CP0 approved, merged (PR #13), tag `cp0`
@@ -21,6 +21,7 @@ Awaiting approval: no (issue #11 closes after the first real deploy)
 - 2026-11-24 First real deploy: staging is live on a Google Cloud e2-micro (us-central1-c) behind Caddy with a Let's Encrypt certificate, DNS on Cloudflare in DNS-only mode. Checked from outside and inside: https and security headers, the whole flow in a browser with the real voice (no console or CSP errors), one-time opening, per-IP rate limits seeing the real address, the hourly purge scheduled, a daily backup in cron, an automatic redeploy on merge, and both rollbacks (on the server, and by deploying an older tag from the workflow). Found and fixed on the way: the app healthcheck (BusyBox pgrep), CRLF in secrets saved from PowerShell, and cron missing on Ubuntu minimal.
 - 2026-11-24 CP10 closed: the owner checked staging on a phone and set up the Google Cloud spend and uptime alerts (issue #11 closed).
 - 2026-11-24 Repository clean-up: the docs are grouped by topic (`project/`, `guides/`, `decisions/`, `api/`, `design/`) with the Portuguese twin at the same path, the compose files sit next to what uses them (`deploy/`, `e2e/`), a new README with the architecture, the engineering notes and the status, a documentation index, a checker for links and twins (`scripts/check-docs.py`, also a CI job), and the skeleton placeholder test is gone.
+- 2026-11-24 CP11 built: production takes over the VM and the domain of the first deploy (no online staging); the deploy is a manual workflow that needs the owner's approval, requires a green CI, takes a database dump first and ends with a smoke test (a howler's whole life against the real site, an expiry and the purge) with an automatic rollback; the home page may be indexed; the MIT license; a README with a demo GIF; the changelog and the v1.0.0 release notes. The smoke test passed 30 of 30 on the real production images run locally. Not done by me: the production release itself (it needs the owner's approval in GitHub), Sentry, and the launch posts, which are the owner's to publish.
 - Refinement of the layout and a pass through docs/guides/TESTING.md are planned after the phases are finished (requested by the owner).
 - Still open from CP5: the online preview. It becomes the staging deploy of CP10 (issue #6).
 

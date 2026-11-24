@@ -44,7 +44,7 @@ npm run dev
 
 Open http://localhost:5173. The dev server forwards `/api` to the backend, so the browser never talks to anything else.
 
-To see it on your phone, open `http://<your-computer-ip>:5173` on the same Wi-Fi. Sharing and copying are limited on plain http (browsers only enable them on https or localhost); the staging deploy (CP10) is https.
+To see it on your phone, open `http://<your-computer-ip>:5173` on the same Wi-Fi. Sharing and copying are limited on plain http (browsers only enable them on https or localhost); the live site is https.
 
 ## 4. Try the whole flow
 

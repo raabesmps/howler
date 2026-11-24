@@ -7,7 +7,9 @@
 [English](README.md) · [Português](README.pt-BR.md)
 
 [![CI](https://github.com/raabesmps/howler/actions/workflows/ci.yml/badge.svg)](https://github.com/raabesmps/howler/actions/workflows/ci.yml)
-![Staging](https://img.shields.io/badge/staging-no%20ar-brightgreen)
+[![Release](https://img.shields.io/github/v/release/raabesmps/howler)](https://github.com/raabesmps/howler/releases)
+[![Licença: MIT](https://img.shields.io/github/license/raabesmps/howler)](LICENSE)
+![No ar](https://img.shields.io/badge/no%20ar-howler.aquifunciona.dev.br-brightgreen)
 ![Vue](https://img.shields.io/badge/Vue-3-42b883?logo=vuedotjs&logoColor=white)
 ![Laravel](https://img.shields.io/badge/Laravel-13-ff2d20?logo=laravel&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169e1?logo=postgresql&logoColor=white)
@@ -19,7 +21,9 @@
 
 O Howler é um recado de uso único, com mau humor. Você escreve até 140 caracteres e recebe um link. Quem abrir vê um envelope fechado que ronca, rasga e **grita o recado com a voz de uma mãe histérica e furiosa**, tremendo a cada berro. Depois ele fecha, queima do centro para fora e vira pó. **O link funciona uma vez.** Depois disso o recado não existe mais no servidor, e o link só diz que ele foi entregue.
 
-**Experimente:** <https://howler.aquifunciona.dev.br> (staging, com a voz de verdade). Comece com o volume baixo: ele foi feito para ser alto.
+**Experimente:** <https://howler.aquifunciona.dev.br> (no ar, com a voz de verdade). Comece com o volume baixo: ele foi feito para ser alto.
+
+<p align="center"><img src="docs/assets/demo.gif" alt="Uma gravação de tela do produto inteiro num celular: digitar o recado, o link, o envelope abrindo e gritando com as palavras acendendo, a queima, o pó" width="260"></p>
 
 > Projeto de fã. Sem ligação com a Warner Bros. nem com J.K. Rowling. A personagem é um tom, nunca uma imitação, e nada aqui usa nomes, imagens ou sons da franquia.
 
@@ -87,7 +91,7 @@ Uma origem só serve o site e a API, então não há CORS, e o endereço real do
 | Frontend | Vue 3, Vite, TypeScript, vue-router (histórico por hash, então o token nunca sai do navegador num pedido), Web Audio API, Canvas 2D |
 | Backend | Laravel 13 em PHP 8.4, PostgreSQL 17 com chaves ULID e restrições `CHECK`, o scheduler do Laravel |
 | Voz | `gpt-audio` da OpenAI pela API de chat completions, gerada no servidor |
-| Infra | Uma VM do Google Cloud, Docker Compose, Caddy (HTTPS automático), imagens construídas no GitHub Actions e publicadas no GHCR, deploy por SSH com rollback automático |
+| Infra | Uma VM do Google Cloud, Docker Compose, Caddy (HTTPS automático), imagens construídas no GitHub Actions e publicadas no GHCR, deploys manuais com aprovação, por SSH, com teste de fumaça e rollback automático |
 | Qualidade | PHPUnit num PostgreSQL de verdade, Vitest, Playwright (com axe para acessibilidade), Pint, ESLint e `vue-tsc` |
 
 ## Rodar localmente
@@ -114,7 +118,7 @@ docker/     Dockerfiles: a imagem PHP de desenvolvimento e as imagens de produç
 deploy/     O que roda no servidor: compose, Caddyfile, scripts de deploy, rollback, backup e preparo
 docs/       project/ guides/ decisions/ api/ design/ assets/, cada um com o espelho em português em pt-BR/
 scripts/    Ajudantes de desenvolvimento e o verificador da documentação
-.github/    CI (frontend, backend, e2e, images) e o workflow de deploy de staging
+.github/    CI (frontend, backend, e2e, images, docs) e o workflow de deploy de produção
 ```
 
 ## Qualidade
@@ -130,7 +134,7 @@ Como rodar cada camada, o que de propósito não é coberto e a lista manual de 
 
 ## Deploy
 
-Um merge na `main` constrói as duas imagens, publica no registro do GitHub e faz o deploy na VM por SSH com a chave do servidor fixada. O `deploy.sh` migra, sobe a versão nova e confere o `/up`; **se ela não ficar saudável em cerca de um minuto, ele recoloca a versão anterior sozinho**. O rollback também funciona pelo servidor (`rollback.sh`) e reimplantando uma tag antiga pelo workflow. Um dump diário do banco é guardado por 7 dias. Tudo isso, com o preparo da VM, os segredos e a tabela de problemas, está no [runbook de deploy](docs/pt-BR/guides/DEPLOYMENT.md).
+Um merge na `main` só constrói e testa. **Uma versão é um botão que exige aprovação:** você roda o workflow `Deploy production`, o GitHub pede à dona que aprove o ambiente `production`, e só então as duas imagens são construídas a partir de um commit com a CI verde, publicadas no registro do GitHub e enviadas à VM por SSH com a chave do servidor fixada. Antes, é feito um dump do banco. O `deploy.sh` migra, sobe a versão nova e confere o `/up`, e **se ela não ficar saudável em cerca de um minuto, ele recoloca a versão anterior sozinho**. Em seguida um teste de fumaça vive a vida inteira de um howler contra o site de verdade (criar, olhar, abrir, abrir de novo, as portas fechadas, uma expiração e a limpeza); se ele falhar, a versão anterior também volta. Voltar atrás à mão funciona pelo servidor (`rollback.sh`) ou reimplantando uma tag antiga pelo workflow. Um dump diário é guardado por 7 dias. Tudo isso, com o preparo da VM, os segredos e a tabela de problemas, está no [runbook de deploy](docs/pt-BR/guides/DEPLOYMENT.md).
 
 ## Documentação
 
@@ -143,7 +147,7 @@ Tudo está em inglês com uma aba em português. O [índice da documentação](d
 | [Runbook de deploy](docs/pt-BR/guides/DEPLOYMENT.md) | VM, GitHub, deploy, rollback, monitoramento, backups, segredos |
 | [API](docs/pt-BR/api/README.md) · [OpenAPI](docs/api/openapi.yaml) | Os quatro endpoints e o comportamento de uso único |
 | [Design](docs/pt-BR/design/tokens.md) | A direção visual, os tokens e os wireframes |
-| [Plano](docs/pt-BR/project/PLAN.md) · [Status](docs/pt-BR/project/STATUS.md) | O plano mestre e onde o projeto está agora |
+| [Plano](docs/pt-BR/project/PLAN.md) · [Status](docs/pt-BR/project/STATUS.md) · [Changelog](CHANGELOG.pt-BR.md) | O plano mestre, onde o projeto está agora e o que cada versão mudou |
 
 ## Decisões de arquitetura
 
@@ -166,11 +170,11 @@ O projeto é construído em checkpoints, um pull request cada, mergeado sem squa
 | CP6 – CP7 | Modelo de dados e a API de uso único | feito |
 | CP8 | Frontend ligado ao backend | feito |
 | CP9 | Testes, acessibilidade e CI | feito |
-| CP10 | Staging: imagens, deploy, rollback, monitoramento | feito, no ar |
-| CP11 | Produção e lançamento | a seguir |
+| CP10 | Staging: imagens, deploy, rollback, monitoramento | feito |
+| CP11 | Produção e lançamento: deploy manual com aprovação, teste de fumaça, licença | feito, **v1.0.0** |
 
-Os detalhes atuais estão em [docs/pt-BR/project/STATUS.md](docs/pt-BR/project/STATUS.md). O refinamento do layout está previsto para depois que as fases terminarem.
+Os detalhes atuais estão em [docs/pt-BR/project/STATUS.md](docs/pt-BR/project/STATUS.md), e cada versão está no [changelog](CHANGELOG.pt-BR.md) (a história da v1.0.0, com os seus limites conhecidos, está nas suas [notas da versão](docs/pt-BR/project/releases/v1.0.0.md)). O refinamento do layout é o próximo trabalho.
 
 ## Licença
 
-Ainda não escolhida; será decidida no lançamento (CP11).
+[MIT](LICENSE). Ela cobre o código e a arte original deste repositório. Ela não concede nada sobre nenhuma franquia de terceiros, que este projeto nem usa nem reivindica: veja o aviso de projeto de fã no topo.

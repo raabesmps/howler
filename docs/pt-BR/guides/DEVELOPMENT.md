@@ -44,7 +44,7 @@ npm run dev
 
 Abra http://localhost:5173. O servidor de desenvolvimento encaminha `/api` para o backend, então o navegador nunca conversa com mais nada.
 
-Para ver no celular, abra `http://<ip-do-seu-computador>:5173` na mesma rede Wi-Fi. Compartilhar e copiar ficam limitados em http puro (os navegadores só liberam em https ou localhost); o deploy de staging (CP10) é https.
+Para ver no celular, abra `http://<ip-do-seu-computador>:5173` na mesma rede Wi-Fi. Compartilhar e copiar ficam limitados em http puro (os navegadores só liberam em https ou localhost); o site no ar é https.
 
 ## 4. Testar o fluxo inteiro
 

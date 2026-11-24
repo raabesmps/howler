@@ -42,8 +42,8 @@ Decisões dentro disso:
 
 - **Uma origem só, então sem CORS.** O site e a API saem do mesmo endereço. O CORS fica fechado (nenhuma origem de fora é permitida, a menos que `CORS_ALLOWED_ORIGINS` diga).
 - **O endereço do cliente vem do FastCGI.** O Caddy entrega ao PHP o endereço real do visitante como endereço da conexão, então os limites por IP funcionam e nenhuma lista de proxies (`TRUSTED_PROXIES`) é necessária. O FPM nunca é publicado, então ninguém consegue se passar pelo Caddy.
-- **O FPM tem 8 workers na VM de staging (uma e2-micro, 1 GB), cerca de 20 numa de 4 GB.** Criar um howler segura um worker enquanto a voz é feita (segundos). Os limites por IP restringem quantos podem estar lentos ao mesmo tempo, e o pool deixa espaço para os pedidos baratos (estado, abrir) continuarem fluindo. O número está em `docker/php-fpm.prod.conf`.
-- **As imagens são construídas uma vez e promovidas:** `howler-app` e `howler-web`, com a tag do commit, no registro de contêineres do GitHub. O servidor nunca constrói nada. Staging e produção (CP11) rodam as mesmas imagens.
+- **O FPM tem 8 workers na VM de hoje (uma e2-micro, 1 GB), cerca de 20 numa de 4 GB.** Criar um howler segura um worker enquanto a voz é feita (segundos). Os limites por IP restringem quantos podem estar lentos ao mesmo tempo, e o pool deixa espaço para os pedidos baratos (estado, abrir) continuarem fluindo. O número está em `docker/php-fpm.prod.conf`.
+- **As imagens são construídas uma vez e promovidas:** `howler-app` e `howler-web`, com a tag do commit, no registro de contêineres do GitHub. O servidor nunca constrói nada. O que roda em produção é exatamente o que foi construído e testado.
 - **O deploy é um script só** (`deploy/deploy.sh <tag>`): baixa, migra, sobe, confere `/up`. Se a versão nova não ficar saudável em cerca de um minuto, ele recoloca a tag anterior sozinho. O `deploy/rollback.sh` faz o mesmo à mão.
 - **Migrações não são desfeitas por um rollback.** Elas precisam ser escritas para que a versão anterior continue funcionando no esquema novo: adicionar primeiro, parar de usar o antigo numa versão seguinte, remover numa terceira.
 - **Um dump diário** (`deploy/backup.sh`, guardado 7 dias) serve para uma migração ruim ou um engano, não para arquivo: os dados têm vida curta por projeto.
@@ -60,6 +60,14 @@ O tamanho da imagem ainda não foi otimizado (a imagem do app carrega as ferrame
 ## Consequências
 
 - **A dona do produto administra o servidor:** atualizações de segurança do sistema (automáticas), um firewall que só abre 80 e 443 mais SSH com chave, e uma checagem de que o serviço está no ar. É um ponto único de falha, o que é aceitável aqui.
-- Não há preview automático por pull request. O staging é o mesmo Compose na VM (ou um segundo projeto nela) e o ambiente local.
-- O preview online pendente na issue #6 passa a ser o deploy de staging do CP10, com a voz de verdade e o backend de verdade, em vez de uma hospedagem estática.
+- Não há preview automático por pull request. O ensaio antes de uma versão é a stack de produção local (as mesmas imagens, com o `deploy/smoke.sh` rodado contra ela) e o job de ponta a ponta na CI.
+- O preview online pendente na issue #6 virou o primeiro deploy do CP10 na VM de verdade, com a voz de verdade e o backend de verdade, em vez de uma hospedagem estática.
 - Os preços e os limites do nível gratuito da VM são conferidos no CP10, não assumidos aqui.
+
+## Atualização (CP11): produção na mesma VM, e versões por aprovação
+
+- **Não há staging online.** A produção roda na VM que o CP10 preparou, no domínio que serviu o primeiro deploy. Um segundo ambiente online exigiria uma segunda VM, e uma máquina de 1 GB não comporta duas stacks. O custo da escolha é que a primeira vez que uma mudança aparece no servidor de verdade é a própria versão, e por isso a versão tem tantas proteções abaixo.
+- **Uma versão é manual e exige aprovação.** Um merge na `main` só constrói e testa. O workflow `Deploy production` é iniciado à mão, só roda a partir da `main`, espera a dona aprovar o ambiente `production` e exige a CI verde do commit que constrói.
+- **Proteções em volta do deploy:** um dump do banco antes de qualquer mudança; a checagem de saúde com rollback automático; e o teste de fumaça (`deploy/smoke.sh`), que vive a vida inteira de um howler contra o site de verdade, inclusive uma expiração e a limpeza, e recoloca a versão anterior se falhar.
+- **Voltar atrás** é o mesmo workflow com uma tag antiga (sem construir), ou o `rollback.sh` no servidor.
+- **Tamanho.** A e2-micro basta para rodar, com swap, e é pouco para um lançamento. O runbook diz quando e como passar para uma máquina maior (parar, trocar o tipo, ligar; o endereço e o disco continuam).

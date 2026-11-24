@@ -44,7 +44,7 @@ docker/        Dockerfiles (development PHP image, production app and web images
 deploy/        what runs on the server: compose, Caddyfile, deploy/rollback/backup/setup scripts
 docs/          project/ (PLAN, STATUS), guides/, decisions/ (ADRs), api/, design/, assets/ ; pt-BR/ mirrors it at the same paths
 scripts/       dev helpers and check-docs.py
-.github/       CI, the staging deploy workflow, the PR template
+.github/       CI, the production deploy workflow (manual, with an approval), the PR template
 ```
 
 Docs: every document has its Portuguese twin at the same path under `docs/pt-BR/` (and `README.pt-BR.md` next to each README). STATUS.md is updated after every merge, in both languages.

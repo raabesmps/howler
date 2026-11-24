@@ -42,8 +42,8 @@ Decisions inside that:
 
 - **One origin, so no CORS.** The site and the API are served from the same address. CORS stays closed (no foreign origin is allowed unless `CORS_ALLOWED_ORIGINS` says so).
 - **The client address comes from FastCGI.** Caddy gives PHP the real address of the visitor as the connection address, so the per-IP limits work and no proxy list (`TRUSTED_PROXIES`) is needed. FPM is never published, so nobody can pretend to be Caddy.
-- **FPM has 8 workers on the staging VM (an e2-micro, 1 GB), about 20 on a 4 GB one.** Creating a howler holds a worker while the voice is made (seconds). The per-IP limits bound how many can be slow at once, and the pool leaves room for the cheap requests (state, open) to keep flowing. The number is in `docker/php-fpm.prod.conf`.
-- **Images are built once and promoted:** `howler-app` and `howler-web`, tagged with the commit, in GitHub's container registry. The server never builds anything. Staging and production (CP11) run the same images.
+- **FPM has 8 workers on today's VM (an e2-micro, 1 GB), about 20 on a 4 GB one.** Creating a howler holds a worker while the voice is made (seconds). The per-IP limits bound how many can be slow at once, and the pool leaves room for the cheap requests (state, open) to keep flowing. The number is in `docker/php-fpm.prod.conf`.
+- **Images are built once and promoted:** `howler-app` and `howler-web`, tagged with the commit, in GitHub's container registry. The server never builds anything. What runs in production is exactly what was built and tested.
 - **Deploy is one script** (`deploy/deploy.sh <tag>`): pull, migrate, start, check `/up`. If the new version is not healthy within about a minute it puts the previous tag back by itself. `deploy/rollback.sh` does the same by hand.
 - **Migrations are not undone by a rollback.** They must be written so the previous version still works on the new schema: add first, stop using the old thing in a later release, remove it in a later one again.
 - **A daily dump** (`deploy/backup.sh`, kept 7 days) is for a bad migration or a mistake, not for archival: the data is short-lived by design.
@@ -60,6 +60,14 @@ Image size is not tuned yet (the app image carries the build tools for its exten
 ## Consequences
 
 - **The owner runs the server:** OS security updates (unattended upgrades), a firewall that only opens 80 and 443 plus SSH with keys, and an uptime check. It is a single point of failure, which is acceptable here.
-- No automatic deploy preview per pull request. Staging is the same Compose set-up on the VM (or a second project on it) and the local environment.
-- The online preview pending in issue #6 becomes the staging deploy of CP10, with the real voice and the real backend, instead of a static host.
+- No automatic deploy preview per pull request. The rehearsal before a release is the local production stack (the same images, with `deploy/smoke.sh` run against it) and the end-to-end job in CI.
+- The online preview pending in issue #6 became the first deploy of CP10 on the real VM, with the real voice and the real backend, instead of a static host.
 - Prices and free-tier limits of the VM are checked at CP10, not assumed here.
+
+## Update (CP11): production on the same VM, and releases by approval
+
+- **There is no online staging.** Production runs on the VM that CP10 prepared, at the domain that served the first deploy. A second online environment would need a second VM, and a 1 GB machine cannot hold two stacks. The cost of the choice is that the first sight of a change on the real server is the release itself, which is why the release has so many guards below.
+- **A release is manual and needs an approval.** Merging to `main` only builds and tests. The `Deploy production` workflow is started by hand, runs only from `main`, waits for the owner to approve the `production` environment, and requires a green CI for the commit it builds.
+- **Guards around the deploy:** a database dump before anything changes; the health check with automatic rollback; and the smoke test (`deploy/smoke.sh`), which lives a howler's whole life against the real site, including an expiry and the purge, and puts the previous version back if it fails.
+- **Rolling back** is the same workflow with an older tag (no build), or `rollback.sh` on the server.
+- **Size.** The e2-micro is enough to run, with swap, and thin for a launch. The runbook says when and how to move to a bigger machine (stop, change the machine type, start; the address and the disk stay).

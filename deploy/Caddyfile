@@ -7,6 +7,7 @@
 	encode zstd gzip
 
 	header {
+		# one year, for this host only: no includeSubDomains and no preload, because the parent domain also serves other sites
 		Strict-Transport-Security "max-age=31536000"
 		X-Content-Type-Options "nosniff"
 		X-Frame-Options "DENY"

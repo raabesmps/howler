@@ -37,6 +37,7 @@ Uma decisão nova é um ADR curto (contexto, decisão, alternativas, consequênc
 |-----------|---------|
 | [project/PLAN.md](project/PLAN.md) | O plano mestre: fases, checkpoints, as regras e as mudanças feitas no caminho |
 | [project/STATUS.md](project/STATUS.md) | Onde o projeto está agora, com o histórico |
+| [project/releases/v1.0.0.md](project/releases/v1.0.0.md) · [CHANGELOG.pt-BR.md](../../CHANGELOG.pt-BR.md) | As notas da versão v1.0.0 (o que ela faz bem, os limites conhecidos) e o changelog de cada versão |
 
 ## Outros
 

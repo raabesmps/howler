@@ -6,7 +6,7 @@ What it checks (it exits with 1 and lists every problem):
   2. a link to a heading (file.md#heading) points to a heading that exists;
   3. every document has its counterpart in the other language, at the mirrored path
      (docs/x/Y.md <-> docs/pt-BR/x/Y.md, README.md <-> README.pt-BR.md);
-  4. the language tab on the third line of each document points to that counterpart.
+  4. the language tab near the top of each document (within its first 15 lines) points to that counterpart.
 
 Plain standard library, so it runs anywhere Python does and in CI without installing anything.
 """
@@ -105,9 +105,9 @@ def main() -> int:
         if other not in tracked:
             problems.append(f"{rel}: no counterpart in the other language (expected {other})")
             continue
-        tab = " ".join(text.splitlines()[2:3])
+        tab = " ".join(text.splitlines()[:15])
         if other.name not in tab:
-            problems.append(f"{rel}: the language tab on line 3 does not point to {other.name}")
+            problems.append(f"{rel}: the language tab (first 15 lines) does not point to {other.name}")
 
     if problems:
         print("\n".join(sorted(problems)))

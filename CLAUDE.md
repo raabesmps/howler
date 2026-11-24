@@ -25,20 +25,26 @@ Howler: write a message (max 140 chars), share a single-use link; the recipient 
 
 ## Commands
 
-Filled in as each part of the stack lands.
+Run them from the repository root unless a folder is given. Docker runs inside WSL on Windows (see docs/guides/DEVELOPMENT.md).
 
 | Area | Lint | Test |
 |------|------|------|
 | frontend (`cd frontend`) | `npm run lint`, `npm run typecheck` | `npm test` (Vitest). On Windows run it from a path with an uppercase drive letter (`C:/...`) or it fails with "Cannot read properties of undefined (reading 'config')" |
-| backend (CP6+) | `./vendor/bin/pint --test` | `php artisan test` |
-| e2e (CP9+) | n/a | `scripts/e2e-backend.sh` (where Docker runs), then `cd e2e && npx playwright test` (see docs/guides/TESTING.md) |
+| backend (`backend/`, in the container) | `docker compose run --rm backend ./vendor/bin/pint --test` | `docker compose run --rm backend php artisan test` (real PostgreSQL) |
+| e2e (`e2e/`) | n/a | `scripts/e2e-backend.sh` (where Docker runs), then `cd e2e && npx playwright test` (see docs/guides/TESTING.md). It leaves the API in test mode: `docker compose up -d --force-recreate backend` restores it |
+| docs | `python scripts/check-docs.py` (links, anchors, the Portuguese twin of every document; also a CI check) | n/a |
 
 ## Layout
 
 ```
-docs/          plan, STATUS.md, decisions/, design/
-lab/audio/     audio experiments (plain HTML)
-frontend/      Vue 3 + Vite + TS
+frontend/      Vue 3 + Vite + TypeScript
 backend/       Laravel API + PostgreSQL
-.github/       workflows, PR template
+e2e/           Playwright tests and the compose override that starts the API for them
+docker/        Dockerfiles (development PHP image, production app and web images)
+deploy/        what runs on the server: compose, Caddyfile, deploy/rollback/backup/setup scripts
+docs/          project/ (PLAN, STATUS), guides/, decisions/ (ADRs), api/, design/, assets/ ; pt-BR/ mirrors it at the same paths
+scripts/       dev helpers and check-docs.py
+.github/       CI, the staging deploy workflow, the PR template
 ```
+
+Docs: every document has its Portuguese twin at the same path under `docs/pt-BR/` (and `README.pt-BR.md` next to each README). STATUS.md is updated after every merge, in both languages.

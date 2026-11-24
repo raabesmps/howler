@@ -1,6 +1,6 @@
 # Estratégia de testes e notas de cobertura
 
-[English](../TESTING.md) · [Português](TESTES.md)
+[English](../../guides/TESTING.md) · [Português](TESTING.md)
 
 O que é testado, onde, por quê, e o que de propósito não é testado.
 
@@ -28,7 +28,7 @@ A API dos testes de ponta a ponta roda **sem chave da OpenAI**: os howlers não 
 ## Como rodar
 
 ```
-# unidades do backend e do frontend: veja docs/pt-BR/DESENVOLVIMENTO.md
+# unidades do backend e do frontend: veja docs/pt-BR/guides/DEVELOPMENT.md
 scripts/e2e-backend.sh            # onde o Docker roda: a API com a voz desligada, limites altos, o banco howler_test
 cd e2e && npm install && npx playwright install chromium
 npm test                          # sobe o frontend sozinho; defina E2E_API_TARGET se a API não estiver na :8000

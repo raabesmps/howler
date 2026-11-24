@@ -1,8 +1,8 @@
 # Runbook de deploy e rollback
 
-[English](../DEPLOYMENT.md) · [Português](DEPLOY.md)
+[English](../../guides/DEPLOYMENT.md) · [Português](DEPLOYMENT.md)
 
-Como o Howler é colocado num servidor, atualizado e revertido. O desenho está no [ADR-004](decisions/ADR-004-hosting.md) (uma VM do Google Cloud rodando Docker Compose) e no [ADR-005](decisions/ADR-005-error-monitoring.md) (monitoramento de erros e privacidade). Este guia são os passos.
+Como o Howler é colocado num servidor, atualizado e revertido. O desenho está no [ADR-004](../decisions/ADR-004-hosting.md) (uma VM do Google Cloud rodando Docker Compose) e no [ADR-005](../decisions/ADR-005-error-monitoring.md) (monitoramento de erros e privacidade). Este guia são os passos.
 
 **Quem faz o quê.** O código, as imagens e o script de deploy estão no repositório e são testados. Criar a VM, o DNS, as configurações do GitHub, o Sentry e os alertas de gasto são da dona do produto, porque precisam das contas e do dinheiro dela. Nada no repositório mexe no Google Cloud nem faz deploy enquanto a dona não ligar o workflow.
 
@@ -14,7 +14,7 @@ Como o Howler é colocado num servidor, atualizado e revertido. O desenho está 
                          └── o site já construído (estático)└── scheduler (limpeza de hora em hora)
 ```
 
-Os quatro são contêineres do `docker-compose.prod.yml`, iniciados pelo `deploy/deploy.sh`. Só o Caddy publica portas (80, 443). O banco e o PHP-FPM só são alcançáveis dentro da rede do Docker. As configurações ficam em `/opt/howler/.env` no servidor, nunca no repositório.
+Os quatro são contêineres do `deploy/docker-compose.prod.yml`, iniciados pelo `deploy/deploy.sh`. Só o Caddy publica portas (80, 443). O banco e o PHP-FPM só são alcançáveis dentro da rede do Docker. As configurações ficam em `/opt/howler/.env` no servidor, nunca no repositório.
 
 ## 1. Decidir
 
@@ -108,7 +108,7 @@ No repositório, **Settings → Secrets and variables → Actions**:
 | Variável | `STAGING_ENABLED` | `true` (isso liga o deploy) |
 | Variável (opcional) | `SENTRY_FRONTEND_DSN` | o DSN do Sentry da página (seção 7) |
 
-O workflow ([deploy-staging.yml](../../.github/workflows/deploy-staging.yml)) usa o ambiente `staging`: em **Settings → Environments → staging** dá para exigir aprovadores, se você quiser um clique de aprovação antes de cada deploy.
+O workflow ([deploy-staging.yml](../../../.github/workflows/deploy-staging.yml)) usa o ambiente `staging`: em **Settings → Environments → staging** dá para exigir aprovadores, se você quiser um clique de aprovação antes de cada deploy.
 
 ## 5. Fazer o deploy
 

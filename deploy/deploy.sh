@@ -9,7 +9,7 @@
 # rollback is "deploy the previous tag" (rollback.sh).
 #
 # Migrations are NOT undone by a rollback. Write them so the previous version still works on the new schema: add a
-# column or table first, stop using the old one in a later release, drop it in a later one again (see docs/DEPLOYMENT.md).
+# column or table first, stop using the old one in a later release, drop it in a later one again (see docs/guides/DEPLOYMENT.md).
 set -euo pipefail
 cd "$(dirname "$0")"
 

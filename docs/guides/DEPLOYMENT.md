@@ -1,8 +1,8 @@
 # Deploy and rollback runbook
 
-[English](DEPLOYMENT.md) · [Português](pt-BR/DEPLOY.md)
+[English](DEPLOYMENT.md) · [Português](../pt-BR/guides/DEPLOYMENT.md)
 
-How Howler is put on a server, updated and rolled back. The design is in [ADR-004](decisions/ADR-004-hosting.md) (one Google Cloud VM running Docker Compose) and [ADR-005](decisions/ADR-005-error-monitoring.md) (error monitoring and privacy). This guide is the steps.
+How Howler is put on a server, updated and rolled back. The design is in [ADR-004](../decisions/ADR-004-hosting.md) (one Google Cloud VM running Docker Compose) and [ADR-005](../decisions/ADR-005-error-monitoring.md) (error monitoring and privacy). This guide is the steps.
 
 **Who does what.** The code, the images and the deploy script are in the repository and are tested. Creating the VM, DNS, the GitHub settings, Sentry and the spend alerts are the owner's, because they need the owner's accounts and money. Nothing in the repository touches Google Cloud or deploys anything until the owner turns the workflow on.
 
@@ -14,7 +14,7 @@ How Howler is put on a server, updated and rolled back. The design is in [ADR-00
                        └── the built site (static)         └── scheduler (hourly purge)
 ```
 
-All four are containers of `docker-compose.prod.yml`, started by `deploy/deploy.sh`. Only Caddy publishes ports (80, 443). The database and PHP-FPM are reachable only inside the Docker network. The settings are in `/opt/howler/.env` on the server, never in the repository.
+All four are containers of `deploy/docker-compose.prod.yml`, started by `deploy/deploy.sh`. Only Caddy publishes ports (80, 443). The database and PHP-FPM are reachable only inside the Docker network. The settings are in `/opt/howler/.env` on the server, never in the repository.
 
 ## 1. Decide
 
@@ -108,7 +108,7 @@ In the repository, **Settings → Secrets and variables → Actions**:
 | Variable | `STAGING_ENABLED` | `true` (this turns the deploy on) |
 | Variable (optional) | `SENTRY_FRONTEND_DSN` | the page's Sentry DSN (section 7) |
 
-The workflow ([deploy-staging.yml](../.github/workflows/deploy-staging.yml)) uses the `staging` environment: in **Settings → Environments → staging** you can add required reviewers if you want a click of approval before every deploy.
+The workflow ([deploy-staging.yml](../../.github/workflows/deploy-staging.yml)) uses the `staging` environment: in **Settings → Environments → staging** you can add required reviewers if you want a click of approval before every deploy.
 
 ## 5. Deploy
 

@@ -7,7 +7,7 @@
 ## Acceptance checklist
 - [ ] Lint passes
 - [ ] Tests pass
-- [ ] `docs/STATUS.md` updated (EN and pt-BR)
+- [ ] `docs/project/STATUS.md` updated (EN and pt-BR)
 - [ ] One conventional commit per checklist item of the checkpoint
 - [ ] No secrets, no franchise assets
 - [ ] Waiting for "APPROVED CPx" before merge

@@ -2,7 +2,7 @@
 
 [English](README.md) · [Português](README.pt-BR.md)
 
-API Laravel 13 com PostgreSQL. Guarda os howlers, abre cada um exatamente uma vez e apaga o que não precisa mais. Construída no CP6 (modelo de dados) e no CP7 (a API); veja `docs/pt-BR/PLANO.md` e o contrato em [docs/pt-BR/api/](../docs/pt-BR/api/README.md).
+API Laravel 13 com PostgreSQL. Guarda os howlers, abre cada um exatamente uma vez e apaga o que não precisa mais. Construída no CP6 (modelo de dados) e no CP7 (a API); veja `docs/pt-BR/project/PLAN.md` e o contrato em [docs/pt-BR/api/](../docs/pt-BR/api/README.md).
 
 Tudo roda em contêineres, no mesmo formato do servidor (ADR-004), então você não precisa ter PHP, Composer nem PostgreSQL instalados.
 

@@ -1,12 +1,12 @@
 # Development guide
 
-[English](DEVELOPMENT.md) · [Português](pt-BR/DESENVOLVIMENTO.md)
+[English](DEVELOPMENT.md) · [Português](../pt-BR/guides/DEVELOPMENT.md)
 
 How to run the whole thing on your computer: the database and the API in containers, the frontend with Vite.
 
 ## What you need
 
-- **Docker** with Compose. On Windows it runs inside WSL (see [backend/README.md](../backend/README.md#on-windows)).
+- **Docker** with Compose. On Windows it runs inside WSL (see [backend/README.md](../../backend/README.md#on-windows)).
 - **Node.js** (the version in `.github/workflows/ci.yml`) for the frontend.
 - An **OpenAI key**, only if you want the real voice. Without it everything works and the browser's plain voice speaks.
 

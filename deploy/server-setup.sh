@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Prepares a fresh Debian 12 or Ubuntu LTS VM to run Howler (docs/DEPLOYMENT.md, section 2). Run it once, as root:
+# Prepares a fresh Debian 12 or Ubuntu LTS VM to run Howler (docs/guides/DEPLOYMENT.md, section 2). Run it once, as root:
 #
 #   sudo bash server-setup.sh "<the PUBLIC half of the deploy key, one line>"
 #
@@ -98,6 +98,6 @@ else
 fi
 
 echo
-echo "done. Next (see docs/DEPLOYMENT.md):"
+echo "done. Next (see docs/guides/DEPLOYMENT.md):"
 echo "  - copy deploy/env.production.example to /opt/howler/.env as the user deploy and fill it in (chmod 600)"
 echo "  - check that you can log in as deploy with the deploy key, THEN consider disabling SSH passwords and root login"

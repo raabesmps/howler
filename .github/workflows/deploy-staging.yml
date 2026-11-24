@@ -89,10 +89,11 @@ jobs:
       - name: Set up SSH
         run: |
           install -m 700 -d ~/.ssh
-          echo "${{ secrets.STAGING_SSH_KEY }}" > ~/.ssh/deploy_key
+          # tr -d '\r': a secret pasted from Windows carries CRLF line endings, which break both the key and the host key
+          echo "${{ secrets.STAGING_SSH_KEY }}" | tr -d '\r' > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           # the server's host key is pinned: the deploy refuses to talk to anything else
-          echo "${{ secrets.STAGING_SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          echo "${{ secrets.STAGING_SSH_KNOWN_HOSTS }}" | tr -d '\r' > ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
       - name: Deploy

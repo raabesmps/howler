@@ -180,6 +180,7 @@ Conferido nesta máquina com as imagens de produção de verdade (os mesmos Dock
 |---------------|---------------|-------------|
 | O workflow é pulado | `STAGING_ENABLED` não é `true` | Defina a variável |
 | `Permission denied (publickey)` | A chave de deploy não está no `authorized_keys`, ou o secret está errado | Confira a seção 4 |
+| `Host key verification failed` ou `invalid format` na chave, com secrets que parecem certos | Um secret foi salvo com fim de linha do Windows (CRLF), por exemplo ao ser enviado pelo PowerShell | Salve a partir de um arquivo com `gh secret set NOME < arquivo` no Git Bash, ou cole na página do GitHub. O workflow remove os caracteres a mais, mas confira |
 | `Host key verification failed` | `STAGING_SSH_KNOWN_HOSTS` falta ou é de outro host | Rode o `ssh-keyscan` de novo |
 | Os limites de pedidos parecem não funcionar, ou todo visitante parece ter o mesmo endereço | O registro DNS está com proxy do Cloudflare | Deixe em "DNS only" (seção 2) |
 | O site mostra erro de certificado por um minuto | O Caddy ainda está obtendo o certificado | Espere; confira se o DNS aponta para o IP e se as portas 80 e 443 estão abertas |

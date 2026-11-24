@@ -2,9 +2,9 @@
 
 [English](../../project/STATUS.md) · [Português](STATUS.md)
 
-Checkpoint atual: CP10 concluído (o staging está no ar em https://howler.aquifunciona.dev.br); o CP11 (produção e lançamento) é o próximo. O Sentry e restringir o SSH ao endereço da dona continuam como acompanhamentos opcionais
+Checkpoint atual: CP11 (produção e lançamento): construído; a versão v1.0.0 aguarda a aprovação da dona. Depois dela: merge, rodar o deploy de produção (e aprová-lo), e então a tag v1.0.0
 Última tag: cp10 (antes dela: cp9, cp8, cp7, cp6, prototype-approved, cp5, cp4, cp3)
-Aguardando aprovação: não (a issue #11 fecha depois do primeiro deploy de verdade)
+Aguardando aprovação: sim (pull request do CP11: publicar a v1.0.0) (a issue #11 fecha depois do primeiro deploy de verdade)
 
 ## Histórico
 - 2026-11-22 CP0 aprovado, mergeado (PR #13), tag `cp0`
@@ -21,6 +21,7 @@ Aguardando aprovação: não (a issue #11 fecha depois do primeiro deploy de ver
 - 2026-11-24 Primeiro deploy de verdade: o staging está no ar numa e2-micro do Google Cloud (us-central1-c) atrás do Caddy, com certificado Let's Encrypt e o DNS no Cloudflare em modo DNS only. Conferido de fora e de dentro: https e cabeçalhos de segurança, o fluxo inteiro num navegador com a voz real (sem erros de console nem de CSP), a abertura única, os limites por IP enxergando o endereço real, a limpeza de hora em hora agendada, um backup diário no cron, um redeploy automático a cada merge e os dois rollbacks (no servidor e reimplantando uma tag antiga pelo workflow). Achados e corrigidos no caminho: o healthcheck do app (pgrep do BusyBox), CRLF em secrets salvos pelo PowerShell e a falta do cron no Ubuntu minimal.
 - 2026-11-24 CP10 fechado: a dona conferiu o staging no celular e configurou os alertas de gasto e de disponibilidade do Google Cloud (issue #11 fechada).
 - 2026-11-24 Limpeza do repositório: a documentação agrupada por assunto (`project/`, `guides/`, `decisions/`, `api/`, `design/`) com o gêmeo em português no mesmo caminho, os arquivos compose ao lado do que os usa (`deploy/`, `e2e/`), um README novo com a arquitetura, as notas de engenharia e o status, um índice da documentação, um verificador de links e gêmeos (`scripts/check-docs.py`, também um job da CI) e o teste de exemplo do esqueleto removido.
+- 2026-11-24 CP11 construído: a produção assume a VM e o domínio do primeiro deploy (sem staging online); o deploy é um workflow manual que exige a aprovação da dona, exige a CI verde, faz um dump do banco antes e termina com um teste de fumaça (a vida inteira de um howler contra o site de verdade, uma expiração e a limpeza) com rollback automático; a página inicial pode ser indexada; a licença MIT; um README com GIF de demonstração; o changelog e as notas da versão v1.0.0. O teste de fumaça passou 30 de 30 nas imagens de produção de verdade rodadas localmente. Não feito por mim: a versão de produção em si (exige a aprovação da dona no GitHub), o Sentry e os posts de lançamento, que são da dona para publicar.
 - O refinamento do layout e uma passada pelo docs/pt-BR/guides/TESTING.md estão previstos para depois de terminadas as fases (pedido da dona do projeto).
 - Ainda aberto do CP5: a prévia online. Ela vira o deploy de staging do CP10 (issue #6).
 

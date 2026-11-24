@@ -37,6 +37,7 @@ A new decision is a short ADR (context, decision, alternatives, consequences) nu
 |----------|-----------|
 | [project/PLAN.md](project/PLAN.md) | The master plan: phases, checkpoints, the rules, and the changes made along the way |
 | [project/STATUS.md](project/STATUS.md) | Where the project is right now, with its history |
+| [project/releases/v1.0.0.md](project/releases/v1.0.0.md) · [CHANGELOG.md](../CHANGELOG.md) | The release notes of v1.0.0 (what it does well, its known limits) and the changelog of every release |
 
 ## Other
 

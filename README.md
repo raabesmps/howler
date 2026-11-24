@@ -147,7 +147,7 @@ Everything is in English with a Portuguese tab. The [documentation index](docs/R
 | [Deployment runbook](docs/guides/DEPLOYMENT.md) | VM, GitHub, deploy, rollback, monitoring, backups, secrets |
 | [API](docs/api/README.md) · [OpenAPI](docs/api/openapi.yaml) | The four endpoints and the single-use behaviour |
 | [Design](docs/design/tokens.md) | The visual direction, tokens and wireframes |
-| [Plan](docs/project/PLAN.md) · [Status](docs/project/STATUS.md) | The master plan and where the project is now |
+| [Plan](docs/project/PLAN.md) · [Status](docs/project/STATUS.md) · [Changelog](CHANGELOG.md) | The master plan, where the project is now, and what each release changed |
 
 ## Architecture decisions
 
@@ -173,7 +173,7 @@ The project is built in checkpoints, one pull request each, merged without squas
 | CP10 | Staging: images, deploy, rollback, monitoring | done |
 | CP11 | Production and launch: manual deploy with approval, smoke test, license | done, **v1.0.0** |
 
-Current details are in [docs/project/STATUS.md](docs/project/STATUS.md). Refining the layout is the next piece of work.
+Current details are in [docs/project/STATUS.md](docs/project/STATUS.md), and every release is in the [changelog](CHANGELOG.md) (the story of v1.0.0, with its known limits, is in its [release notes](docs/project/releases/v1.0.0.md)). Refining the layout is the next piece of work.
 
 ## License
 

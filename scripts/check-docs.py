@@ -62,14 +62,14 @@ def counterpart(rel: Path) -> Path | None:
     """The same document in the other language, or None for files that are not translated (code, assets)."""
     parts = rel.parts
     name = rel.name
-    if name == "README.pt-BR.md":
-        return rel.with_name("README.md")
+    if name.endswith(".pt-BR.md"):
+        return rel.with_name(name[: -len(".pt-BR.md")] + ".md")
     if parts[0] == "docs":
         if parts[1] == "pt-BR":
             return Path("docs", *parts[2:])
         return Path("docs", "pt-BR", *parts[1:])
-    if name == "README.md" and len(parts) >= 1:
-        return rel.with_name("README.pt-BR.md")
+    if len(parts) == 1 or name == "README.md":
+        return rel.with_name(rel.stem + ".pt-BR.md")
     return None
 
 

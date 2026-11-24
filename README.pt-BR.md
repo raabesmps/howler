@@ -147,7 +147,7 @@ Tudo está em inglês com uma aba em português. O [índice da documentação](d
 | [Runbook de deploy](docs/pt-BR/guides/DEPLOYMENT.md) | VM, GitHub, deploy, rollback, monitoramento, backups, segredos |
 | [API](docs/pt-BR/api/README.md) · [OpenAPI](docs/api/openapi.yaml) | Os quatro endpoints e o comportamento de uso único |
 | [Design](docs/pt-BR/design/tokens.md) | A direção visual, os tokens e os wireframes |
-| [Plano](docs/pt-BR/project/PLAN.md) · [Status](docs/pt-BR/project/STATUS.md) | O plano mestre e onde o projeto está agora |
+| [Plano](docs/pt-BR/project/PLAN.md) · [Status](docs/pt-BR/project/STATUS.md) · [Changelog](CHANGELOG.pt-BR.md) | O plano mestre, onde o projeto está agora e o que cada versão mudou |
 
 ## Decisões de arquitetura
 
@@ -173,7 +173,7 @@ O projeto é construído em checkpoints, um pull request cada, mergeado sem squa
 | CP10 | Staging: imagens, deploy, rollback, monitoramento | feito |
 | CP11 | Produção e lançamento: deploy manual com aprovação, teste de fumaça, licença | feito, **v1.0.0** |
 
-Os detalhes atuais estão em [docs/pt-BR/project/STATUS.md](docs/pt-BR/project/STATUS.md). O refinamento do layout é o próximo trabalho.
+Os detalhes atuais estão em [docs/pt-BR/project/STATUS.md](docs/pt-BR/project/STATUS.md), e cada versão está no [changelog](CHANGELOG.pt-BR.md) (a história da v1.0.0, com os seus limites conhecidos, está nas suas [notas da versão](docs/pt-BR/project/releases/v1.0.0.md)). O refinamento do layout é o próximo trabalho.
 
 ## Licença
 

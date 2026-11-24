@@ -150,6 +150,23 @@ jobs:
           echo "the site did not answer from outside" >&2
           exit 1
 
+      - name: Smoke test
+        id: smoke
+        env:
+          SSH_TARGET: ${{ vars.PRODUCTION_SSH_USER }}@${{ vars.PRODUCTION_SSH_HOST }}
+        run: |
+          # the whole life of a howler against the real site, then an expiry and the purge run on the server (deploy/smoke.sh)
+          export SMOKE_REMOTE_SHELL="ssh -i $HOME/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes ${SSH_TARGET} bash -s"
+          bash deploy/smoke.sh "https://${DOMAIN}"
+
+      - name: Roll back, because the smoke test failed
+        if: ${{ failure() && steps.smoke.outcome == 'failure' }}
+        env:
+          SSH_TARGET: ${{ vars.PRODUCTION_SSH_USER }}@${{ vars.PRODUCTION_SSH_HOST }}
+        run: |
+          echo "the smoke test failed: putting the previous version back" >&2
+          ssh -i "$HOME/.ssh/deploy_key" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes "${SSH_TARGET}" "cd /opt/howler && ./rollback.sh"
+
       - name: Summary
         if: always()
         run: |

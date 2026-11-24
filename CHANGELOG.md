@@ -6,7 +6,16 @@ All notable changes to Howler. The format follows [Keep a Changelog](https://kee
 
 ## [Unreleased]
 
+### Added
+- **Portuguese and English.** The whole interface comes in both languages. The language follows the browser, a button in the top right corner switches it, and the choice is remembered on the device. The message a person writes is never translated.
+- **Light and dark theme**, a second button next to it. Dark is the default (the brand's own); the scream and the burn stay dark in either theme.
+- **End-to-end tests** for both (39 in total), including the accessibility audit in the light theme and in Portuguese.
+
 ### Changed
+- **The write screen** is a compact note with its button right under it, centred on the screen, instead of a page to fill. The text gets smaller as it grows so it always fits.
+- **The envelope talks.** The flap is hinged like an upper lip and the front pocket is the lower jaw: they open and close about five times a second while the voice is loud, wider when it is louder, and shut in the pauses. The letter stands above the envelope, where it can be read, and stays there until the burn starts.
+- **The share screen** has smaller buttons, side by side, with icons, and a green "Copied".
+- **The scream and the burn** are a dark stage covering the whole window, which removes the visible edge of the page column behind them.
 - **A shorter link.** The token in a howler link is now 22 characters (128 bits, as strong as a UUID) instead of 43. Links made before still work. See the update in [ADR-003](docs/decisions/ADR-003-data-model-and-retention.md).
 
 Next: refining the layout.

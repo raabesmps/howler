@@ -6,7 +6,16 @@ Todas as mudanças relevantes do Howler. O formato segue o [Keep a Changelog](ht
 
 ## [Não lançado]
 
+### Adicionado
+- **Português e inglês.** A interface inteira vem nos dois idiomas. O idioma segue o navegador, um botão no canto superior direito troca, e a escolha fica salva no aparelho. O recado que a pessoa escreve nunca é traduzido.
+- **Tema claro e escuro**, um segundo botão ao lado. O escuro é o padrão (o da marca); o grito e a queima ficam escuros em qualquer tema.
+- **Testes de ponta a ponta** para os dois (39 no total), incluindo a auditoria de acessibilidade no tema claro e em português.
+
 ### Alterado
+- **A tela de escrever** é um bilhete compacto com o botão logo abaixo, centralizado na tela, em vez de uma página para preencher. A letra diminui conforme o texto cresce, para sempre caber.
+- **O envelope fala.** A aba é articulada como um lábio superior e o bolso da frente é a mandíbula: abrem e fecham cerca de cinco vezes por segundo enquanto a voz está alta, mais largo quando mais alta, e fecham nas pausas. A carta fica em pé acima do envelope, onde dá para ler, e permanece ali até a queima começar.
+- **A tela de compartilhar** tem botões menores, lado a lado, com ícones, e um "Copiado" verde.
+- **O grito e a queima** são um palco escuro que cobre a janela inteira, o que remove a borda visível da coluna da página atrás deles.
 - **Um link mais curto.** O token do link de um howler agora tem 22 caracteres (128 bits, tão forte quanto um UUID) em vez de 43. Os links feitos antes continuam funcionando. Veja a atualização no [ADR-003](docs/pt-BR/decisions/ADR-003-data-model-and-retention.md).
 
 Próximo: refinar o layout.

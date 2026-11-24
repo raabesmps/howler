@@ -1,0 +1,161 @@
+name: Deploy production
+
+# Production is deployed by hand, and only after an approval. Merging to main does NOT deploy anything: it only builds
+# and tests. To release, run this workflow on main (Actions, Deploy production, Run workflow) and approve the
+# "production" environment when GitHub asks.
+#
+#   - Empty tag: builds the images from the commit you ran it on and deploys them. The commit must have a green CI.
+#   - A tag (12 characters of a commit hash): deploys images that already exist, without building. That is the way back
+#     to a known good version (docs/guides/DEPLOYMENT.md, section 6).
+#
+# Before it changes anything it takes a database backup, and afterwards it runs the smoke test (deploy/smoke.sh). If the
+# smoke test fails, the previous version is put back by itself.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'An image tag that already exists (a rollback to a known version). Empty builds the commit this runs on.'
+        required: false
+        default: ''
+
+# one deploy at a time; a second one waits for the first instead of cancelling it half way
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+  actions: read
+
+jobs:
+  deploy:
+    name: deploy to production
+    # only releases from main can reach production
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment:
+      name: production
+      url: https://${{ vars.PRODUCTION_DOMAIN }}
+    env:
+      REGISTRY: ghcr.io/${{ github.repository_owner }}
+      DOMAIN: ${{ vars.PRODUCTION_DOMAIN }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pick the image tag
+        id: tag
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          if [ -n "${INPUT_TAG}" ]; then
+            # a tag is only ever 12 hexadecimal characters; anything else is refused before it reaches a command
+            if ! printf '%s' "${INPUT_TAG}" | grep -Eq '^[0-9a-f]{12}$'; then
+              echo "the tag must be 12 hexadecimal characters (the start of a commit hash)" >&2
+              exit 1
+            fi
+            echo "value=${INPUT_TAG}" >> "$GITHUB_OUTPUT"
+            echo "build=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Require a green CI for this commit
+        if: steps.tag.outputs.build == 'true'
+        run: |
+          ok="$(gh run list --repo "${GITHUB_REPOSITORY}" --workflow CI --commit "${GITHUB_SHA}" --status success --json databaseId --jq length)"
+          if [ "${ok}" -lt 1 ]; then
+            echo "no successful CI run for ${GITHUB_SHA}: wait for it, or fix it, before releasing" >&2
+            exit 1
+          fi
+          echo "CI is green for ${GITHUB_SHA::12}"
+
+      - uses: docker/setup-buildx-action@v3
+        if: steps.tag.outputs.build == 'true'
+      - uses: docker/login-action@v3
+        if: steps.tag.outputs.build == 'true'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and publish the app image
+        if: steps.tag.outputs.build == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/app.prod.Dockerfile
+          push: true
+          tags: ${{ env.REGISTRY }}/howler-app:${{ steps.tag.outputs.value }}
+          cache-from: type=gha,scope=app
+          cache-to: type=gha,scope=app,mode=max
+
+      - name: Build and publish the web image
+        if: steps.tag.outputs.build == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/web.Dockerfile
+          push: true
+          # public, build-time values for the page: never secrets
+          build-args: |
+            VITE_SITE_URL=https://${{ vars.PRODUCTION_DOMAIN }}
+            VITE_SENTRY_DSN=${{ vars.SENTRY_FRONTEND_DSN }}
+            VITE_RELEASE=${{ steps.tag.outputs.value }}
+          tags: ${{ env.REGISTRY }}/howler-web:${{ steps.tag.outputs.value }}
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,scope=web,mode=max
+
+      - name: Set up SSH
+        env:
+          SSH_KEY: ${{ secrets.PRODUCTION_SSH_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.PRODUCTION_SSH_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          # the secrets come in through the environment, never pasted into the script text.
+          # tr -d '\r': a secret pasted from Windows carries CRLF line endings, which break both the key and the host key
+          printf '%s\n' "${SSH_KEY}" | tr -d '\r' > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          # the server's host key is pinned: the deploy refuses to talk to anything else
+          printf '%s\n' "${SSH_KNOWN_HOSTS}" | tr -d '\r' > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Deploy
+        env:
+          SSH_TARGET: ${{ vars.PRODUCTION_SSH_USER }}@${{ vars.PRODUCTION_SSH_HOST }}
+          TAG: ${{ steps.tag.outputs.value }}
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REGISTRY_USER: ${{ github.actor }}
+        run: |
+          SSH="ssh -i $HOME/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes"
+          # the compose file and the scripts travel with the commit, so they always match the images
+          scp -i "$HOME/.ssh/deploy_key" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            deploy/docker-compose.prod.yml deploy/deploy.sh deploy/rollback.sh deploy/backup.sh "$SSH_TARGET:/opt/howler/"
+          # a dump first: a bad migration is the one thing a rollback of the images cannot undo (it is skipped on the very first deploy)
+          $SSH "$SSH_TARGET" "cd /opt/howler && chmod +x *.sh && if [ -f .current_tag ]; then ./backup.sh; else echo 'first deploy: nothing to back up'; fi"
+          # the registry token goes in through stdin (never on the command line) and is forgotten right after the deploy
+          printf '%s\n' "${REGISTRY_TOKEN}" | $SSH "$SSH_TARGET" \
+            "docker login ghcr.io -u '${REGISTRY_USER}' --password-stdin >/dev/null && cd /opt/howler && REGISTRY='${REGISTRY}' ./deploy.sh '${TAG}'; status=\$?; docker logout ghcr.io >/dev/null; exit \$status"
+
+      - name: Check the site from outside
+        run: |
+          for _ in $(seq 1 20); do
+            if curl -fsS -m 10 "https://${DOMAIN}/up" >/dev/null; then echo "https://${DOMAIN}/up is answering"; exit 0; fi
+            sleep 6
+          done
+          echo "the site did not answer from outside" >&2
+          exit 1
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Production"
+            echo "- Site: https://${DOMAIN}"
+            echo "- Version: \`${{ steps.tag.outputs.value }}\`"
+            echo "- Run by: @${{ github.actor }}"
+          } >> "$GITHUB_STEP_SUMMARY"

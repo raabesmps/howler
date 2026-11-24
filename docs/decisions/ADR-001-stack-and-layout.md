@@ -21,7 +21,7 @@ It is also a portfolio project, built one validated checkpoint at a time, so the
 - **E2E:** Playwright.
 - **CI:** GitHub Actions.
 - **Packaging:** Docker, hosting decided later in ADR-004 (CP10).
-- **Layout:** monorepo with `frontend/`, `backend/`, `lab/audio/` (throwaway audio experiments), `docs/` and `.github/`.
+- **Layout:** monorepo with `frontend/`, `backend/`, `lab/audio/` (throwaway audio experiments), `docs/` and `.github/`. *Update (CP10): `lab/` is gone from `main`; the experiments live on the branch `archive/audio-lab`. `e2e/`, `deploy/`, `docker/` and `scripts/` were added.*
 - **Repository:** `raabesmps/howler`, public from day one. Direct work happens on `cpNN-short-name` branches and PRs, merged without squash.
 
 ### Branch protection note

@@ -30,6 +30,6 @@ ENV APP_ENV=production APP_DEBUG=false LOG_CHANNEL=stderr
 # php-fpm answers on 9000 to the web container only (the port is not published to the host)
 EXPOSE 9000
 HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=5 \
-    CMD pgrep -x php-fpm >/dev/null || exit 1
+    CMD pgrep php-fpm >/dev/null || exit 1 # BusyBox pgrep: -x never matches the master process, which calls itself 'php-fpm: master process'
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["php-fpm"]

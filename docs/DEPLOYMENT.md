@@ -180,6 +180,7 @@ Checked on this machine with the real production images (the same Dockerfiles an
 |--------------|----------|-----------|
 | The workflow is skipped | `STAGING_ENABLED` is not `true` | Set the variable |
 | `Permission denied (publickey)` | The deploy key is not in `authorized_keys`, or the wrong secret | Check section 4 |
+| `Host key verification failed` or `invalid format` for the key, with secrets that look right | A secret was saved with Windows line endings (CRLF), for example piped from PowerShell | Save it from a file with `gh secret set NAME < file` in Git Bash, or paste it in the GitHub page. The workflow strips the extra characters, but check |
 | `Host key verification failed` | `STAGING_SSH_KNOWN_HOSTS` is missing or for another host | Run `ssh-keyscan` again |
 | The rate limits do not seem to work, or every visitor looks like the same address | The DNS record is proxied by Cloudflare | Set it to "DNS only" (section 2) |
 | The site shows a certificate error for a minute | Caddy is still getting the certificate | Wait; check DNS points at the IP and ports 80 and 443 are open |

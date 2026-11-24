@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import { t } from '../i18n'
+</script>
+
 <template>
-  <p class="foot">Fan project. No affiliation with Warner Bros. or J.K. Rowling.</p>
+  <p class="foot">{{ t('fanNotice') }}</p>
 </template>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { isMuted, setMuted } from '../audio/engine'
+import { t } from '../i18n'
 
 const emit = defineEmits<{ change: [muted: boolean] }>()
 const muted = ref(isMuted())
@@ -20,7 +21,7 @@ function toggle(): void {
       <path v-if="!muted" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
       <path v-else d="M16 9l5 6m0-6l-5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
     </svg>
-    <span>Mute sound</span>
+    <span>{{ t('muteSound') }}</span>
   </button>
 </template>
 

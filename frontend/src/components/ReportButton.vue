@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { api } from '../api'
 import { describeError } from '../lib/errors'
+import { t } from '../i18n'
 
 const props = defineProps<{ token: string }>()
 
@@ -25,7 +26,7 @@ async function report(): Promise<void> {
 <template>
   <div class="report-wrap">
     <button class="link report" type="button" :disabled="state === 'sending' || state === 'done'" @click="report">
-      {{ state === 'done' ? 'Reported. Thank you.' : state === 'sending' ? 'Reporting...' : 'Report this' }}
+      {{ state === 'done' ? t('reported') : state === 'sending' ? t('reporting') : t('report') }}
     </button>
     <p v-if="state === 'failed'" class="problem" role="alert">{{ problem }}</p>
   </div>
@@ -33,5 +34,5 @@ async function report(): Promise<void> {
 
 <style scoped>
 .report-wrap { display: flex; flex-direction: column; align-items: center; }
-.problem { margin-top: var(--space-1); color: var(--flare-400); font-size: 13px; text-align: center; }
+.problem { margin-top: var(--space-1); color: var(--warn); font-size: 13px; text-align: center; }
 </style>

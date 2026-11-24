@@ -2,7 +2,7 @@
 
 [English](STATUS.md) · [Português](../pt-BR/project/STATUS.md)
 
-Current checkpoint: CP10 (staging): LIVE at https://howler.aquifunciona.dev.br. Left to close it: a pass on the phone, Sentry, the Google Cloud spend and uptime alerts, and restricting SSH to the owner's address
+Current checkpoint: CP10 done (staging is live at https://howler.aquifunciona.dev.br); CP11 (production and launch) is next. Sentry and restricting SSH to the owner's address remain optional follow-ups
 Last tag: cp10 (before it: cp9, cp8, cp7, cp6, prototype-approved, cp5, cp4, cp3)
 Awaiting approval: no (issue #11 closes after the first real deploy)
 
@@ -19,6 +19,8 @@ Awaiting approval: no (issue #11 closes after the first real deploy)
 - 2026-11-23 CP9 approved, merged (PR #24), tag `cp9`; main now requires the `e2e` check too. Built: 33 end-to-end tests in a real browser (journey, single use, failures, sound, accessibility with axe), a loud-sound warning and a mute control that survives and silences the browser voice, the accessibility fixes the audit found, a performance budget for the burn (23 to 52 fps on the test machine), the `e2e` job in CI, and the test strategy doc.
 - 2026-11-23 CP10 approved, merged (PR #26), tag `cp10`. Built: production images (app on PHP-FPM, web on Caddy), the production compose file, deploy, rollback and backup scripts, the staging deploy workflow (off until `STAGING_ENABLED` is set), CORS and security headers, error monitoring with Sentry that never sends tokens or messages (ADR-005), and the runbook. Checked on this machine with the real images: deploy, the whole flow over https, a broken version rolling back by itself. Not done yet: the VM, the domain, the GitHub settings and the first real deploy (owner).
 - 2026-11-24 First real deploy: staging is live on a Google Cloud e2-micro (us-central1-c) behind Caddy with a Let's Encrypt certificate, DNS on Cloudflare in DNS-only mode. Checked from outside and inside: https and security headers, the whole flow in a browser with the real voice (no console or CSP errors), one-time opening, per-IP rate limits seeing the real address, the hourly purge scheduled, a daily backup in cron, an automatic redeploy on merge, and both rollbacks (on the server, and by deploying an older tag from the workflow). Found and fixed on the way: the app healthcheck (BusyBox pgrep), CRLF in secrets saved from PowerShell, and cron missing on Ubuntu minimal.
+- 2026-11-24 CP10 closed: the owner checked staging on a phone and set up the Google Cloud spend and uptime alerts (issue #11 closed).
+- 2026-11-24 Repository clean-up: the docs are grouped by topic (`project/`, `guides/`, `decisions/`, `api/`, `design/`) with the Portuguese twin at the same path, the compose files sit next to what uses them (`deploy/`, `e2e/`), a new README with the architecture, the engineering notes and the status, a documentation index, a checker for links and twins (`scripts/check-docs.py`, also a CI job), and the skeleton placeholder test is gone.
 - Refinement of the layout and a pass through docs/guides/TESTING.md are planned after the phases are finished (requested by the owner).
 - Still open from CP5: the online preview. It becomes the staging deploy of CP10 (issue #6).
 

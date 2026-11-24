@@ -65,7 +65,7 @@ The product is small; the interesting part is keeping its promises.
 ```mermaid
 flowchart LR
     V(["Browser"]) -->|https| C
-    subgraph VM["One Google Cloud VM, Docker Compose"]
+    subgraph VM["One Google Cloud VM"]
         C["Caddy<br/>TLS, security headers, the site"]
         A["Laravel API<br/>PHP-FPM"]
         S["Scheduler<br/>hourly purge"]

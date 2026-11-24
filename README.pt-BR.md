@@ -65,7 +65,7 @@ O produto é pequeno; a parte interessante é cumprir as promessas dele.
 ```mermaid
 flowchart LR
     V(["Navegador"]) -->|https| C
-    subgraph VM["Uma VM do Google Cloud, Docker Compose"]
+    subgraph VM["Uma VM do Google Cloud"]
         C["Caddy<br/>TLS, cabeçalhos de segurança, o site"]
         A["API Laravel<br/>PHP-FPM"]
         S["Scheduler<br/>limpeza de hora em hora"]

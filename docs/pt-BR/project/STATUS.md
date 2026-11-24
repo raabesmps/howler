@@ -2,7 +2,7 @@
 
 [English](../../project/STATUS.md) · [Português](STATUS.md)
 
-Checkpoint atual: CP11 concluído: a v1.0.0 está em produção em https://howler.aquifunciona.dev.br (a VM agora é uma e2-small, 2 GB). As fases do plano terminaram; o próximo são o refinamento do layout e a passada da dona por docs/guides/TESTING.md
+Checkpoint atual: CP11 concluído: a v1.0.0 está em produção em https://howler.aquifunciona.dev.br (a VM agora é uma e2-small, 2 GB). As fases do plano terminaram. O refinamento do layout está mergeado na main (dois idiomas, dois temas, um envelope que fala, um link mais curto), mas AINDA NÃO foi para produção; o próximo são o deploy dele e a passada da dona por docs/guides/TESTING.md
 Última tag: v1.0.0 e cp11 (antes delas: cp10, cp9, cp8, cp7, cp6, prototype-approved, cp5, cp4, cp3)
 Aguardando aprovação: não
 
@@ -22,10 +22,11 @@ Aguardando aprovação: não
 - 2026-11-24 CP10 fechado: a dona conferiu o staging no celular e configurou os alertas de gasto e de disponibilidade do Google Cloud (issue #11 fechada).
 - 2026-11-24 Limpeza do repositório: a documentação agrupada por assunto (`project/`, `guides/`, `decisions/`, `api/`, `design/`) com o gêmeo em português no mesmo caminho, os arquivos compose ao lado do que os usa (`deploy/`, `e2e/`), um README novo com a arquitetura, as notas de engenharia e o status, um índice da documentação, um verificador de links e gêmeos (`scripts/check-docs.py`, também um job da CI) e o teste de exemplo do esqueleto removido.
 - 2026-11-24 CP11 construído: a produção assume a VM e o domínio do primeiro deploy (sem staging online); o deploy é um workflow manual que exige a aprovação da dona, exige a CI verde, faz um dump do banco antes e termina com um teste de fumaça (a vida inteira de um howler contra o site de verdade, uma expiração e a limpeza) com rollback automático; a página inicial pode ser indexada; a licença MIT; um README com GIF de demonstração; o changelog e as notas da versão v1.0.0. O teste de fumaça passou 30 de 30 nas imagens de produção de verdade rodadas localmente. Não feito por mim: a versão de produção em si (exige a aprovação da dona no GitHub), o Sentry e os posts de lançamento, que são da dona para publicar.
+- 2026-11-24 Refinamento do layout mergeado (PRs #36 e #37), sem deploy: token de link de 22 caracteres; português e inglês; tema claro e escuro; tela de escrever compacta; botões de compartilhar menores; um envelope que fala; o grito e a queima como palco escuro de tela cheia. E2E 39 de 39, incluindo a auditoria de acessibilidade no tema claro e em português.
 - 2026-11-24 CP11 aprovado e publicado. O primeiro deploy de produção voltou sozinho (o teste de fumaça procurava `audio/wav`, mas o Laravel escreve `audio\/wav`: erro do teste, corrigido no PR #34); o segundo deploy passou no teste de fumaça 33 de 33. Tags cp11 e v1.0.0, release no GitHub, issues #11 e #12 fechadas.
 - O refinamento do layout e uma passada pelo docs/pt-BR/guides/TESTING.md estão previstos para depois de terminadas as fases (pedido da dona do projeto).
 - Ainda aberto do CP5: a prévia online. Ela vira o deploy de staging do CP10 (issue #6).
 
 ## A seguir
-- Refinar o layout, depois a passada da dona por docs/guides/TESTING.md.
+- Fazer o deploy de produção com o refinamento do layout e o link curto (a dona dispara e aprova), depois a passada da dona por docs/guides/TESTING.md.
 - Opcional: projetos e DSNs do Sentry, restringir o SSH ao endereço da dona, aumentar o pool do PHP para a VM de 2 GB.

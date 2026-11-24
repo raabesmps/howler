@@ -71,8 +71,9 @@ absent "the state never reveals the message" "$state" "SMOKE"
 opened="$(curl -s -m 60 -X POST "${API}/${token}/open" -w '|%{http_code}')"
 check "the first open answers 200" "${opened##*|}" "200"
 contains "and carries the message" "$opened" '"message":"SMOKE TEST. PLEASE IGNORE."'
+# Laravel writes the slash of the mime type escaped (audio\/wav), so the pattern accepts both spellings.
 if printf '%s' "$created" | grep -q '"voice":true'; then
-  contains "and the voice, because it was made" "$opened" '"audio":{"mime":"audio/wav"'
+  contains "and the voice, because it was made" "$opened" '"audio":{"mime":"audio.\{1,2\}wav"'
 fi
 again="$(curl -s -m 30 -X POST "${API}/${token}/open" -w '|%{http_code}')"
 check "the second open answers 410" "${again##*|}" "410"

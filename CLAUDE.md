@@ -20,7 +20,7 @@ Howler: write a message (max 140 chars), share a single-use link; the recipient 
 10. **Language:** docs in English with a Portuguese tab (`docs/pt-BR/`, `README.pt-BR.md`); code, commits and names in English.
 11. **Commit trailer:** end commits with `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>` (explicitly allowed for this project only).
 12. **Git identity:** use the GitHub noreply email (already set in this repo's local config), since GitHub rejects pushes that expose the private email.
-13. **Product language:** the interface is in English. The message a person writes can be in any language, so the voice pipeline must handle non-English text (at least English and Brazilian Portuguese).
+13. **Product language:** the interface comes in English and Brazilian Portuguese (`frontend/src/i18n.ts`: a typed dictionary, a missing key in either language is a type error; the language follows the browser and a button in the top right switches it). A new piece of text needs both languages. The message a person writes can be in any language, so the voice pipeline must handle non-English text (at least English and Brazilian Portuguese).
 14. **Tone is fixed by the product.** The sender never chooses the voice or the effects. Tone target: a furious mother's howler, booming and house-filling, building up in anger. It is a character tone, never an impersonation of a real person, and no franchise names appear in the product, code or docs.
 
 ## Commands

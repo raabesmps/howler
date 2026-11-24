@@ -8,6 +8,7 @@ import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { api } from '../api'
 import { GoneError } from '../api/types'
 import { describeError } from '../lib/errors'
+import { t } from '../i18n'
 import { activeWord, splitWords, wordTimings } from '../lib/text'
 import { prefersReducedMotion, shake, sleep } from '../lib/shake'
 import { isMuted, playTear, playVoice, startRumble, unlockAudio, type VoicePlayback } from '../audio/engine'
@@ -30,7 +31,6 @@ const recipient = ref('')
 const problem = ref('')
 const words = ref<string[]>([])
 const active = ref(-1)
-const closing = ref(false)
 const calm = prefersReducedMotion()
 
 const envRef = ref<{ $el: HTMLElement } | null>(null)
@@ -154,8 +154,7 @@ async function openIt(): Promise<void> {
   await scream(message, voice)
   if (!alive) return
   await sleep(500)
-  closing.value = true
-  await sleep(700)
+  await sleep(700) // the letter stays where it is until the burn starts
   if (calm) { await sleep(600); endKind.value = 'burned'; phase.value = 'end'; return }
   phase.value = 'burning'
 }
@@ -168,24 +167,24 @@ function burned(): void { endKind.value = 'burned'; phase.value = 'end' }
     <EndState v-if="phase === 'end'" :kind="endKind" :token="token" />
 
     <main v-else-if="phase === 'error'" class="problem-screen">
-      <p class="big display">Couldn't check this howler.</p>
+      <p class="big display">{{ t('couldNotCheck') }}</p>
       <p class="sub center" role="alert">{{ problem }}</p>
-      <button class="btn" type="button" @click="load">Try again</button>
+      <button class="btn" type="button" @click="load">{{ t('tryAgain') }}</button>
     </main>
 
-    <p v-else-if="phase === 'loading'" class="loading center" role="status">Opening...</p>
+    <p v-else-if="phase === 'loading'" class="loading center" role="status">{{ t('opening') }}</p>
 
     <main v-else-if="phase === 'closed' || phase === 'opening'" class="closed" :aria-busy="phase === 'opening'">
-      <p class="top-line">Someone sent you something</p>
+      <p class="top-line">{{ t('someoneSent') }}</p>
       <div class="wisp a" /><div class="wisp b" /><div class="glow" />
       <Envelope ref="envRef" variant="full">
-        <Seal size="lg" interactive :disabled="phase === 'opening'" label="Open the howler. It can only be opened once." @press="openIt" />
+        <Seal size="lg" interactive :disabled="phase === 'opening'" :label="t('openLabel')" @press="openIt" />
       </Envelope>
       <div class="bottom">
-        <p class="big display"><template v-if="recipient">For {{ recipient }}.<br /></template><em>Tap the seal.</em></p>
-        <p class="warn" role="note"><strong>Loud sound.</strong> Turn the volume down first, or mute it.</p>
+        <p class="big display"><template v-if="recipient">{{ t('forName', { name: recipient }) }}<br /></template><em>{{ t('tapTheSeal') }}</em></p>
+        <p class="warn" role="note"><strong>{{ t('loudSound') }}</strong> {{ t('turnDown') }}</p>
         <SoundToggle />
-        <p class="foot">It can only be opened once.</p>
+        <p class="foot">{{ t('onlyOnce') }}</p>
         <p v-if="problem" class="problem" role="alert">{{ problem }}</p>
         <ReportButton :token="token" />
         <FanNotice />
@@ -194,7 +193,7 @@ function burned(): void { endKind.value = 'burned'; phase.value = 'end' }
 
     <main v-else-if="phase === 'screaming'" class="scream">
       <SoundToggle class="mute" @change="onSoundChange" />
-      <TalkingEnvelope ref="talker" :words="words" :active="active" :closing="closing" :calm="calm" />
+      <TalkingEnvelope ref="talker" :words="words" :active="active" :calm="calm" />
       <p class="sr-only" role="status">{{ words.join(' ') }}</p>
     </main>
 
@@ -206,24 +205,27 @@ function burned(): void { endKind.value = 'burned'; phase.value = 'end' }
 
 <style scoped>
 .open { position: relative; min-height: 100dvh; }
-.loading { padding-top: 40dvh; color: var(--ash-400); }
+.loading { padding-top: 40dvh; color: var(--muted); }
 
-.closed, .scream, .burning { position: absolute; inset: 0; min-height: 100dvh; overflow: hidden; }
-.closed { background: radial-gradient(90% 50% at 50% 55%, #2a1410 0%, var(--char-950) 72%); }
-.top-line { position: absolute; top: var(--space-5); left: 0; right: 0; z-index: 5; text-align: center; color: var(--ash-400); font: 600 13px/1 var(--font-ui); letter-spacing: 0.1em; text-transform: uppercase; }
+.closed { position: absolute; inset: 0; min-height: 100dvh; overflow: hidden; }
+/* the theatre: the scream and the burn are always dark, in either theme, and cover the whole window, so no edge of a column shows */
+.scream, .burning { position: fixed; inset: 0; z-index: 30; overflow: hidden; background: #0e0907; }
+/* every stage glow fades to nothing at its own edges, so no screen shows a hard seam against the page behind the column */
+.closed { background: radial-gradient(52% 46% at 50% 55%, var(--glow) 0%, transparent 100%); }
+.top-line { position: absolute; top: 64px; left: 0; right: 0; z-index: 5; text-align: center; color: var(--muted); font: 600 13px/1 var(--font-ui); letter-spacing: 0.1em; text-transform: uppercase; }
 .glow { position: absolute; left: 50%; top: 56%; width: 340px; height: 340px; margin: -170px 0 0 -170px; background: radial-gradient(circle, rgba(255, 91, 31, 0.34), transparent 62%); z-index: 1; }
 .wisp { position: absolute; bottom: 62%; width: 90px; height: 160px; background: radial-gradient(closest-side, rgba(140, 131, 120, 0.28), transparent); filter: blur(6px); z-index: 1; }
 .wisp.a { left: 30%; } .wisp.b { left: 56%; height: 200px; }
 .bottom { position: absolute; left: var(--gutter); right: var(--gutter); bottom: calc(var(--space-4) + env(safe-area-inset-bottom)); z-index: 5; text-align: center; display: flex; flex-direction: column; align-items: center; gap: var(--space-1); }
 .big { font: 700 34px/1.05 var(--font-display); font-variation-settings: 'SOFT' 100, 'WONK' 1; }
-.big em { color: var(--ember-500); }
-.problem { color: var(--flare-400); font-size: 14px; }
+.big em { color: var(--accent); }
+.problem { color: var(--warn); font-size: 14px; }
 .problem-screen { min-height: 100dvh; padding: var(--space-5) var(--gutter); display: flex; flex-direction: column; justify-content: center; gap: var(--space-3); text-align: center; }
-.problem-screen .sub { color: var(--ash-400); }
+.problem-screen .sub { color: var(--muted); }
 
-.scream { background: radial-gradient(80% 50% at 50% 72%, #3a1308 0%, #0e0907 75%); }
-.mute { position: absolute; top: var(--space-4); right: var(--space-4); z-index: 6; }
-.warn { color: var(--flare-400); font-size: 15px; }
-.warn strong { color: var(--paper-100); }
-.burning { background: #0c0807; }
+.scream { background: radial-gradient(340px 380px at 50% 72%, #3a1308 0%, transparent 100%), #0e0907; }
+.mute { position: absolute; top: var(--space-4); right: max(var(--space-4), calc((100vw - 520px) / 2 + var(--space-4))); z-index: 6; }
+.warn { color: var(--warn); font-size: 15px; }
+.warn strong { color: var(--text); }
+.burning { background: radial-gradient(340px 300px at 50% 45%, #1a0d08 0%, transparent 100%), #0c0807; }
 </style>

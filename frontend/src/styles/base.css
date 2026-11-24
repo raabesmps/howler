@@ -1,7 +1,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; }
-html, body { background: var(--char-950); }
+html, body { background: var(--bg); }
 body {
-  color: var(--paper-100);
+  color: var(--text);
   font: 400 17px/1.5 var(--font-ui);
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
@@ -23,10 +23,10 @@ button { cursor: pointer; }
   font: 600 17px/1 var(--font-ui); box-shadow: var(--shadow-hard);
 }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
-.btn.ghost { background: transparent; color: var(--paper-100); border-color: var(--char-700); box-shadow: none; }
+.btn.ghost { background: transparent; color: var(--text); border-color: var(--line); box-shadow: none; }
 
-.link { background: none; border: 0; color: var(--ash-400); text-decoration: underline; font-size: 15px; padding: var(--space-3); min-height: 44px; }
-.foot { color: var(--ash-400); font-size: 12px; line-height: 1.4; text-align: center; }
+.link { background: none; border: 0; color: var(--muted); text-decoration: underline; font-size: 15px; padding: var(--space-3); min-height: 44px; }
+.foot { color: var(--muted); font-size: 12px; line-height: 1.4; text-align: center; }
 .center { text-align: center; }
 
 :focus-visible { outline: 3px solid var(--flare-400); outline-offset: 2px; }

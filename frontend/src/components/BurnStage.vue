@@ -19,5 +19,5 @@ onBeforeUnmount(() => { effect?.stop() })
 </template>
 
 <style scoped>
-.burn { position: absolute; inset: 0; width: 100%; height: 100%; display: block; background: radial-gradient(80% 50% at 50% 40%, #1a0d08, #0c0807 80%); }
+.burn { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 </style>

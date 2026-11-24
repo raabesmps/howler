@@ -23,11 +23,33 @@
   --space-7: 48px;
   --gutter: 20px;
 
+  /* what the interface reads: the dark theme is the brand's own, the light one is the same room in daylight */
+  --bg: var(--char-950);
+  --text: var(--paper-100);
+  --muted: var(--ash-400);
+  --line: var(--char-700);
+  --warn: var(--flare-400);
+  --accent: var(--ember-500); /* ember-coloured text; the light theme needs a deeper one to be readable */
+  --shade: rgba(0, 0, 0, 0.5);
+  --glow: #2a1410;
+
   --radius-s: 4px;
   --radius-m: 8px;
-  --shadow-hard: 4px 4px 0 var(--char-700);
+  --shadow-hard: 4px 4px 0 var(--line);
 
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
   --dur-fast: 120ms;
   --dur-base: 240ms;
+}
+
+:root[data-theme='light'] {
+  --bg: #f3ecdf;
+  --text: #1b1612;
+  --muted: #6b6055;
+  --line: #d6ccba;
+  --warn: #a24b00;
+  --accent: #b3330a;
+  --shade: rgba(70, 45, 20, 0.28);
+  --glow: rgba(181, 57, 26, 0.16);
+  --paper-100: #fffdf6; /* the note and the letter are a little brighter than the page */
 }

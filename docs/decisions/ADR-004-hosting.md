@@ -42,7 +42,7 @@ Decisions inside that:
 
 - **One origin, so no CORS.** The site and the API are served from the same address. CORS stays closed (no foreign origin is allowed unless `CORS_ALLOWED_ORIGINS` says so).
 - **The client address comes from FastCGI.** Caddy gives PHP the real address of the visitor as the connection address, so the per-IP limits work and no proxy list (`TRUSTED_PROXIES`) is needed. FPM is never published, so nobody can pretend to be Caddy.
-- **FPM has 20 workers, not 5.** Creating a howler holds a worker while the voice is made (seconds). The per-IP limits bound how many can be slow at once, and 20 leaves room for the cheap requests (state, open) to keep flowing.
+- **FPM has 8 workers on the staging VM (an e2-micro, 1 GB), about 20 on a 4 GB one.** Creating a howler holds a worker while the voice is made (seconds). The per-IP limits bound how many can be slow at once, and the pool leaves room for the cheap requests (state, open) to keep flowing. The number is in `docker/php-fpm.prod.conf`.
 - **Images are built once and promoted:** `howler-app` and `howler-web`, tagged with the commit, in GitHub's container registry. The server never builds anything. Staging and production (CP11) run the same images.
 - **Deploy is one script** (`deploy/deploy.sh <tag>`): pull, migrate, start, check `/up`. If the new version is not healthy within about a minute it puts the previous tag back by itself. `deploy/rollback.sh` does the same by hand.
 - **Migrations are not undone by a rollback.** They must be written so the previous version still works on the new schema: add first, stop using the old thing in a later release, remove it in a later one again.

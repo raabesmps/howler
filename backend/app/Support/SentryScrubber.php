@@ -20,8 +20,8 @@ class SentryScrubber
 {
     public const TOKEN = '[token]';
 
-    /** A token is 32 random bytes as URL-safe base64 without padding: 43 characters. */
-    private const TOKEN_SHAPE = '/[A-Za-z0-9_-]{43}(?![A-Za-z0-9_-])/';
+    /** A token is 16 random bytes as URL-safe base64 without padding: 22 characters (links made before v1.1.0 have 43). */
+    private const TOKEN_SHAPE = '/(?<![A-Za-z0-9_-])(?:[A-Za-z0-9_-]{43}|[A-Za-z0-9_-]{22})(?![A-Za-z0-9_-])/';
 
     private const ROUTE_TOKEN = '#/api/howlers/[^/?\#\s]+#';
 

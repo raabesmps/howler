@@ -6,7 +6,10 @@ All notable changes to Howler. The format follows [Keep a Changelog](https://kee
 
 ## [Unreleased]
 
-Nothing yet. The next piece of work is refining the layout.
+### Changed
+- **A shorter link.** The token in a howler link is now 22 characters (128 bits, as strong as a UUID) instead of 43. Links made before still work. See the update in [ADR-003](docs/decisions/ADR-003-data-model-and-retention.md).
+
+Next: refining the layout.
 
 ## [1.0.0] - 2026-11-24
 

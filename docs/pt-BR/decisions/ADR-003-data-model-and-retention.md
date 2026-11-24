@@ -42,7 +42,7 @@ Quatro restrições `CHECK` tornam impossível sobrar um recado, mesmo que a apl
 
 ### O token é guardado como hash (um desvio deliberado do plano)
 
-O plano lista uma coluna `token`. Guardar um token aleatório longo em texto puro entregaria links funcionando a quem conseguir uma cópia do banco. Então o token é gerado (256 bits aleatórios, seguro para URL), mostrado **uma única vez** quando o howler é criado, e só o SHA-256 dele é guardado. Para achar um link, o token recebido é transformado em hash. Um hash rápido basta porque o token é aleatório e longo, não uma senha.
+O plano lista uma coluna `token`. Guardar um token aleatório longo em texto puro entregaria links funcionando a quem conseguir uma cópia do banco. Então o token é gerado (128 bits aleatórios, 22 caracteres seguros para URL desde a v1.1.0; os links da v1.0.0 tinham 256 bits e 43 caracteres e continuam funcionando, veja a atualização abaixo), mostrado **uma única vez** quando o howler é criado, e só o SHA-256 dele é guardado. Para achar um link, o token recebido é transformado em hash. Um hash rápido basta porque o token é aleatório e longo, não uma senha.
 
 ### Retenção
 
@@ -69,3 +69,7 @@ Nada sobre quem abre o link é guardado: sem IP, sem aparelho. O limite de pedid
 - O seeder usa tokens fixos só para desenvolvimento e se recusa a rodar em produção.
 - O período da marca de túmulo (30 dias) e a limpeza de hora em hora são configurações que podem mudar sem mexer no esquema.
 - O token original não pode ser recuperado: se quem enviou perder o link, não há como mostrá-lo de novo. É intencional.
+
+## Atualização (v1.1.0): um token mais curto
+
+O link era comprido demais para compartilhar com conforto (um token de 43 caracteres). O token agora tem **16 bytes aleatórios, 22 caracteres**: 128 bits, a mesma força de um UUID, que continua impossível de adivinhar (as rotas de acesso também têm limite por IP). Os links feitos antes da mudança continuam funcionando: nada confere o tamanho, e os filtros de log reconhecem os dois tamanhos. Menos do que isso (por exemplo 96 bits) foi recusado: o ganho é de poucos caracteres e a margem deixa de ser o padrão do mercado.

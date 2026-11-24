@@ -9,7 +9,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 /*
  * Error monitoring (Sentry). Off unless SENTRY_LARAVEL_DSN is set: with no DSN nothing is sent and nothing is slower.
  *
- * Privacy first (docs/DEPLOYMENT.md, ADR-005): the link token and the message must never reach Sentry. Everything here
+ * Privacy first (docs/guides/DEPLOYMENT.md, ADR-005): the link token and the message must never reach Sentry. Everything here
  * is set to send as little as possible, and App\Support\SentryScrubber cuts every report down before it leaves.
  * Only what finds bugs is kept: the exception, the stack trace, the route and the release.
  */

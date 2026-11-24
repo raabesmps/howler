@@ -1,10 +1,10 @@
 # Plano mestre do Howler
 
-[English](../PLAN.md) · [Português](PLANO.md)
+[English](../../project/PLAN.md) · [Português](PLAN.md)
 
 Projeto: site onde a pessoa escreve um recado, manda um link, e quem abrir ouve o recado gritado por um envelope que treme, abre, grita e queima. O link só funciona uma vez.
 
-Este arquivo é o plano mestre. O Claude Code lê este arquivo e o `CLAUDE.md` no início de toda sessão. A versão de referência é a em inglês ([PLAN.md](../PLAN.md)); esta é a tradução em português.
+Este arquivo é o plano mestre. O Claude Code lê este arquivo e o `CLAUDE.md` no início de toda sessão. A versão de referência é a em inglês ([PLAN.md](../../project/PLAN.md)); esta é a tradução em português.
 
 ---
 
@@ -12,21 +12,21 @@ Este arquivo é o plano mestre. O Claude Code lê este arquivo e o `CLAUDE.md` n
 
 O plano abaixo é o original. Estas são as decisões tomadas enquanto ele era construído. Elas valem mais que o texto abaixo onde forem diferentes.
 
-1. **O CP2 (laboratório de áudio) foi feito e depois superado.** A ideia era deixar as pessoas compararem vozes. Depois de testar, a dona do produto decidiu que **ninguém escolhe o tom**: o tom é fixo, do produto. O laboratório fica guardado na branch `archive/audio-lab` e nunca foi mergeado (por isso não existe tag `cp2`). O resultado é o [ADR-002](../decisions/ADR-002-voice-approach.md).
+1. **O CP2 (laboratório de áudio) foi feito e depois superado.** A ideia era deixar as pessoas compararem vozes. Depois de testar, a dona do produto decidiu que **ninguém escolhe o tom**: o tom é fixo, do produto. O laboratório fica guardado na branch `archive/audio-lab` e nunca foi mergeado (por isso não existe tag `cp2`). O resultado é o [ADR-002](../../decisions/ADR-002-voice-approach.md).
 2. **O CP3, o CP4 e o CP5 foram entregues num único pull request do protótipo**, a pedido da dona do produto. As tags `cp3`, `cp4`, `cp5` e `prototype-approved` são criadas juntas depois do merge.
 3. **A voz está decidida.** Uma mãe histérica, aos berros, exagerada, feita pelo modelo `gpt-audio` (voz Coral, snapshot datado) no servidor, depois limpa e deixada forte no aparelho, sem eco. Foi escolhida de ouvido em várias rodadas. Gravar a voz de uma pessoa fica fora do MVP. O endpoint antigo `gpt-4o-mini-tts` desliga em 06/01/2027, então não é usado.
 4. **O "preview online" do CP5 ainda está pendente.** Precisa de autorização para publicar. Uma hospedagem estática como o GitHub Pages não tem endpoint de voz, então um preview com a voz de verdade precisa de uma pequena função de servidor; sem ela o preview só tem a voz simples do navegador.
 5. **CP6 (modelo de dados):** o howler também guarda o áudio (`audio_path`) e o apaga quando for aberto ou expirar (ADR-003).
 6. **CP8 (integração):** a voz é gerada **quando o howler é criado**, no servidor, com a chave só no servidor (o endpoint de `frontend/server/voice.ts` vira o backend). Mantém as travas do protótipo: de 1 a 140 caracteres, um limite por IP que também protege o custo, e a conferência da transcrição. Também precisa conferir o provedor e o preço (cerca de 1,5 centavo de dólar por howler medido, a confirmar na página oficial).
 7. **A CI entrou cedo** (lint, tipos, testes unitários e build a cada pull request). O CP9 amplia com os testes ponta a ponta e o resto.
-8. **Direção de hospedagem decidida (2026-11-23):** uma VM do Google Cloud rodando tudo com Docker Compose, e não o Netlify (que não roda Laravel). Veja o [ADR-004](../decisions/ADR-004-hosting.md). Tamanho, região, domínio e preços são fixados no CP10, e o preview online do CP5 vira o deploy de staging.
+8. **Direção de hospedagem decidida (2026-11-23):** uma VM do Google Cloud rodando tudo com Docker Compose, e não o Netlify (que não roda Laravel). Veja o [ADR-004](../../decisions/ADR-004-hosting.md). Tamanho, região, domínio e preços são fixados no CP10, e o preview online do CP5 vira o deploy de staging.
 
 ---
 
 ## 0. Regras de trabalho (valem para todas as fases)
 
-1. **Um checkpoint por vez.** O Claude Code só trabalha no checkpoint atual (ver `docs/STATUS.md`).
-2. **Parar e esperar aprovação.** Ao terminar um checkpoint: rodar lint e testes, atualizar `docs/STATUS.md`, abrir o PR, escrever "Como validar" e **parar**. Só avança depois de uma mensagem "APROVADO CPx".
+1. **Um checkpoint por vez.** O Claude Code só trabalha no checkpoint atual (ver `docs/project/STATUS.md`).
+2. **Parar e esperar aprovação.** Ao terminar um checkpoint: rodar lint e testes, atualizar `docs/project/STATUS.md`, abrir o PR, escrever "Como validar" e **parar**. Só avança depois de uma mensagem "APROVADO CPx".
 3. **Um branch por checkpoint:** `cpNN-nome-curto`. PR contra `main`.
 4. **Merge sem squash**, pra preservar cada commit do plano. Depois do merge, criar a tag `cpNN`.
 5. **Commits pequenos e convencionais:** `feat:`, `fix:`, `docs:`, `chore:`, `test:`, `refactor:`, `ci:`. Um commit por item da lista do checkpoint.
@@ -98,7 +98,7 @@ Cada checkpoint tem: objetivo, tarefas, commits, como validar e o que ela precis
 - Proteger a `main` e exigir PR (se o plano do GitHub permitir).
 - Criar milestones no GitHub: um por fase. Criar uma issue por checkpoint.
 - Escrever `CLAUDE.md` com as regras da seção 0 e os comandos de lint e teste.
-- Versionar este plano em `docs/PLAN.md` e criar `docs/STATUS.md`.
+- Versionar este plano em `docs/project/PLAN.md` e criar `docs/project/STATUS.md`.
 - Template de PR com os campos: "O que mudou", "Como validar", "Checklist de aceite".
 
 **Commits**

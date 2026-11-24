@@ -1,6 +1,6 @@
 # Howler Master Plan
 
-[English](PLAN.md) · [Português](pt-BR/PLANO.md)
+[English](PLAN.md) · [Português](../pt-BR/project/PLAN.md)
 
 Project: a site where someone writes a short message and shares a link. Whoever opens it hears the message screamed by an envelope that shakes, opens, yells and burns. The link works only once.
 
@@ -12,21 +12,21 @@ This is the master plan. Claude Code reads this file and `CLAUDE.md` at the star
 
 The plan below is the original. These are the decisions made while building it. They win over the text further down where they differ.
 
-1. **CP2 (audio lab) was built and then superseded.** The idea was to let people compare voices. After testing, the product owner decided that **nobody picks the tone**: the tone is fixed by the product. The lab is kept on the branch `archive/audio-lab` and was never merged (so there is no `cp2` tag). The outcome is [ADR-002](decisions/ADR-002-voice-approach.md).
+1. **CP2 (audio lab) was built and then superseded.** The idea was to let people compare voices. After testing, the product owner decided that **nobody picks the tone**: the tone is fixed by the product. The lab is kept on the branch `archive/audio-lab` and was never merged (so there is no `cp2` tag). The outcome is [ADR-002](../decisions/ADR-002-voice-approach.md).
 2. **CP3, CP4 and CP5 were delivered as one prototype pull request**, at the product owner's request. The tags `cp3`, `cp4`, `cp5` and `prototype-approved` are created together after the merge.
 3. **The voice is decided.** A hysterical, shrieking, over-the-top mother, made by the `gpt-audio` model (voice Coral, dated snapshot) from the server, then cleaned and made loud on the device, with no echo. It was chosen by ear over several rounds. Recording a person's own voice is out of the MVP. The old `gpt-4o-mini-tts` endpoint shuts down on 2027-01-06, so it is not used.
 4. **CP5 "online preview" is still pending.** It needs an authorization to publish. A static host such as GitHub Pages has no voice endpoint, so a preview with the real voice needs a small server function; without it the preview only has the plain browser voice.
 5. **CP6 (data model):** the howler also stores the audio (`audio_path`) and deletes it when the howler is opened or expires (ADR-003).
 6. **CP8 (integration):** the voice is generated **when the howler is created**, on the server, with the key only on the server (the endpoint in `frontend/server/voice.ts` becomes the backend). It keeps the guards of the prototype: 1 to 140 characters, a per-IP limit that also protects the cost, and a transcript check. It also needs the provider and price check (about 1.5 US cents per howler measured, to confirm on the official page).
 7. **CI was added early** (lint, typecheck, unit tests and build on every pull request). CP9 extends it with end-to-end tests and the rest.
-8. **Hosting direction decided (2026-11-23):** one Google Cloud VM running everything with Docker Compose, not Netlify (it cannot run Laravel). See [ADR-004](decisions/ADR-004-hosting.md). Size, region, domain and prices are fixed at CP10, and the online preview of CP5 becomes the staging deploy.
+8. **Hosting direction decided (2026-11-23):** one Google Cloud VM running everything with Docker Compose, not Netlify (it cannot run Laravel). See [ADR-004](../decisions/ADR-004-hosting.md). Size, region, domain and prices are fixed at CP10, and the online preview of CP5 becomes the staging deploy.
 
 ---
 
 ## 0. Working rules (apply to every phase)
 
-1. **One checkpoint at a time.** Claude Code only works on the current checkpoint (see `docs/STATUS.md`).
-2. **Stop and wait for approval.** When a checkpoint is done: run lint and tests, update `docs/STATUS.md`, open the PR, write "How to validate" and **stop**. Only move on after an "APPROVED CPx" message.
+1. **One checkpoint at a time.** Claude Code only works on the current checkpoint (see `docs/project/STATUS.md`).
+2. **Stop and wait for approval.** When a checkpoint is done: run lint and tests, update `docs/project/STATUS.md`, open the PR, write "How to validate" and **stop**. Only move on after an "APPROVED CPx" message.
 3. **One branch per checkpoint:** `cpNN-short-name`. PR against `main`.
 4. **Merge without squash**, to preserve each commit of the plan. After merging, create the tag `cpNN`.
 5. **Small conventional commits:** `feat:`, `fix:`, `docs:`, `chore:`, `test:`, `refactor:`, `ci:`. One commit per item in the checkpoint list.
@@ -98,7 +98,7 @@ Each checkpoint has: goal, tasks, commits, how to validate and what needs approv
 - Protect `main`, require PRs (if the GitHub plan allows it).
 - Create GitHub milestones: one per phase. Create one issue per checkpoint.
 - Write `CLAUDE.md` with the section 0 rules and the lint and test commands.
-- Version this plan in `docs/PLAN.md` and create `docs/STATUS.md`.
+- Version this plan in `docs/project/PLAN.md` and create `docs/project/STATUS.md`.
 - PR template with the fields: "What changed", "How to validate", "Acceptance checklist".
 
 **Commits**
@@ -359,7 +359,7 @@ Each checkpoint has: goal, tasks, commits, how to validate and what needs approv
 | 10 | Staging | ADR-004 and runbook |
 | 11 | Production and launch | Publish v1.0.0 |
 
-## 5. `docs/STATUS.md` template
+## 5. `docs/project/STATUS.md` template
 
 ```
 # Status

@@ -5,7 +5,7 @@ import { createHowler, linkFor } from './helpers'
 /*
  * Automated accessibility audit (axe-core, WCAG 2.0/2.1 A and AA) of every screen a person can reach.
  * Automated checks catch roughly a third of the problems: contrast, names, roles, structure, landmarks. Keyboard use,
- * focus order and reduced motion are covered by their own tests; the rest is in docs/TESTING.md as a manual checklist.
+ * focus order and reduced motion are covered by their own tests; the rest is in docs/guides/TESTING.md as a manual checklist.
  */
 /** Waits for every finite animation and transition to end: axe measures contrast on what is painted, so a fade in progress gives false results. */
 async function settle(page: Page): Promise<void> {

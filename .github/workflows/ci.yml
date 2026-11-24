@@ -180,3 +180,12 @@ jobs:
           push: false
           cache-from: type=gha,scope=web
           cache-to: type=gha,scope=web,mode=max
+
+  docs:
+    name: docs
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      # Every link and heading anchor in the Markdown files must resolve, and every document must have its Portuguese twin.
+      - run: python3 scripts/check-docs.py

@@ -2,7 +2,7 @@
 
 [English](README.md) · [Português](README.pt-BR.md)
 
-Vue 3 + Vite + TypeScript. Since CP8 it talks to the real backend (Laravel + PostgreSQL); the whole local setup is in the [development guide](../docs/DEVELOPMENT.md).
+Vue 3 + Vite + TypeScript. Since CP8 it talks to the real backend (Laravel + PostgreSQL); the whole local setup is in the [development guide](../docs/guides/DEVELOPMENT.md).
 
 Write a message, get a link, and whoever opens it sees a closed envelope. They tap the seal: it rumbles and shakes, the flap tears open, the letter rises, the envelope screams the message (shaking with the loudness of the voice), closes, burns from the centre outward and falls into powder. The link works once.
 

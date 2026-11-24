@@ -2,7 +2,7 @@
 
 [English](README.md) · [Português](README.pt-BR.md)
 
-Vue 3 + Vite + TypeScript. Desde o CP8 ele conversa com o backend de verdade (Laravel + PostgreSQL); a configuração local completa está no [guia de desenvolvimento](../docs/pt-BR/DESENVOLVIMENTO.md).
+Vue 3 + Vite + TypeScript. Desde o CP8 ele conversa com o backend de verdade (Laravel + PostgreSQL); a configuração local completa está no [guia de desenvolvimento](../docs/pt-BR/guides/DEVELOPMENT.md).
 
 Escreva um recado, receba um link, e quem abrir vê um envelope fechado. A pessoa toca o selo: ele ronca e treme, a aba rasga, a carta sobe, o envelope grita o recado (tremendo com o volume da voz), fecha, queima do centro para fora e vira pó. O link funciona uma vez.
 

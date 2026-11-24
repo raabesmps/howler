@@ -4,7 +4,7 @@ name: Deploy staging
 # SSH with deploy/deploy.sh (which rolls back by itself if the new version is not healthy).
 #
 # It does nothing until the owner turns it on: set the repository VARIABLE STAGING_ENABLED to "true" and add the
-# variables and secrets listed in docs/DEPLOYMENT.md. Until then every run is skipped, so a push to main never fails
+# variables and secrets listed in docs/guides/DEPLOYMENT.md. Until then every run is skipped, so a push to main never fails
 # just because there is no server yet.
 
 on:
@@ -104,7 +104,7 @@ jobs:
           SSH="ssh -i $HOME/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes"
           # the compose file and the scripts travel with the commit, so they always match the images
           scp -i "$HOME/.ssh/deploy_key" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
-            docker-compose.prod.yml deploy/deploy.sh deploy/rollback.sh deploy/backup.sh "$SSH_TARGET:/opt/howler/"
+            deploy/docker-compose.prod.yml deploy/deploy.sh deploy/rollback.sh deploy/backup.sh "$SSH_TARGET:/opt/howler/"
           # the registry token goes in through stdin (never on the command line) and is forgotten right after the deploy
           echo "${{ secrets.GITHUB_TOKEN }}" | $SSH "$SSH_TARGET" \
             "docker login ghcr.io -u '${{ github.actor }}' --password-stdin >/dev/null && cd /opt/howler && chmod +x *.sh && REGISTRY='${REGISTRY}' ./deploy.sh '${TAG}'; status=\$?; docker logout ghcr.io >/dev/null; exit \$status"

@@ -21,7 +21,7 @@ O Howler é um produto pequeno com duas necessidades técnicas difíceis:
 - **E2E:** Playwright.
 - **CI:** GitHub Actions.
 - **Empacotamento:** Docker; a hospedagem fica para o ADR-004 (CP10).
-- **Estrutura:** monorepo com `frontend/`, `backend/`, `lab/audio/` (experimentos de áudio descartáveis), `docs/` e `.github/`.
+- **Estrutura:** monorepo com `frontend/`, `backend/`, `lab/audio/` (experimentos de áudio descartáveis), `docs/` e `.github/`. *Atualização (CP10): o `lab/` saiu da `main`; os experimentos ficam na branch `archive/audio-lab`. Foram acrescentados `e2e/`, `deploy/`, `docker/` e `scripts/`.*
 - **Repositório:** `raabesmps/howler`, público desde o primeiro dia. O trabalho acontece em branches `cpNN-nome-curto` e PRs, com merge sem squash.
 
 ### Nota sobre proteção da branch

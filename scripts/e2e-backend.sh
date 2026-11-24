@@ -11,7 +11,7 @@ for _ in $(seq 1 40); do
   sleep 2
 done
 
-compose="docker compose -f docker-compose.yml -f docker-compose.e2e.yml"
+compose="docker compose -f docker-compose.yml -f e2e/docker-compose.e2e.yml"
 $compose run --rm backend php artisan migrate --force
 $compose up -d --force-recreate backend
 

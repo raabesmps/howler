@@ -1,6 +1,6 @@
 # Test strategy and coverage notes
 
-[English](TESTING.md) · [Português](pt-BR/TESTES.md)
+[English](TESTING.md) · [Português](../pt-BR/guides/TESTING.md)
 
 What is tested, where, why, and what is deliberately not tested.
 
@@ -28,7 +28,7 @@ The e2e API runs **without an OpenAI key**: howlers have no server voice and the
 ## Running it
 
 ```
-# backend and frontend units: see docs/DEVELOPMENT.md
+# backend and frontend units: see docs/guides/DEVELOPMENT.md
 scripts/e2e-backend.sh            # where Docker runs: the API with the voice off, high rate limits, the howler_test database
 cd e2e && npm install && npx playwright install chromium
 npm test                          # starts the frontend itself; set E2E_API_TARGET if the API is not on :8000

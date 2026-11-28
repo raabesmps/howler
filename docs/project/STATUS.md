@@ -2,7 +2,7 @@
 
 [English](STATUS.md) · [Português](../pt-BR/project/STATUS.md)
 
-Current checkpoint: CP11 done: v1.0.0 is in production at https://howler.aquifunciona.dev.br (the VM is now an e2-small, 2 GB). The phases of the plan are finished. The layout refinement is merged on main (two languages, two themes, a talking envelope, a shorter link) but NOT deployed yet; next are its production deploy and the owner's pass through docs/guides/TESTING.md
+Current checkpoint: CP11 done: v1.0.0 is in production at https://howler.aquifunciona.dev.br (the VM is now an e2-small, 2 GB). The phases of the plan are finished. In production since 2026-11-28: the layout refinement (two languages, two themes, a talking envelope, a shorter link), the credits in the footer, the cookie notice and Google Tag Manager on the write screen only (ADR-006). Next: the owner's pass through docs/guides/TESTING.md
 Last tag: v1.0.0 and cp11 (before them: cp10, cp9, cp8, cp7, cp6, prototype-approved, cp5, cp4, cp3)
 Awaiting approval: no
 
@@ -22,11 +22,13 @@ Awaiting approval: no
 - 2026-11-24 CP10 closed: the owner checked staging on a phone and set up the Google Cloud spend and uptime alerts (issue #11 closed).
 - 2026-11-24 Repository clean-up: the docs are grouped by topic (`project/`, `guides/`, `decisions/`, `api/`, `design/`) with the Portuguese twin at the same path, the compose files sit next to what uses them (`deploy/`, `e2e/`), a new README with the architecture, the engineering notes and the status, a documentation index, a checker for links and twins (`scripts/check-docs.py`, also a CI job), and the skeleton placeholder test is gone.
 - 2026-11-24 CP11 built: production takes over the VM and the domain of the first deploy (no online staging); the deploy is a manual workflow that needs the owner's approval, requires a green CI, takes a database dump first and ends with a smoke test (a howler's whole life against the real site, an expiry and the purge) with an automatic rollback; the home page may be indexed; the MIT license; a README with a demo GIF; the changelog and the v1.0.0 release notes. The smoke test passed 30 of 30 on the real production images run locally. Not done by me: the production release itself (it needs the owner's approval in GitHub), Sentry, and the launch posts, which are the owner's to publish.
-- 2026-11-24 Layout refinement merged (PRs #36 and #37), not deployed: a 22-character link token; Portuguese and English; light and dark theme; a compact write screen; smaller share buttons; a talking envelope; the scream and the burn as a full-window dark stage. E2E 39 of 39, including the accessibility audit in the light theme and in Portuguese.
+- 2026-11-28 Credits ("Made by Raabe" with her LinkedIn), a cookie notice (LGPD: consent before any analytics, refuse and accept side by side, a Cookies link in the footer) and Google Tag Manager on the write screen only (ADR-006), PR #39. Deployed together with the layout refinement: smoke test 33 of 33; checked on the live site that nothing from Google loads before the choice and that the CSP blocks nothing after accepting.
+- 2026-11-24 Layout refinement merged (PRs #36 and #37), deployed on 2026-11-28: a 22-character link token; Portuguese and English; light and dark theme; a compact write screen; smaller share buttons; a talking envelope; the scream and the burn as a full-window dark stage. E2E 39 of 39, including the accessibility audit in the light theme and in Portuguese.
 - 2026-11-24 CP11 approved and released. The first production deploy rolled back by itself (the smoke test looked for `audio/wav` but Laravel writes `audio\/wav`: a mistake in the test, fixed in PR #34); the second deploy passed the smoke test 33 of 33. Tags cp11 and v1.0.0, GitHub release, issues #11 and #12 closed.
 - Refinement of the layout and a pass through docs/guides/TESTING.md are planned after the phases are finished (requested by the owner).
 - Still open from CP5: the online preview. It becomes the staging deploy of CP10 (issue #6).
 
 ## Next
-- Deploy production with the layout refinement and the short link (the owner starts and approves it), then the owner's pass through docs/guides/TESTING.md.
+- The owner's pass through docs/guides/TESTING.md.
+- In the GTM panel: keep only the Google tag (GA4) on this site; exclude this hostname from any Google Ads tags that live in the same container.
 - Optional: Sentry projects and DSNs, restrict SSH to the owner's address, raise the PHP pool for the 2 GB VM.

@@ -42,8 +42,8 @@ async function seal(): Promise<void> {
       <p class="tagline">{{ t('tagline') }}</p>
       <div class="paper">
         <div class="tape" />
-        <label class="to"><span>{{ t('to') }}</span><input v-model="recipient" :maxlength="MAX_NAME" :placeholder="t('toPlaceholder')" :aria-label="t('toLabel')" autocomplete="off" /></label>
-        <textarea v-model="message" :maxlength="MAX_MESSAGE" :style="{ fontSize: size + 'px' }" :placeholder="t('messagePlaceholder')" :aria-label="t('messageLabel')" autofocus />
+        <label class="to"><span>{{ t('to') }}</span><input v-model="recipient" :maxlength="MAX_NAME" :placeholder="t('toPlaceholder')" :aria-label="t('toLabel')" autocomplete="off" data-clarity-mask="true" data-hj-suppress /></label>
+        <textarea v-model="message" :maxlength="MAX_MESSAGE" :style="{ fontSize: size + 'px' }" :placeholder="t('messagePlaceholder')" :aria-label="t('messageLabel')" autofocus data-clarity-mask="true" data-hj-suppress />
         <div class="meta"><span>{{ t('writtenToBeScreamed') }}</span><span :class="{ near: count >= 120 }">{{ count }} / {{ MAX_MESSAGE }}</span></div>
       </div>
 

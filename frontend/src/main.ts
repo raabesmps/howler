@@ -8,8 +8,11 @@ import App from './App.vue'
 import { router } from './router'
 import { initMonitoring } from './monitoring'
 import { applyTheme } from './theme'
+import { installAnalytics } from './analytics'
 
 applyTheme()
+// Google Tag Manager: only on the write screen, and only when the build has an id (analytics.ts, ADR-006)
+installAnalytics(router)
 const app = createApp(App).use(router)
 // error monitoring: a no-op (and nothing is downloaded) unless the build has a Sentry DSN; see monitoring.ts
 void initMonitoring(app)

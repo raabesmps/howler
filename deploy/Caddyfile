@@ -14,9 +14,11 @@
 		Referrer-Policy "no-referrer"
 		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
 		Cross-Origin-Opener-Policy "same-origin"
-		# The page loads only its own files. connect-src allows its own API and, if Sentry is on, Sentry's ingest hosts.
-		# style-src needs 'unsafe-inline' because the screens set style attributes.
-		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.sentry.io; media-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+		# The page loads only its own files, plus Google Tag Manager and Analytics (only ever loaded on the write screen,
+		# ADR-006). connect-src allows its own API, Sentry's ingest hosts if Sentry is on, and Analytics. Inline scripts
+		# stay blocked, so a "Custom HTML" tag in the container cannot run. style-src needs 'unsafe-inline' because the
+		# screens set style attributes.
+		Content-Security-Policy "default-src 'self'; script-src 'self' https://*.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.google-analytics.com https://*.googletagmanager.com; font-src 'self'; connect-src 'self' https://*.sentry.io https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; media-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
 		-Server
 	}
 

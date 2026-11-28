@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppControls from './components/AppControls.vue'
+import CookieBanner from './components/CookieBanner.vue'
 </script>
 
 <template>
@@ -9,4 +10,5 @@ import AppControls from './components/AppControls.vue'
       <component :is="Component" :key="route.fullPath" />
     </Transition>
   </RouterView>
+  <CookieBanner />
 </template>

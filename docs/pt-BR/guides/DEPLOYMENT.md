@@ -107,6 +107,7 @@ No repositório, **Settings → Secrets and variables → Actions**:
 | Variável | `PRODUCTION_DOMAIN` | `howler.exemplo.com` |
 | Ambiente | `production` | com você como aprovadora obrigatória e `main` como única branch permitida (abaixo) |
 | Variável (opcional) | `SENTRY_FRONTEND_DSN` | o DSN do Sentry da página (seção 7) |
+| Variável (opcional) | `PRODUCTION_GTM_ID` | o id do container do Google Tag Manager (`GTM-...`), carregado só na tela de escrever ([ADR-006](../decisions/ADR-006-analytics.md)) |
 
 O workflow ([deploy-production.yml](../../../.github/workflows/deploy-production.yml)) usa o ambiente `production`. Crie-o em **Settings → Environments → New environment → production**, adicione você mesma em **Required reviewers** e, em **Deployment branches**, permita só a `main`. Daí em diante todo deploy espera a sua aprovação e só pode rodar a partir da `main`. Um merge na `main` não faz deploy nenhum.
 

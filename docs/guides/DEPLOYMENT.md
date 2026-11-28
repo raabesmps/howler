@@ -107,6 +107,7 @@ In the repository, **Settings → Secrets and variables → Actions**:
 | Variable | `PRODUCTION_DOMAIN` | `howler.example.com` |
 | Environment | `production` | with you as the required reviewer and `main` as the only allowed branch (below) |
 | Variable (optional) | `SENTRY_FRONTEND_DSN` | the page's Sentry DSN (section 7) |
+| Variable (optional) | `PRODUCTION_GTM_ID` | the Google Tag Manager container id (`GTM-...`), loaded on the write screen only ([ADR-006](../decisions/ADR-006-analytics.md)) |
 
 The workflow ([deploy-production.yml](../../.github/workflows/deploy-production.yml)) uses the `production` environment. Create it in **Settings → Environments → New environment → production**, add yourself under **Required reviewers**, and under **Deployment branches** allow only `main`. From then on every deploy waits for your approval and can only run from `main`. Merging to `main` deploys nothing.
 

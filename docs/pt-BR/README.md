@@ -21,6 +21,7 @@ Tudo aqui está em inglês, e cada documento tem o seu gêmeo em português no m
 | [ADR-003](decisions/ADR-003-data-model-and-retention.md) | Modelo de dados e retenção |
 | [ADR-004](decisions/ADR-004-hosting.md) | Hospedagem e como ela é construída |
 | [ADR-005](decisions/ADR-005-error-monitoring.md) | Monitoramento de erros e o que pode sair do servidor |
+| [ADR-006](decisions/ADR-006-analytics.md) | Analytics só na tela de escrever |
 
 Uma decisão nova é um ADR curto (contexto, decisão, alternativas, consequências) numerado em ordem.
 

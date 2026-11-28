@@ -21,6 +21,7 @@ Everything here is in English, and each document has its Portuguese twin at the 
 | [ADR-003](decisions/ADR-003-data-model-and-retention.md) | Data model and retention |
 | [ADR-004](decisions/ADR-004-hosting.md) | Hosting and how it is built |
 | [ADR-005](decisions/ADR-005-error-monitoring.md) | Error monitoring and what may leave the server |
+| [ADR-006](decisions/ADR-006-analytics.md) | Analytics on the write screen only |
 
 A new decision is a short ADR (context, decision, alternatives, consequences) numbered in order.
 

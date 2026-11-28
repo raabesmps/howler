@@ -158,6 +158,7 @@ Tudo está em inglês com uma aba em português. O [índice da documentação](d
 | [ADR-003](docs/pt-BR/decisions/ADR-003-data-model-and-retention.md) | Modelo de dados e retenção: tokens com hash, apagamento, marcas de túmulo |
 | [ADR-004](docs/pt-BR/decisions/ADR-004-hosting.md) | Hospedagem: uma VM com Docker Compose, e por que não o Netlify |
 | [ADR-005](docs/pt-BR/decisions/ADR-005-error-monitoring.md) | Monitoramento de erros e o que pode sair do servidor |
+| [ADR-006](docs/pt-BR/decisions/ADR-006-analytics.md) | Analytics só na tela de escrever |
 
 ## Status
 

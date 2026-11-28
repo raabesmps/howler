@@ -7,6 +7,8 @@ All notable changes to Howler. The format follows [Keep a Changelog](https://kee
 ## [Unreleased]
 
 ### Added
+- **Credits:** "Made by Raabe" with a link to her LinkedIn, in the footer of every screen.
+- **Google Tag Manager, on the write screen only** ([ADR-006](docs/decisions/ADR-006-analytics.md)): never where a link token or a message could be seen. Off unless the build has an id, and only after the visitor accepts the new cookie notice (LGPD): refuse and accept side by side, the details of what is collected, and a "Cookies" link in the footer to change the choice.
 - **Portuguese and English.** The whole interface comes in both languages. The language follows the browser, a button in the top right corner switches it, and the choice is remembered on the device. The message a person writes is never translated.
 - **Light and dark theme**, a second button next to it. Dark is the default (the brand's own); the scream and the burn stay dark in either theme.
 - **End-to-end tests** for both (39 in total), including the accessibility audit in the light theme and in Portuguese.

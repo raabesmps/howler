@@ -106,6 +106,7 @@ jobs:
             VITE_SITE_URL=https://${{ vars.PRODUCTION_DOMAIN }}
             VITE_SENTRY_DSN=${{ vars.SENTRY_FRONTEND_DSN }}
             VITE_RELEASE=${{ steps.tag.outputs.value }}
+            VITE_GTM_ID=${{ vars.PRODUCTION_GTM_ID }}
           tags: ${{ env.REGISTRY }}/howler-web:${{ steps.tag.outputs.value }}
           cache-from: type=gha,scope=web
           cache-to: type=gha,scope=web,mode=max

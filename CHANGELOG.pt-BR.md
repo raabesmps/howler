@@ -7,6 +7,8 @@ Todas as mudanças relevantes do Howler. O formato segue o [Keep a Changelog](ht
 ## [Não lançado]
 
 ### Adicionado
+- **Créditos:** "Feito por Raabe" com link para o LinkedIn dela, no rodapé de todas as telas.
+- **Google Tag Manager, só na tela de escrever** ([ADR-006](docs/pt-BR/decisions/ADR-006-analytics.md)): nunca onde um token de link ou um recado poderia ser visto. Desligado a menos que o build tenha um id, e só depois que a pessoa aceita o novo aviso de cookies (LGPD): recusar e aceitar lado a lado, os detalhes do que é coletado e um link "Cookies" no rodapé para mudar a escolha.
 - **Português e inglês.** A interface inteira vem nos dois idiomas. O idioma segue o navegador, um botão no canto superior direito troca, e a escolha fica salva no aparelho. O recado que a pessoa escreve nunca é traduzido.
 - **Tema claro e escuro**, um segundo botão ao lado. O escuro é o padrão (o da marca); o grito e a queima ficam escuros em qualquer tema.
 - **Testes de ponta a ponta** para os dois (39 no total), incluindo a auditoria de acessibilidade no tema claro e em português.

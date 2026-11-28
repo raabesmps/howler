@@ -15,6 +15,8 @@ interface ImportMetaEnv {
   readonly VITE_SENTRY_DSN?: string
   /** The commit this build came from, so an error points at the code. */
   readonly VITE_RELEASE?: string
+  /** Google Tag Manager container id (GTM-XXXX). Empty means no analytics. Loaded on the write screen only. */
+  readonly VITE_GTM_ID?: string
   /** The public site URL for the link-preview tags. */
   readonly VITE_SITE_URL?: string
 }

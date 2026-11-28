@@ -158,6 +158,7 @@ Everything is in English with a Portuguese tab. The [documentation index](docs/R
 | [ADR-003](docs/decisions/ADR-003-data-model-and-retention.md) | Data model and retention: hashed tokens, deletion, tombstones |
 | [ADR-004](docs/decisions/ADR-004-hosting.md) | Hosting: one VM with Docker Compose, and why not Netlify |
 | [ADR-005](docs/decisions/ADR-005-error-monitoring.md) | Error monitoring and what may leave the server |
+| [ADR-006](docs/decisions/ADR-006-analytics.md) | Analytics on the write screen only |
 
 ## Status
 
